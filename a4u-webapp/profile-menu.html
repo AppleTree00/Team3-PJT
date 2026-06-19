@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>내 프로필 | a4u</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        .btn-raise {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .btn-raise:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        .avatar {
+            background: linear-gradient(135deg, #3525cd 0%, #006a61 100%);
+        }
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        .menu-item:hover {
+            background: #f0f3ff;
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+    <!-- 헤더 -->
+    <nav class="bg-surface-container-lowest shadow-sm fixed top-0 w-full z-50">
+        <div class="max-w-max-width mx-auto px-margin-desktop">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-8">
+                    <a href="main.html" class="font-headline-md text-headline-md font-bold text-primary">a4u</a>
+                    <!-- Desktop Menu -->
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="main.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">메인</a>
+                        <a href="dashboard.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">대시보드</a>
+                        <a href="resume.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">이력서 관리</a>
+                        <a href="timeline.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">커리어 관리</a>
+                        <a href="select.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">제출 관리</a>
+                    </div>
+                </div>
+    
+                <div class="flex items-center gap-4">
+                    <button class="p-2 text-on-surface-variant hover:text-primary transition-colors hidden sm:block">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                    <a href="profile-menu.html">
+                        <div class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle">
+                            <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG8VImKTuowN3uHVy1cKnRoUpmpTuMMUenzMrZqKtbpAMPaIXew3MXLAUGDKWAI8jb3EWkpZCw0H_TNEBgq-n-UlNfNvE2CdiZaHoYqQkYTG7MeHLtYXa2hEmoloIAbTX6j1NkzZtyHuKYZdNFgHUYGSftJiqpsdmZsGf4HFFzmucm6jIuCERGu85b-nbvFsAPIyaXXb3RYS1AMLPvlmOpMNarU6oa1we4VIFGiTLt9IKGvz9PG8zOtGkRMQmgheGFYfY_L_sxVHzy"/>
+                        </div>
+                    </a>
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-button" class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">menu</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-surface-container-lowest border-t border-border-subtle">
+            <div class="px-4 pt-2 pb-4 space-y-1">
+                <a href="main.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">메인</a>
+                <a href="dashboard.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">대시보드</a>
+                <a href="resume.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">이력서 관리</a>
+                <a href="timeline.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">커리어 관리</a>
+                <a href="select.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">제출 관리</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+        <!-- 프로필 카드 -->
+        <div class="glass-card rounded-2xl p-8 mb-8 shadow-lg">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                <!-- 프로필 이미지 -->
+                <div class="avatar w-24 h-24 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-6xl text-white">person</span>
+                </div>
+
+                <!-- 프로필 정보 -->
+                <div class="flex-1">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2" id="profile-name">—</h1>
+                    <p class="text-gray-600 mb-4" id="profile-role">a4u 플랫폼 회원</p>
+                    <div class="flex flex-wrap gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">이메일</p>
+                            <p class="font-medium text-gray-900" id="profile-email">—</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">가입일</p>
+                            <p class="font-medium text-gray-900" id="profile-joined">—</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 프로필 수정 버튼 -->
+                <button class="btn-raise px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2 whitespace-nowrap">
+                    <span class="material-symbols-outlined text-lg">edit</span>
+                    프로필 수정
+                </button>
+            </div>
+        </div>
+
+        <!-- 메뉴 섹션 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- 좌측 메뉴 -->
+            <div class="md:col-span-1">
+                <div class="glass-card rounded-2xl overflow-hidden shadow-lg">
+                    <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined">menu</span>
+                            메뉴
+                        </h2>
+                    </div>
+
+                    <nav class="p-4 space-y-2">
+                        <!-- 메뉴 항목들 -->
+                        <a href="#" class="menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-900 font-medium">
+                            <span class="material-symbols-outlined text-blue-600">person</span>
+                            <span>개인 정보</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600">
+                            <span class="material-symbols-outlined text-gray-600">lock</span>
+                            <span>보안 설정</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600">
+                            <span class="material-symbols-outlined text-gray-600">notifications</span>
+                            <span>알림 설정</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600">
+                            <span class="material-symbols-outlined text-gray-600">work</span>
+                            <span>경력 관리</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600">
+                            <span class="material-symbols-outlined text-gray-600">article</span>
+                            <span>포트폴리오</span>
+                        </a>
+                        <hr class="my-2">
+                        <a href="#" class="menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600">
+                            <span class="material-symbols-outlined text-gray-600">help</span>
+                            <span>도움말</span>
+                        </a>
+                        <a href="#" class="menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-red-600">
+                            <span class="material-symbols-outlined text-red-600">logout</span>
+                            <span>로그아웃</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- 우측 콘텐츠 -->
+            <div class="md:col-span-2 space-y-6">
+                <!-- 계정 통계 -->
+                <div class="glass-card rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-600">bar_chart</span>
+                        계정 통계
+                    </h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-blue-600" id="stat-resumes">—</p>
+                            <p class="text-sm text-gray-600 mt-1">총 이력서</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-cyan-600" id="stat-applications">—</p>
+                            <p class="text-sm text-gray-600 mt-1">입사 지원</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-purple-600" id="stat-uploads">—</p>
+                            <p class="text-sm text-gray-600 mt-1">업로드 파일</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 최근 활동 -->
+                <div class="glass-card rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-600">history</span>
+                        최근 활동
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 pb-3 border-b">
+                            <span class="material-symbols-outlined text-green-600 flex-shrink-0">check_circle</span>
+                            <div>
+                                <p class="font-medium text-gray-900">프로필이 업데이트되었습니다</p>
+                                <p class="text-sm text-gray-500">2024년 6월 5일</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 pb-3 border-b">
+                            <span class="material-symbols-outlined text-blue-600 flex-shrink-0">edit</span>
+                            <div>
+                                <p class="font-medium text-gray-900">경력 정보가 추가되었습니다</p>
+                                <p class="text-sm text-gray-500">2024년 6월 3일</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-purple-600 flex-shrink-0">login</span>
+                            <div>
+                                <p class="font-medium text-gray-900">계정에 로그인했습니다</p>
+                                <p class="text-sm text-gray-500">2024년 6월 1일</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 위험 구역 -->
+        <div class="glass-card rounded-2xl p-6 shadow-lg border-l-4 border-red-600">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-red-600">warning</span>
+                계정 관리
+            </h3>
+            <p class="text-gray-600 mb-4">한번 삭제한 계정은 복구할 수 없습니다.</p>
+            <button class="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 font-medium transition">
+                계정 삭제
+            </button>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="border-t border-gray-100 mt-12 py-8 bg-white/50 backdrop-blur-sm">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
+            <p>&copy; 2024 a4u. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    
+        // Set active navigation link
+        const currentPath = window.location.pathname.split('/').pop();
+        const navLinks = document.querySelectorAll('.nav-link');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    
+        const setActiveLink = (links) => {
+            links.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath || (currentPath === '' && linkPath === 'main.html')) {
+                    link.classList.add('text-primary', 'font-bold');
+                    link.classList.remove('text-on-surface-variant');
+                } else {
+                    link.classList.remove('text-primary', 'font-bold');
+                    link.classList.add('text-on-surface-variant');
+                }
+            });
+        };
+    
+        setActiveLink(navLinks);
+        setActiveLink(mobileNavLinks);
+
+        // ── 미구현 기능 안내 팝업 ──────────────────────────────────────
+        function handleUnavailableFeature() {
+            alert('현재 이 기능은 고도화 단계에 있습니다. 업데이트 이후 사용 가능하니 잠시만 기다려주세요.');
+        }
+
+        // ── 알림 버튼 ──────────────────────────────────────────────────
+        document.querySelectorAll('button').forEach(btn => {
+            const icon = btn.querySelector('.material-symbols-outlined');
+            if (icon && icon.textContent.trim() === 'notifications') {
+                btn.addEventListener('click', handleUnavailableFeature);
+            }
+        });
+
+        // ── 사이드바 메뉴 항목 팝업 연결 ──────────────────────────────
+        document.querySelectorAll('nav .menu-item').forEach(item => {
+            const text = item.textContent.trim();
+            // 로그아웃은 별도 처리
+            if (text.includes('로그아웃')) {
+                item.addEventListener('click', async e => {
+                    e.preventDefault();
+                    try {
+                        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                    } catch (_) {}
+                    window.location.href = 'login.html';
+                });
+                return;
+            }
+            // 나머지 메뉴 → 미구현 팝업
+            item.addEventListener('click', e => {
+                e.preventDefault();
+                handleUnavailableFeature();
+            });
+        });
+
+        // ── 계정 삭제 버튼 ─────────────────────────────────────────────
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.textContent.trim().includes('계정 삭제')) {
+                btn.addEventListener('click', handleUnavailableFeature);
+            }
+        });
+
+        // ── 사용자 정보 + 통계 + 최근 활동 로드 ──────────────────────
+        (async function loadUserData() {
+            try {
+                const [meRes, statsRes, resumesRes] = await Promise.all([
+                    fetch('/api/auth/me', { credentials: 'same-origin' }),
+                    fetch('/api/stats', { credentials: 'same-origin' }),
+                    fetch('/api/resumes', { credentials: 'same-origin' })
+                ]);
+
+                // 사용자 정보
+                const meData = await meRes.json();
+                if (meData.success && meData.user) {
+                    const u = meData.user;
+                    const nameEl  = document.getElementById('profile-name');
+                    const emailEl = document.getElementById('profile-email');
+                    const joinedEl = document.getElementById('profile-joined');
+                    const roleEl  = document.getElementById('profile-role');
+                    if (nameEl)  nameEl.textContent  = u.name  || '이름 없음';
+                    if (emailEl) emailEl.textContent = u.email || '—';
+                    if (joinedEl) {
+                        const d = u.created_at ? new Date(u.created_at) : null;
+                        joinedEl.textContent = d
+                            ? `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`
+                            : '—';
+                    }
+                    if (roleEl && u.is_admin) roleEl.textContent = 'a4u 관리자';
+
+                    // 네비게이션 사용자 이름 표시
+                    const profileLink = document.querySelector('a[href="profile-menu.html"]');
+                    if (profileLink) {
+                        const span = document.createElement('span');
+                        span.className = 'hidden sm:block text-sm font-semibold text-on-surface truncate max-w-[80px]';
+                        span.textContent = u.name;
+                        profileLink.parentNode.insertBefore(span, profileLink);
+                    }
+                } else if (meRes.status === 401) {
+                    window.location.href = 'login.html?next=profile-menu.html&reason=auth';
+                    return;
+                }
+
+                // 통계
+                const statsData = await statsRes.json();
+                if (statsData.success) {
+                    const s = statsData.stats;
+                    const rEl = document.getElementById('stat-resumes');
+                    const aEl = document.getElementById('stat-applications');
+                    const uEl = document.getElementById('stat-uploads');
+                    if (rEl) rEl.textContent = s.total_resumes  ?? 0;
+                    if (aEl) aEl.textContent = s.total_applications ?? 0;
+                    if (uEl) uEl.textContent = s.total_uploads   ?? 0;
+                }
+
+                // 최근 활동: 이력서 목록 기반 동적 생성
+                const resumesData = await resumesRes.json();
+                const activityContainer = document.querySelector('.space-y-3');
+                if (activityContainer && resumesData.success && resumesData.resumes?.length > 0) {
+                    const recent = resumesData.resumes.slice(0, 3);
+                    activityContainer.innerHTML = recent.map(r => {
+                        const dt = r.updated_at || r.created_at;
+                        const d  = dt ? new Date(dt) : new Date();
+                        const dateStr = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+                        return `<div class="flex items-start gap-3 pb-3 border-b last:border-b-0">
+                            <span class="material-symbols-outlined text-blue-600 flex-shrink-0">article</span>
+                            <div>
+                                <p class="font-medium text-gray-900">${r.title || '이력서'} 이력서 수정됨</p>
+                                <p class="text-sm text-gray-500">${dateStr}</p>
+                            </div>
+                        </div>`;
+                    }).join('');
+                } else if (activityContainer) {
+                    activityContainer.innerHTML = `<p class="text-sm text-gray-500 text-center py-4">아직 활동 내역이 없습니다.</p>`;
+                }
+            } catch (err) {
+                console.warn('프로필 데이터 로드 실패:', err);
+            }
+        })();
+    </script>
+</body>
+</html>
