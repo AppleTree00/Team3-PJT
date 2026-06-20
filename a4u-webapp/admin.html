@@ -598,7 +598,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 // ── 로그아웃 ───────────────────────────────────────────────────────────
 async function doLogout() {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
-    window.location.href = '/login.html';
+    window.location.href = '/';
 }
 
 // ── AI 상태 체크 ──────────────────────────────────────────────────────
