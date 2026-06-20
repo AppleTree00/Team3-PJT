@@ -225,7 +225,18 @@
 <!-- Form Side -->
 <div class="w-1/2 p-margin-desktop overflow-y-auto max-h-[calc(100vh-120px)]">
 <div class="form-section active" id="Personal Info">
-<h1 class="font-headline-lg text-headline-lg mb-8">인적 사항</h1>
+<div class="flex justify-between items-start mb-8">
+<h1 class="font-headline-lg text-headline-lg">인적 사항</h1>
+<div class="flex flex-col items-center">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-border-subtle bg-surface-gray flex items-center justify-center relative cursor-pointer" onclick="window.location.href='profile-menu.html'" title="프로필에서 변경">
+<span id="form-avatar-icon" class="material-symbols-outlined text-4xl text-outline-variant">person</span>
+<img id="form-avatar-img" class="hidden w-full h-full object-cover" alt="프로필"/>
+<div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+<span class="text-white text-xs">변경</span>
+</div>
+</div>
+</div>
+</div>
 <div class="space-y-6">
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">이름 (NAME)</label>
@@ -330,13 +341,19 @@
                     실시간 미리보기
                 </div>
 <!-- Resume Header -->
-<div class="border-b-4 border-primary pb-8 mb-8">
+<div class="border-b-4 border-primary pb-8 mb-8 flex justify-between items-start">
+<div>
 <h1 id="parsedNamePreview" class="font-display-lg text-display-lg uppercase tracking-tight text-on-background">홍길동</h1>
 <p id="parsedTitlePreview" class="font-headline-md text-headline-md text-primary mt-2">시니어 Java 개발자 / PM</p>
 <div class="flex gap-4 mt-4 text-label-sm text-outline font-label-sm">
 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mail</span> <span id="parsedEmailPreview">alex.r@design.com</span></span>
 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">phone</span> <span id="parsedPhonePreview">+1 (555) 000-1234</span></span>
 <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> <span id="parsedLocationPreview">미국, 뉴욕</span></span>
+</div>
+</div>
+<div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md bg-surface-gray flex items-center justify-center shrink-0">
+<span id="preview-avatar-icon" class="material-symbols-outlined text-6xl text-outline-variant">person</span>
+<img id="preview-avatar-img" class="hidden w-full h-full object-cover" alt="프로필"/>
 </div>
 </div>
 <!-- Resume Content Grid -->
@@ -473,10 +490,12 @@
                     nameEl.textContent = data.user.name;
                     profileLink.parentNode.insertBefore(nameEl, profileLink);
                     if (data.user.avatar_url) {
-                        const img  = document.getElementById('nav-avatar-img');
-                        const icon = document.getElementById('nav-avatar-icon');
-                        if (img)  { img.src = data.user.avatar_url; img.classList.remove('hidden'); }
-                        if (icon) icon.classList.add('hidden');
+                        ['nav', 'form', 'preview'].forEach(prefix => {
+                            const img = document.getElementById(`${prefix}-avatar-img`);
+                            const icon = document.getElementById(`${prefix}-avatar-icon`);
+                            if (img) { img.src = data.user.avatar_url; img.classList.remove('hidden'); }
+                            if (icon) icon.classList.add('hidden');
+                        });
                     }
                 }
             } catch (_) {}
