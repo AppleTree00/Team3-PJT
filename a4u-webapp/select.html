@@ -227,15 +227,9 @@
 <div class="form-section active" id="Personal Info">
 <h1 class="font-headline-lg text-headline-lg mb-8">인적 사항</h1>
 <div class="space-y-6">
-<div class="grid grid-cols-2 gap-4">
 <div>
-<label class="block font-label-md text-label-md text-on-surface mb-2">이름</label>
-<input id="personalFirstName" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="길동"/>
-</div>
-<div>
-<label class="block font-label-md text-label-md text-on-surface mb-2">성</label>
-<input id="personalLastName" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="홍"/>
-</div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">이름 (NAME)</label>
+<input id="personalFullName" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="홍길동"/>
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">전문가 요약</label>
@@ -492,8 +486,7 @@
     const uploadButton = document.getElementById('uploadResumeButton');
     const uploadStatusText = document.getElementById('uploadStatusText');
     const uploadDropZone = document.getElementById('uploadDropZone');
-    const personalFirstName = document.getElementById('personalFirstName');
-    const personalLastName = document.getElementById('personalLastName');
+    const personalFullName = document.getElementById('personalFullName');
     const personalSummary = document.getElementById('personalSummary');
     const personalEmail = document.getElementById('personalEmail');
     const personalPhone = document.getElementById('personalPhone');
@@ -508,8 +501,7 @@
 
     function saveResumeState() {
         const state = {
-            firstName: personalFirstName.value,
-            lastName: personalLastName.value,
+            fullName: personalFullName.value,
             summary: personalSummary.value,
             email: personalEmail.value,
             phone: personalPhone.value,
@@ -529,8 +521,7 @@
         }
         try {
             const state = JSON.parse(stored);
-            if (state.firstName) personalFirstName.value = state.firstName;
-            if (state.lastName) personalLastName.value = state.lastName;
+            if (state.fullName) personalFullName.value = state.fullName;
             if (state.summary) personalSummary.value = state.summary;
             if (state.email) personalEmail.value = state.email;
             if (state.phone) personalPhone.value = state.phone;
@@ -659,14 +650,13 @@
     } // end if (uploadInput && uploadDropZone && uploadButton && uploadStatusText)
 
     function persistFormChanges() {
-        [personalFirstName, personalLastName, personalSummary, personalEmail, personalPhone].forEach(el => {
+        [personalFullName, personalSummary, personalEmail, personalPhone].forEach(el => {
             el.addEventListener('input', saveResumeState);
         });
     }
 
     function applyParsedResumeData() {
-        personalFirstName.value = '길동';
-        personalLastName.value = '홍';
+        personalFullName.value = '홍길동';
         personalSummary.value = '25년 이상의 SI 경력을 바탕으로 Java 기반 아키텍처 설계 및 운영, 대규모 프로젝트 PM 역량을 전문적으로 보유하고 있습니다.';
         personalEmail.value = 'hong.gildong@example.com';
         personalPhone.value = '+82 10-1234-5678';
