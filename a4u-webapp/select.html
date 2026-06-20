@@ -670,7 +670,12 @@
 
     function persistFormChanges() {
         [personalFullName, personalSummary, personalEmail, personalPhone].forEach(el => {
-            el.addEventListener('input', saveResumeState);
+            el.addEventListener('input', () => {
+                saveResumeState();
+                if (el.id === 'personalFullName' && parsedNamePreview) parsedNamePreview.textContent = el.value || '이름 (NAME)';
+                if (el.id === 'personalEmail' && parsedEmailPreview) parsedEmailPreview.textContent = el.value || '이메일';
+                if (el.id === 'personalPhone' && parsedPhonePreview) parsedPhonePreview.textContent = el.value || '전화번호';
+            });
         });
     }
 
