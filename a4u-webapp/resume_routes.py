@@ -59,6 +59,83 @@ def logout():
     return jsonify(success=True, message='로그아웃 되었습니다.')
 
 
+@resume_bp.route('/auth/profile', methods=['PUT'])
+@login_required
+def update_profile():
+    """이름·이메일 변경 (현재 비밀번호 확인 필수)"""
+    data = request.get_json(silent=True) or {}
+    user = current_user()
+
+    current_pw = data.get('current_password', '')
+    if not user.check_password(current_pw):
+        return jsonify(success=False, message='현재 비밀번호가 올바르지 않습니다.'), 400
+
+    new_name  = data.get('name', '').strip()
+    new_email = data.get('email', '').strip().lower()
+
+    if not new_name or not new_email:
+        return jsonify(success=False, message='이름과 이메일을 모두 입력해주세요.'), 400
+
+    if new_email != user.email:
+        if User.query.filter_by(email=new_email).first():
+            return jsonify(success=False, message='이미 사용 중인 이메일입니다.'), 409
+
+    user.name  = new_name
+    user.email = new_email
+    db.session.commit()
+
+    session['user_name'] = user.name
+    return jsonify(success=True, user=user.to_dict())
+
+
+@resume_bp.route('/auth/change-password', methods=['PUT'])
+@login_required
+def change_password():
+    """비밀번호 변경 (현재 비밀번호 + 새 비밀번호)"""
+    data = request.get_json(silent=True) or {}
+    user = current_user()
+
+    current_pw = data.get('current_password', '')
+    new_pw     = data.get('new_password', '')
+    confirm_pw = data.get('confirm_password', '')
+
+    if not user.check_password(current_pw):
+        return jsonify(success=False, message='현재 비밀번호가 올바르지 않습니다.'), 400
+    if len(new_pw) < 6:
+        return jsonify(success=False, message='새 비밀번호는 6자 이상이어야 합니다.'), 400
+    if new_pw != confirm_pw:
+        return jsonify(success=False, message='새 비밀번호와 확인 비밀번호가 일치하지 않습니다.'), 400
+    if current_pw == new_pw:
+        return jsonify(success=False, message='새 비밀번호가 현재 비밀번호와 동일합니다.'), 400
+
+    user.set_password(new_pw)
+    db.session.commit()
+    return jsonify(success=True, message='비밀번호가 변경되었습니다.')
+
+
+@resume_bp.route('/auth/reset-password', methods=['POST'])
+def reset_password():
+    """비밀번호 찾기 — 임시 비밀번호 발급 (MVP: 화면 표시, 추후 이메일 발송)"""
+    import secrets, string
+    data  = request.get_json(silent=True) or {}
+    email = data.get('email', '').strip().lower()
+
+    if not email:
+        return jsonify(success=False, message='이메일을 입력해주세요.'), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify(success=False, message='가입된 이메일이 아닙니다.'), 404
+
+    alphabet  = string.ascii_letters + string.digits
+    temp_pw   = ''.join(secrets.choice(alphabet) for _ in range(10))
+    user.set_password(temp_pw)
+    db.session.commit()
+
+    return jsonify(success=True, temp_password=temp_pw,
+                   message='임시 비밀번호가 발급되었습니다. 로그인 후 즉시 변경해주세요.')
+
+
 @resume_bp.route('/auth/me', methods=['GET'])
 def me():
     user = current_user()

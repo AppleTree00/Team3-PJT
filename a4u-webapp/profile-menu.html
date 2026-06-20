@@ -118,7 +118,7 @@
                 </div>
 
                 <!-- 프로필 수정 버튼 -->
-                <button class="btn-raise px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2 whitespace-nowrap">
+                <button onclick="openProfileModal()" class="btn-raise px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2 whitespace-nowrap">
                     <span class="material-symbols-outlined text-lg">edit</span>
                     프로필 수정
                 </button>
@@ -143,7 +143,7 @@
                             <span class="material-symbols-outlined text-blue-600">person</span>
                             <span>개인 정보</span>
                         </a>
-                        <a href="#" class="menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600">
+                        <a href="#" id="security-menu-item" class="menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600">
                             <span class="material-symbols-outlined text-gray-600">lock</span>
                             <span>보안 설정</span>
                         </a>
@@ -242,6 +242,91 @@
         </div>
     </main>
 
+    <!-- ── 프로필 수정 모달 ──────────────────────────────────────────── -->
+    <div id="profile-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeProfileModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 z-10">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600">edit</span>프로필 수정
+                </h2>
+                <button onclick="closeProfileModal()" class="p-1 text-gray-400 hover:text-gray-700">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mb-5 bg-blue-50 rounded-lg px-4 py-3">
+                이름·이메일 변경 시 <strong>현재 비밀번호</strong>로 본인 확인이 필요합니다.
+            </p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">이름</label>
+                    <input id="pm-name" type="text" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="홍길동"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">이메일</label>
+                    <input id="pm-email" type="email" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="name@example.com"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">현재 비밀번호 <span class="text-red-500">*</span></label>
+                    <input id="pm-current-pw" type="password" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="현재 비밀번호 입력"/>
+                </div>
+                <div id="pm-error" class="hidden bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">error</span>
+                    <span id="pm-error-msg"></span>
+                </div>
+                <div id="pm-success" class="hidden bg-green-50 text-green-700 text-sm rounded-lg px-4 py-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                    <span>프로필이 업데이트되었습니다.</span>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeProfileModal()" class="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">취소</button>
+                <button id="pm-save-btn" onclick="saveProfile()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700">저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 보안 설정 모달 (비밀번호 변경) ───────────────────────────── -->
+    <div id="security-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeSecurityModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 z-10">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600">lock</span>비밀번호 변경
+                </h2>
+                <button onclick="closeSecurityModal()" class="p-1 text-gray-400 hover:text-gray-700">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">현재 비밀번호</label>
+                    <input id="sc-current-pw" type="password" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="현재 비밀번호"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">새 비밀번호 <span class="text-gray-400 font-normal">(6자 이상)</span></label>
+                    <input id="sc-new-pw" type="password" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="새 비밀번호"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">새 비밀번호 확인</label>
+                    <input id="sc-confirm-pw" type="password" class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="새 비밀번호 재입력"/>
+                </div>
+                <div id="sc-error" class="hidden bg-red-50 text-red-700 text-sm rounded-lg px-4 py-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">error</span>
+                    <span id="sc-error-msg"></span>
+                </div>
+                <div id="sc-success" class="hidden bg-green-50 text-green-700 text-sm rounded-lg px-4 py-3 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                    <span>비밀번호가 변경되었습니다.</span>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeSecurityModal()" class="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">취소</button>
+                <button id="sc-save-btn" onclick="changePassword()" class="flex-1 py-3 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700">변경</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 푸터 -->
     <footer class="border-t border-gray-100 mt-8 md:mt-12 py-4 md:py-6 bg-white/50 backdrop-blur-sm">
         <div class="max-w-5xl mx-auto px-2 md:px-4 lg:px-6 text-center md:text-left text-gray-600">
@@ -249,146 +334,108 @@
         </div>
     </footer>
     <script>
-        // Mobile menu toggle
+        // ── 모바일 메뉴 토글 ───────────────────────────────────────────
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         if (mobileMenuButton) {
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
+            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
         }
-    
-        // Set active navigation link
-        const currentPath = window.location.pathname.split('/').pop();
-        const navLinks = document.querySelectorAll('.nav-link');
-        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-    
-        const setActiveLink = (links) => {
-            links.forEach(link => {
-                const linkPath = link.getAttribute('href');
-                if (linkPath === currentPath || (currentPath === '' && linkPath === 'main.html')) {
-                    link.classList.add('text-primary', 'font-bold');
-                    link.classList.remove('text-on-surface-variant');
-                } else {
-                    link.classList.remove('text-primary', 'font-bold');
-                    link.classList.add('text-on-surface-variant');
-                }
-            });
-        };
-    
-        setActiveLink(navLinks);
-        setActiveLink(mobileNavLinks);
 
-        // ── 미구현 기능 안내 팝업 ──────────────────────────────────────
+        // ── 네비게이션 활성화 ──────────────────────────────────────────
+        const currentPath = window.location.pathname.split('/').pop();
+        document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
+            const lp = link.getAttribute('href');
+            if (lp === currentPath || (currentPath === '' && lp === 'main.html')) {
+                link.classList.add('text-primary', 'font-bold');
+                link.classList.remove('text-on-surface-variant');
+            }
+        });
+
+        // ── 미구현 기능 팝업 ───────────────────────────────────────────
         function handleUnavailableFeature() {
             alert('현재 이 기능은 고도화 단계에 있습니다. 업데이트 이후 사용 가능하니 잠시만 기다려주세요.');
         }
 
-        // ── 알림 버튼 ──────────────────────────────────────────────────
-        document.querySelectorAll('button').forEach(btn => {
-            const icon = btn.querySelector('.material-symbols-outlined');
-            if (icon && icon.textContent.trim() === 'notifications') {
-                btn.addEventListener('click', handleUnavailableFeature);
-            }
-        });
-
-        // ── 사이드바 메뉴 항목 팝업 연결 ──────────────────────────────
+        // ── 사이드바 메뉴 항목 연결 ────────────────────────────────────
         document.querySelectorAll('nav .menu-item').forEach(item => {
             const text = item.textContent.trim();
-            // 로그아웃은 별도 처리
             if (text.includes('로그아웃')) {
                 item.addEventListener('click', async e => {
                     e.preventDefault();
-                    try {
-                        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
-                    } catch (_) {}
+                    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }); } catch (_) {}
                     window.location.href = '/';
                 });
-                return;
+            } else if (item.id === 'security-menu-item') {
+                item.addEventListener('click', e => { e.preventDefault(); openSecurityModal(); });
+            } else {
+                item.addEventListener('click', e => { e.preventDefault(); handleUnavailableFeature(); });
             }
-            // 나머지 메뉴 → 미구현 팝업
-            item.addEventListener('click', e => {
-                e.preventDefault();
-                handleUnavailableFeature();
-            });
         });
 
         // ── 계정 삭제 버튼 ─────────────────────────────────────────────
         document.querySelectorAll('button').forEach(btn => {
-            if (btn.textContent.trim().includes('계정 삭제')) {
-                btn.addEventListener('click', handleUnavailableFeature);
-            }
+            if (btn.textContent.trim().includes('계정 삭제')) btn.addEventListener('click', handleUnavailableFeature);
         });
 
-        // ── 사용자 정보 + 통계 + 최근 활동 로드 ──────────────────────
+        // ── 사용자 정보 로드 ───────────────────────────────────────────
+        let _currentUser = null;
+
         (async function loadUserData() {
             try {
                 const [meRes, statsRes, resumesRes] = await Promise.all([
                     fetch('/api/auth/me', { credentials: 'same-origin' }),
-                    fetch('/api/stats', { credentials: 'same-origin' }),
+                    fetch('/api/stats',   { credentials: 'same-origin' }),
                     fetch('/api/resumes', { credentials: 'same-origin' })
                 ]);
 
-                // 사용자 정보
                 const meData = await meRes.json();
                 if (meData.success && meData.user) {
+                    _currentUser = meData.user;
                     const u = meData.user;
-                    const nameEl  = document.getElementById('profile-name');
-                    const emailEl = document.getElementById('profile-email');
+                    const nameEl   = document.getElementById('profile-name');
+                    const emailEl  = document.getElementById('profile-email');
                     const joinedEl = document.getElementById('profile-joined');
-                    const roleEl  = document.getElementById('profile-role');
-                    if (nameEl)  nameEl.textContent  = u.name  || '이름 없음';
-                    if (emailEl) emailEl.textContent = u.email || '—';
+                    const roleEl   = document.getElementById('profile-role');
+                    if (nameEl)   nameEl.textContent  = u.name  || '이름 없음';
+                    if (emailEl)  emailEl.textContent = u.email || '—';
                     if (joinedEl) {
                         const d = u.created_at ? new Date(u.created_at) : null;
-                        joinedEl.textContent = d
-                            ? `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`
-                            : '—';
+                        joinedEl.textContent = d ? `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일` : '—';
                     }
                     if (roleEl && u.is_admin) roleEl.textContent = 'a4u 관리자';
-
-                    // 네비게이션 사용자 이름 표시
-                    const profileLink = document.querySelector('a[href="profile-menu.html"]');
-                    if (profileLink) {
-                        const span = document.createElement('span');
-                        span.className = 'hidden sm:block text-sm font-semibold text-on-surface truncate max-w-[80px]';
-                        span.textContent = u.name;
-                        profileLink.parentNode.insertBefore(span, profileLink);
-                    }
                 } else if (meRes.status === 401) {
                     window.location.href = 'login.html?next=profile-menu.html&reason=auth';
                     return;
                 }
 
-                // 통계
                 const statsData = await statsRes.json();
                 if (statsData.success) {
                     const s = statsData.stats;
                     const rEl = document.getElementById('stat-resumes');
                     const aEl = document.getElementById('stat-applications');
                     const uEl = document.getElementById('stat-uploads');
-                    if (rEl) rEl.textContent = s.total_resumes  ?? 0;
+                    if (rEl) rEl.textContent = s.total_resumes      ?? 0;
                     if (aEl) aEl.textContent = s.total_applications ?? 0;
-                    if (uEl) uEl.textContent = s.total_uploads   ?? 0;
+                    if (uEl) uEl.textContent = s.total_uploads       ?? 0;
                 }
 
-                // 최근 활동: 이력서 목록 기반 동적 생성
                 const resumesData = await resumesRes.json();
                 const activityContainer = document.querySelector('.space-y-3');
                 if (activityContainer && resumesData.success && resumesData.resumes?.length > 0) {
-                    const recent = resumesData.resumes.slice(0, 3);
-                    activityContainer.innerHTML = recent.map(r => {
-                        const dt = r.updated_at || r.created_at;
-                        const d  = dt ? new Date(dt) : new Date();
-                        const dateStr = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
-                        return `<div class="flex items-start gap-3 pb-3 border-b last:border-b-0">
-                            <span class="material-symbols-outlined text-blue-600 flex-shrink-0">article</span>
-                            <div>
-                                <p class="font-medium text-gray-900">${r.title || '이력서'} 이력서 수정됨</p>
-                                <p class="text-sm text-gray-500">${dateStr}</p>
-                            </div>
-                        </div>`;
-                    }).join('');
+                    const recent = resumesData.resumes.filter(r => !r.is_sample).slice(0, 3);
+                    if (recent.length > 0) {
+                        activityContainer.innerHTML = recent.map(r => {
+                            const dt = r.updated_at || r.created_at;
+                            const d  = dt ? new Date(dt) : new Date();
+                            const dateStr = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+                            return `<div class="flex items-start gap-3 pb-3 border-b last:border-b-0">
+                                <span class="material-symbols-outlined text-blue-600 flex-shrink-0">article</span>
+                                <div><p class="font-medium text-gray-900">${r.title || '이력서'} 수정됨</p>
+                                <p class="text-sm text-gray-500">${dateStr}</p></div></div>`;
+                        }).join('');
+                    } else {
+                        activityContainer.innerHTML = `<p class="text-sm text-gray-500 text-center py-4">아직 활동 내역이 없습니다.</p>`;
+                    }
                 } else if (activityContainer) {
                     activityContainer.innerHTML = `<p class="text-sm text-gray-500 text-center py-4">아직 활동 내역이 없습니다.</p>`;
                 }
@@ -396,6 +443,134 @@
                 console.warn('프로필 데이터 로드 실패:', err);
             }
         })();
+
+        // ══════════════════════════════════════════════════════════════
+        // 프로필 수정 모달
+        // ══════════════════════════════════════════════════════════════
+        function openProfileModal() {
+            document.getElementById('pm-error').classList.add('hidden');
+            document.getElementById('pm-success').classList.add('hidden');
+            document.getElementById('pm-current-pw').value = '';
+            if (_currentUser) {
+                document.getElementById('pm-name').value  = _currentUser.name  || '';
+                document.getElementById('pm-email').value = _currentUser.email || '';
+            }
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        async function saveProfile() {
+            const btn      = document.getElementById('pm-save-btn');
+            const errEl    = document.getElementById('pm-error');
+            const succEl   = document.getElementById('pm-success');
+            errEl.classList.add('hidden');
+            succEl.classList.add('hidden');
+
+            const name       = document.getElementById('pm-name').value.trim();
+            const email      = document.getElementById('pm-email').value.trim();
+            const currentPw  = document.getElementById('pm-current-pw').value;
+
+            if (!name || !email) {
+                document.getElementById('pm-error-msg').textContent = '이름과 이메일을 모두 입력해주세요.';
+                errEl.classList.remove('hidden'); return;
+            }
+            if (!currentPw) {
+                document.getElementById('pm-error-msg').textContent = '현재 비밀번호를 입력해주세요.';
+                errEl.classList.remove('hidden'); return;
+            }
+
+            btn.disabled = true; btn.textContent = '저장 중...';
+            try {
+                const r = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ name, email, current_password: currentPw })
+                });
+                const data = await r.json();
+                if (data.success) {
+                    _currentUser = data.user;
+                    document.getElementById('profile-name').textContent  = data.user.name;
+                    document.getElementById('profile-email').textContent = data.user.email;
+                    succEl.classList.remove('hidden');
+                    setTimeout(() => closeProfileModal(), 1500);
+                } else {
+                    document.getElementById('pm-error-msg').textContent = data.message || '저장에 실패했습니다.';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (_) {
+                document.getElementById('pm-error-msg').textContent = '네트워크 오류가 발생했습니다.';
+                errEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false; btn.textContent = '저장';
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        // 보안 설정 모달 (비밀번호 변경)
+        // ══════════════════════════════════════════════════════════════
+        function openSecurityModal() {
+            ['sc-current-pw','sc-new-pw','sc-confirm-pw'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('sc-error').classList.add('hidden');
+            document.getElementById('sc-success').classList.add('hidden');
+            document.getElementById('security-modal').classList.remove('hidden');
+        }
+
+        function closeSecurityModal() {
+            document.getElementById('security-modal').classList.add('hidden');
+        }
+
+        async function changePassword() {
+            const btn     = document.getElementById('sc-save-btn');
+            const errEl   = document.getElementById('sc-error');
+            const succEl  = document.getElementById('sc-success');
+            errEl.classList.add('hidden');
+            succEl.classList.add('hidden');
+
+            const currentPw = document.getElementById('sc-current-pw').value;
+            const newPw     = document.getElementById('sc-new-pw').value;
+            const confirmPw = document.getElementById('sc-confirm-pw').value;
+
+            if (!currentPw || !newPw || !confirmPw) {
+                document.getElementById('sc-error-msg').textContent = '모든 항목을 입력해주세요.';
+                errEl.classList.remove('hidden'); return;
+            }
+            if (newPw !== confirmPw) {
+                document.getElementById('sc-error-msg').textContent = '새 비밀번호가 일치하지 않습니다.';
+                errEl.classList.remove('hidden'); return;
+            }
+
+            btn.disabled = true; btn.textContent = '변경 중...';
+            try {
+                const r = await fetch('/api/auth/change-password', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ current_password: currentPw, new_password: newPw, confirm_password: confirmPw })
+                });
+                const data = await r.json();
+                if (data.success) {
+                    succEl.classList.remove('hidden');
+                    setTimeout(() => closeSecurityModal(), 1800);
+                } else {
+                    document.getElementById('sc-error-msg').textContent = data.message || '변경에 실패했습니다.';
+                    errEl.classList.remove('hidden');
+                }
+            } catch (_) {
+                document.getElementById('sc-error-msg').textContent = '네트워크 오류가 발생했습니다.';
+                errEl.classList.remove('hidden');
+            } finally {
+                btn.disabled = false; btn.textContent = '변경';
+            }
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { closeProfileModal(); closeSecurityModal(); }
+        });
     </script>
 </body>
 </html>

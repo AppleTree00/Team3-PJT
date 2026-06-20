@@ -83,6 +83,57 @@ tailwind.config = {
 </head>
 <body class="bg-surface-gray min-h-screen flex flex-col">
 
+<!-- ── 비밀번호 찾기 모달 ────────────────────────────────────────────── -->
+<div id="reset-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeResetModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 z-10">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-lg font-bold text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-[22px]">lock_reset</span>
+        비밀번호 찾기
+      </h2>
+      <button onclick="closeResetModal()" class="p-1 text-on-surface-variant hover:text-on-surface">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- 이메일 입력 단계 -->
+    <div id="reset-step-1">
+      <p class="text-sm text-on-surface-variant mb-5">가입 시 등록한 이메일을 입력하면 임시 비밀번호를 발급해 드립니다.</p>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-on-surface mb-1.5">이메일</label>
+        <input id="reset-email" type="email" class="input-field" placeholder="name@example.com" autocomplete="email"/>
+      </div>
+      <div id="reset-error" class="hidden bg-error-container text-error text-sm rounded-lg px-4 py-3 mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[16px]">error</span>
+        <span id="reset-error-msg"></span>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeResetModal()" class="flex-1 py-3 border border-border-subtle rounded-xl text-sm font-medium text-on-surface-variant hover:bg-surface-container-low">취소</button>
+        <button id="reset-btn" onclick="requestReset()" class="flex-1 py-3 bg-primary text-on-primary rounded-xl text-sm font-semibold hover:bg-primary-container">발급</button>
+      </div>
+    </div>
+
+    <!-- 임시 비밀번호 표시 단계 -->
+    <div id="reset-step-2" class="hidden">
+      <div class="bg-surface-container-low rounded-xl p-5 mb-5 text-center">
+        <span class="material-symbols-outlined text-secondary text-4xl mb-2 block">check_circle</span>
+        <p class="text-sm text-on-surface-variant mb-3">임시 비밀번호가 발급되었습니다.<br/>로그인 후 <strong>즉시 변경</strong>해주세요.</p>
+        <div class="bg-white border-2 border-primary/20 rounded-lg px-4 py-3 inline-block">
+          <p class="text-xs text-on-surface-variant mb-1">임시 비밀번호</p>
+          <p id="reset-temp-pw" class="text-xl font-bold text-primary tracking-widest select-all"></p>
+        </div>
+        <button onclick="copyTempPw()" class="mt-3 flex items-center gap-1 text-xs text-primary hover:underline mx-auto">
+          <span class="material-symbols-outlined text-[14px]">content_copy</span>복사
+        </button>
+      </div>
+      <button onclick="goToLogin()" class="w-full py-3 bg-primary text-on-primary rounded-xl text-sm font-semibold hover:bg-primary-container">
+        로그인하러 가기
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- 상단 로고 바 -->
 <nav class="bg-surface-container-lowest shadow-sm fixed top-0 w-full z-50">
   <div class="max-w-max-width mx-auto px-margin-desktop flex justify-between items-center h-16">
@@ -130,7 +181,7 @@ tailwind.config = {
           <div>
             <div class="flex justify-between items-center mb-1.5">
               <label class="block text-sm font-semibold text-on-surface" for="login-password">비밀번호</label>
-              <button type="button" onclick="handleUnavailableFeature()" class="text-xs text-primary hover:underline">비밀번호 찾기</button>
+              <button type="button" onclick="openResetModal()" class="text-xs text-primary hover:underline">비밀번호 찾기</button>
             </div>
             <input id="login-password" type="password" class="input-field" placeholder="비밀번호 입력" autocomplete="current-password" required/>
           </div>
@@ -384,6 +435,73 @@ function fillDemoAdmin() {
 function handleUnavailableFeature() {
     alert('현재 이 기능은 고도화 단계에 있습니다. 업데이트 이후 사용 가능하니 잠시만 기다려주세요.');
 }
+
+// ── 비밀번호 찾기 모달 ────────────────────────────────────────────────
+function openResetModal() {
+    document.getElementById('reset-email').value = '';
+    document.getElementById('reset-error').classList.add('hidden');
+    document.getElementById('reset-step-1').classList.remove('hidden');
+    document.getElementById('reset-step-2').classList.add('hidden');
+    document.getElementById('reset-modal').classList.remove('hidden');
+}
+
+function closeResetModal() {
+    document.getElementById('reset-modal').classList.add('hidden');
+}
+
+async function requestReset() {
+    const btn    = document.getElementById('reset-btn');
+    const errEl  = document.getElementById('reset-error');
+    const email  = document.getElementById('reset-email').value.trim();
+    errEl.classList.add('hidden');
+
+    if (!email) {
+        document.getElementById('reset-error-msg').textContent = '이메일을 입력해주세요.';
+        errEl.classList.remove('hidden'); return;
+    }
+
+    btn.disabled = true; btn.textContent = '처리 중...';
+    try {
+        const r = await fetch('/api/auth/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await r.json();
+        if (data.success) {
+            document.getElementById('reset-temp-pw').textContent = data.temp_password;
+            document.getElementById('reset-step-1').classList.add('hidden');
+            document.getElementById('reset-step-2').classList.remove('hidden');
+        } else {
+            document.getElementById('reset-error-msg').textContent = data.message || '처리 중 오류가 발생했습니다.';
+            errEl.classList.remove('hidden');
+        }
+    } catch (_) {
+        document.getElementById('reset-error-msg').textContent = '네트워크 오류가 발생했습니다.';
+        errEl.classList.remove('hidden');
+    } finally {
+        btn.disabled = false; btn.textContent = '발급';
+    }
+}
+
+function copyTempPw() {
+    const pw = document.getElementById('reset-temp-pw').textContent;
+    navigator.clipboard.writeText(pw).then(() => {
+        const btn = document.querySelector('[onclick="copyTempPw()"]');
+        btn.innerHTML = '<span class="material-symbols-outlined text-[14px]">check</span>복사됨';
+        setTimeout(() => { btn.innerHTML = '<span class="material-symbols-outlined text-[14px]">content_copy</span>복사'; }, 2000);
+    }).catch(() => {});
+}
+
+function goToLogin() {
+    const pw = document.getElementById('reset-temp-pw').textContent;
+    closeResetModal();
+    document.getElementById('login-password').value = pw;
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeResetModal();
+});
 
 // ── 이미 로그인된 경우 역할에 맞게 이동 ────────────────────────────────
 fetch('/api/auth/me', { credentials: 'same-origin' })
