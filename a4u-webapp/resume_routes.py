@@ -3,9 +3,12 @@ resume_routes.py — 이력서 CRUD, 인증, 통계 API
 Blueprint: /api
 """
 import json
+import os
+import uuid
 from datetime import datetime, timezone
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, current_app
 from models import db, User, Resume, ResumeTemplate, JobApplication, UploadedFile
+from werkzeug.utils import secure_filename
 
 resume_bp = Blueprint('resume_bp', __name__, url_prefix='/api')
 
@@ -142,6 +145,33 @@ def me():
     if not user:
         return jsonify(success=False, message='로그인이 필요합니다.'), 401
     return jsonify(success=True, user=user.to_dict())
+
+
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def _allowed_image(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+
+@resume_bp.route('/auth/avatar', methods=['POST'])
+@login_required
+def upload_avatar():
+    """프로필 이미지 업로드"""
+    if 'avatar' not in request.files:
+        return jsonify(success=False, message='이미지 파일이 없습니다.'), 400
+    f = request.files['avatar']
+    if not f.filename or not _allowed_image(f.filename):
+        return jsonify(success=False, message='지원하지 않는 파일 형식입니다. (PNG, JPG, GIF, WebP)'), 400
+
+    ext      = f.filename.rsplit('.', 1)[1].lower()
+    filename = f'avatar_{current_user().id}_{uuid.uuid4().hex[:8]}.{ext}'
+    save_dir = os.path.join(current_app.root_path, 'static', 'avatars')
+    os.makedirs(save_dir, exist_ok=True)
+    f.save(os.path.join(save_dir, filename))
+
+    user = current_user()
+    user.avatar_url = f'/static/avatars/{filename}'
+    db.session.commit()
+    return jsonify(success=True, avatar_url=user.avatar_url, user=user.to_dict())
 
 
 @resume_bp.route('/auth/register', methods=['POST'])

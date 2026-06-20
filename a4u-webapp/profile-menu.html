@@ -65,8 +65,9 @@
                         <span class="material-symbols-outlined">notifications</span>
                     </button>
                     <a href="profile-menu.html">
-                        <div class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle">
-                            <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG8VImKTuowN3uHVy1cKnRoUpmpTuMMUenzMrZqKtbpAMPaIXew3MXLAUGDKWAI8jb3EWkpZCw0H_TNEBgq-n-UlNfNvE2CdiZaHoYqQkYTG7MeHLtYXa2hEmoloIAbTX6j1NkzZtyHuKYZdNFgHUYGSftJiqpsdmZsGf4HFFzmucm6jIuCERGu85b-nbvFsAPIyaXXb3RYS1AMLPvlmOpMNarU6oa1we4VIFGiTLt9IKGvz9PG8zOtGkRMQmgheGFYfY_L_sxVHzy"/>
+                        <div id="nav-avatar-wrap" class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle bg-primary flex items-center justify-center">
+                            <span id="nav-avatar-icon" class="material-symbols-outlined text-white text-[18px]">person</span>
+                            <img id="nav-avatar-img" class="hidden w-full h-full object-cover" alt="프로필"/>
                         </div>
                     </a>
                     <!-- Mobile Menu Button -->
@@ -97,8 +98,11 @@
         <div class="glass-card rounded-2xl p-8 mb-8 shadow-lg">
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 <!-- 프로필 이미지 -->
-                <div class="avatar w-24 h-24 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span class="material-symbols-outlined text-6xl text-white">person</span>
+                <div class="relative flex-shrink-0">
+                    <div id="profile-avatar-wrap" class="avatar w-24 h-24 rounded-full overflow-hidden flex items-center justify-center">
+                        <span id="profile-avatar-icon" class="material-symbols-outlined text-6xl text-white">person</span>
+                        <img id="profile-avatar-img" class="hidden w-full h-full object-cover" alt="프로필 이미지"/>
+                    </div>
                 </div>
 
                 <!-- 프로필 정보 -->
@@ -254,6 +258,25 @@
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
+
+            <!-- 프로필 이미지 업로드 -->
+            <div class="flex flex-col items-center mb-5">
+                <div class="relative group cursor-pointer" onclick="document.getElementById('pm-avatar-input').click()">
+                    <div id="pm-avatar-preview-wrap" class="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center border-4 border-white shadow-md">
+                        <span id="pm-avatar-preview-icon" class="material-symbols-outlined text-5xl text-white">person</span>
+                        <img id="pm-avatar-preview-img" class="hidden w-full h-full object-cover" alt="미리보기"/>
+                    </div>
+                    <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span class="material-symbols-outlined text-white text-2xl">photo_camera</span>
+                    </div>
+                </div>
+                <input id="pm-avatar-input" type="file" accept="image/*" class="hidden" onchange="previewAvatar(this)"/>
+                <p class="text-xs text-gray-400 mt-2">클릭하여 사진 변경 (PNG, JPG, GIF, WebP)</p>
+                <div id="pm-avatar-uploading" class="hidden text-xs text-blue-600 mt-1 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px] animate-spin">progress_activity</span>업로드 중...
+                </div>
+            </div>
+
             <p class="text-sm text-gray-500 mb-5 bg-blue-50 rounded-lg px-4 py-3">
                 이름·이메일 변경 시 <strong>현재 비밀번호</strong>로 본인 확인이 필요합니다.
             </p>
@@ -377,6 +400,32 @@
             if (btn.textContent.trim().includes('계정 삭제')) btn.addEventListener('click', handleUnavailableFeature);
         });
 
+        // ── 아바타 표시 헬퍼 ───────────────────────────────────────────
+        function applyAvatar(avatarUrl) {
+            // 프로필 카드 대형 아바타
+            const icon = document.getElementById('profile-avatar-icon');
+            const img  = document.getElementById('profile-avatar-img');
+            if (avatarUrl && img) {
+                img.src = avatarUrl + '?t=' + Date.now();
+                img.classList.remove('hidden');
+                if (icon) icon.classList.add('hidden');
+            } else if (icon) {
+                icon.classList.remove('hidden');
+                if (img) img.classList.add('hidden');
+            }
+            // 네비게이션 소형 아바타
+            const navIcon = document.getElementById('nav-avatar-icon');
+            const navImg  = document.getElementById('nav-avatar-img');
+            if (avatarUrl && navImg) {
+                navImg.src = avatarUrl + '?t=' + Date.now();
+                navImg.classList.remove('hidden');
+                if (navIcon) navIcon.classList.add('hidden');
+            } else if (navIcon) {
+                navIcon.classList.remove('hidden');
+                if (navImg) navImg.classList.add('hidden');
+            }
+        }
+
         // ── 사용자 정보 로드 ───────────────────────────────────────────
         let _currentUser = null;
 
@@ -403,6 +452,7 @@
                         joinedEl.textContent = d ? `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일` : '—';
                     }
                     if (roleEl && u.is_admin) roleEl.textContent = 'a4u 관리자';
+                    applyAvatar(u.avatar_url);
                 } else if (meRes.status === 401) {
                     window.location.href = 'login.html?next=profile-menu.html&reason=auth';
                     return;
@@ -447,10 +497,58 @@
         // ══════════════════════════════════════════════════════════════
         // 프로필 수정 모달
         // ══════════════════════════════════════════════════════════════
+        // ── 아바타 미리보기 (파일 선택 시 즉시 업로드) ────────────────
+        async function previewAvatar(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+
+            // 미리보기 표시
+            const reader = new FileReader();
+            reader.onload = e => {
+                const prevIcon = document.getElementById('pm-avatar-preview-icon');
+                const prevImg  = document.getElementById('pm-avatar-preview-img');
+                if (prevImg) { prevImg.src = e.target.result; prevImg.classList.remove('hidden'); }
+                if (prevIcon) prevIcon.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+
+            // 즉시 서버 업로드
+            document.getElementById('pm-avatar-uploading').classList.remove('hidden');
+            const fd = new FormData();
+            fd.append('avatar', file);
+            try {
+                const r    = await fetch('/api/auth/avatar', { method: 'POST', credentials: 'same-origin', body: fd });
+                const data = await r.json();
+                if (data.success) {
+                    _currentUser = data.user;
+                    applyAvatar(data.avatar_url);
+                } else {
+                    alert(data.message || '이미지 업로드에 실패했습니다.');
+                }
+            } catch (_) {
+                alert('네트워크 오류가 발생했습니다.');
+            } finally {
+                document.getElementById('pm-avatar-uploading').classList.add('hidden');
+            }
+        }
+
         function openProfileModal() {
             document.getElementById('pm-error').classList.add('hidden');
             document.getElementById('pm-success').classList.add('hidden');
             document.getElementById('pm-current-pw').value = '';
+            document.getElementById('pm-avatar-input').value = '';
+
+            // 모달 내 아바타 미리보기 초기화
+            const prevIcon = document.getElementById('pm-avatar-preview-icon');
+            const prevImg  = document.getElementById('pm-avatar-preview-img');
+            if (_currentUser && _currentUser.avatar_url) {
+                if (prevImg) { prevImg.src = _currentUser.avatar_url; prevImg.classList.remove('hidden'); }
+                if (prevIcon) prevIcon.classList.add('hidden');
+            } else {
+                if (prevImg) prevImg.classList.add('hidden');
+                if (prevIcon) prevIcon.classList.remove('hidden');
+            }
+
             if (_currentUser) {
                 document.getElementById('pm-name').value  = _currentUser.name  || '';
                 document.getElementById('pm-email').value = _currentUser.email || '';

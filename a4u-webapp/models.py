@@ -14,6 +14,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False, default='')
     is_admin = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(20), default='active')
+    avatar_url = db.Column(db.String(500), nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
@@ -34,6 +35,7 @@ class User(db.Model):
             'name': self.name,
             'is_admin': self.is_admin,
             'status': self.status,
+            'avatar_url': self.avatar_url or None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'resume_count': len(self.resumes)
         }

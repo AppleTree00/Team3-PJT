@@ -136,8 +136,9 @@
                     <span class="material-symbols-outlined">notifications</span>
                 </button>
                 <a href="profile-menu.html">
-                    <div class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle">
-                        <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG8VImKTuowN3uHVy1cKnRoUpmpTuMMUenzMrZqKtbpAMPaIXew3MXLAUGDKWAI8jb3EWkpZCw0H_TNEBgq-n-UlNfNvE2CdiZaHoYqQkYTG7MeHLtYXa2hEmoloIAbTX6j1NkzZtyHuKYZdNFgHUYGSftJiqpsdmZsGf4HFFzmucm6jIuCERGu85b-nbvFsAPIyaXXb3RYS1AMLPvlmOpMNarU6oa1we4VIFGiTLt9IKGvz9PG8zOtGkRMQmgheGFYfY_L_sxVHzy"/>
+                    <div id="nav-avatar-wrap" class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle bg-primary flex items-center justify-center">
+                        <span id="nav-avatar-icon" class="material-symbols-outlined text-white text-[18px]">person</span>
+                        <img id="nav-avatar-img" class="hidden w-full h-full object-cover" alt="프로필"/>
                     </div>
                 </a>
                 <!-- Mobile Menu Button -->
@@ -232,6 +233,12 @@
                 nameEl.className = 'hidden sm:block text-sm font-semibold text-on-surface truncate max-w-[80px]';
                 nameEl.textContent = data.user.name;
                 profileLink.parentNode.insertBefore(nameEl, profileLink);
+                if (data.user.avatar_url) {
+                    const img  = document.getElementById('nav-avatar-img');
+                    const icon = document.getElementById('nav-avatar-icon');
+                    if (img)  { img.src = data.user.avatar_url; img.classList.remove('hidden'); }
+                    if (icon) icon.classList.add('hidden');
+                }
             }
         } catch (_) {}
     })();

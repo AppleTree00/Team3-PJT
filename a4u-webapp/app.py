@@ -175,6 +175,24 @@ def init_db():
     with app.app_context():
         db.create_all()
 
+        # ── 컬럼 마이그레이션 (ALTER TABLE) ─────────────────────────
+        migrations = [
+            "ALTER TABLE users ADD COLUMN avatar_url VARCHAR(500)",
+            "ALTER TABLE uploaded_files ADD COLUMN file_path VARCHAR(500)",
+            "ALTER TABLE uploaded_files ADD COLUMN file_type VARCHAR(10)",
+            "ALTER TABLE uploaded_files ADD COLUMN original_filename VARCHAR(255)",
+            "ALTER TABLE uploaded_files ADD COLUMN resume_analysis TEXT",
+            "ALTER TABLE resume_templates ADD COLUMN file_path VARCHAR(500)",
+            "ALTER TABLE resume_templates ADD COLUMN file_type VARCHAR(10)",
+            "ALTER TABLE resume_templates ADD COLUMN original_filename VARCHAR(255)",
+        ]
+        for sql in migrations:
+            try:
+                db.session.execute(db.text(sql))
+            except Exception:
+                pass
+        db.session.commit()
+
         # 기본 관리자 계정
         if not User.query.filter_by(email='admin@a4u.com').first():
             admin = User(email='admin@a4u.com', name='관리자', is_admin=True, status='active')
@@ -182,10 +200,14 @@ def init_db():
             db.session.add(admin)
 
         # 데모 일반 사용자
-        if not User.query.filter_by(email='demo@a4u.com').first():
+        demo = User.query.filter_by(email='demo@a4u.com').first()
+        if not demo:
             demo = User(email='demo@a4u.com', name='홍길동', is_admin=False, status='active')
             demo.set_password('demo1234')
             db.session.add(demo)
+            db.session.flush()
+        # 데모 아바타 설정 (항상 최신 경로 유지)
+        demo.avatar_url = '/static/avatars/demo_avatar.png'
 
         db.session.flush()
 

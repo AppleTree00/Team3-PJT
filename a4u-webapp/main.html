@@ -187,8 +187,9 @@
                     <span class="material-symbols-outlined">notifications</span>
                 </button>
                 <a href="profile-menu.html">
-                    <div class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle">
-                        <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBG8VImKTuowN3uHVy1cKnRoUpmpTuMMUenzMrZqKtbpAMPaIXew3MXLAUGDKWAI8jb3EWkpZCw0H_TNEBgq-n-UlNfNvE2CdiZaHoYqQkYTG7MeHLtYXa2hEmoloIAbTX6j1NkzZtyHuKYZdNFgHUYGSftJiqpsdmZsGf4HFFzmucm6jIuCERGu85b-nbvFsAPIyaXXb3RYS1AMLPvlmOpMNarU6oa1we4VIFGiTLt9IKGvz9PG8zOtGkRMQmgheGFYfY_L_sxVHzy"/>
+                    <div id="nav-avatar-wrap" class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle bg-primary flex items-center justify-center">
+                        <span id="nav-avatar-icon" class="material-symbols-outlined text-white text-[18px]">person</span>
+                        <img id="nav-avatar-img" class="hidden w-full h-full object-cover" alt="프로필"/>
                     </div>
                 </a>
                 <!-- Mobile Menu Button -->
@@ -239,9 +240,9 @@
 </div>
 <div class="flex items-center gap-4 pt-8 border-t border-border-subtle">
 <div class="flex -space-x-2">
-<img alt="User" class="h-8 w-8 rounded-full border-2 border-surface" data-alt="Close up of a young professional woman with a bright, welcoming smile, wearing a modern charcoal blazer. The lighting is crisp and highlights high-end professional confidence. The background is a minimalist architectural space with soft daylight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSTE4A2UcRZxY9oSsO0db7euf4tAg8tzLkOHLZhjjcPO7HjLcanmMp_orga0d-60i-7l_o8kHDq7aCERYvt8L4xmFqyH_y11byuI4xsey918Ar43hXajkdap6os6nULC6PmfUvMQTwBCnBzGk7o2ARacGjRElAWWKygC040JkOOGsgv6YW5Rmrkld_U8uDf4IffCIjpPDqQL_y1gOkvzZmry8cGxOhgRvd9HaASEiCloXmRsSh-4_oXmTGmpPsfeVn_GKBqOXLfWWe"/>
-<img alt="User" class="h-8 w-8 rounded-full border-2 border-surface" data-alt="Portrait of a male professional with a friendly expression, dressed in a crisp white shirt. The image is captured with shallow depth of field against a clean studio background. The overall aesthetic is trustworthy, efficient, and sophisticated, matching a career-focused UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWREEyktKn8CgRYEDoNe5YqtwwBEtdpwvwjbq08SWSzDtSvBIfwQ3DTndn27sRJhhOWlHvho9LXHQCRQcHoRjuZa514DijMJtAcxBMmzDag_LOjZdils9yXWRcGeR7pnD0emTnWpZryV1c0UQ41g4e5Y3eaVUSN88aPSRbA7Mo39o1vzDbwfZpTEXkg6Vq2G5RtzJCh3UC7txlimSLhz4k5SkETnvXniFuQvx4PmF424Hp3o3rUCjyY6z-U0ur8-V3BzfMo83f7HXG"/>
-<img alt="User" class="h-8 w-8 rounded-full border-2 border-surface" data-alt="A portrait of a diverse male professional in a light blue oxford shirt, looking directly into the camera with clarity and focus. The lighting is soft and high-key, conveying a sense of openness and professional readiness in a modern corporate setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCrxRTyhQODpQUtUmNuakwPVVOAibYir5bfqs-WojOt48KS4G8GjLYOpeZnbZzVYuU7JKgyXSANBzLtFVINGw4ZCrT0ZEzqbEb0CS3j50QPZA1l8RrBqvETfxFDoboVthEHkZukooOl2uiVToI0rc86oRo-nQnC0M2sFK7VdL2VD_whtEZHBmT_Fw_FatUSAkP3rKWhVIeKE4mVgpckks2Be7p9sVtmeiVApeL4nl88-xgLo5V6706lVz8LbgAX22HEfzHvNmAtoIp"/>
+<img alt="User" class="h-8 w-8 rounded-full border-2 border-surface object-cover" src="/static/avatars/demo_avatar.png"/>
+<img alt="User" class="h-8 w-8 rounded-full border-2 border-surface object-cover" src="/static/avatars/demo_avatar.png"/>
+<img alt="User" class="h-8 w-8 rounded-full border-2 border-surface object-cover" src="/static/avatars/demo_avatar.png"/>
 </div>
 <p class="text-label-sm text-on-surface-variant">10,000명 이상의 야심 찬 전문가들이 함께하고 있습니다</p>
 </div>
@@ -448,6 +449,12 @@
                 nameEl.className = 'hidden sm:block text-sm font-semibold text-on-surface truncate max-w-[80px]';
                 nameEl.textContent = data.user.name;
                 profileLink.parentNode.insertBefore(nameEl, profileLink);
+                if (data.user.avatar_url) {
+                    const img  = document.getElementById('nav-avatar-img');
+                    const icon = document.getElementById('nav-avatar-icon');
+                    if (img)  { img.src = data.user.avatar_url; img.classList.remove('hidden'); }
+                    if (icon) icon.classList.add('hidden');
+                }
             } else {
                 const btn = document.createElement('a');
                 btn.href = 'login.html';
