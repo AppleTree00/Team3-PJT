@@ -209,9 +209,85 @@ def update_template(template_id):
 @admin_required
 def delete_template(template_id):
     t = ResumeTemplate.query.get_or_404(template_id)
+    # 파일 삭제
+    if t.file_path and os.path.exists(t.file_path):
+        try:
+            os.remove(t.file_path)
+        except:
+            pass
     db.session.delete(t)
     db.session.commit()
     return jsonify(success=True)
+
+
+@admin_bp.route('/templates/<int:template_id>/upload', methods=['POST'])
+@admin_required
+def upload_template_file(template_id):
+    """PDF/WORD 파일 업로드 및 템플릿 등록"""
+    from werkzeug.utils import secure_filename
+    
+    t = ResumeTemplate.query.get_or_404(template_id)
+    
+    if 'file' not in request.files:
+        return jsonify(success=False, message='파일이 업로드되지 않았습니다.'), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify(success=False, message='파일을 선택해주세요.'), 400
+    
+    # 파일 타입 검증 (PDF, DOCX만 허용)
+    allowed_extensions = {'pdf', 'docx'}
+    file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+    
+    if file_ext not in allowed_extensions:
+        return jsonify(success=False, message='PDF 또는 WORD 파일만 업로드 가능합니다.'), 400
+    
+    # uploads 디렉토리 생성
+    upload_dir = os.path.join(os.path.dirname(__file__), 'uploads', 'templates')
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    # 파일명 안전화
+    filename = secure_filename(file.filename)
+    timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
+    filename = f"{timestamp}_{template_id}_{filename}"
+    filepath = os.path.join(upload_dir, filename)
+    
+    # 기존 파일 삭제
+    if t.file_path and os.path.exists(t.file_path):
+        try:
+            os.remove(t.file_path)
+        except:
+            pass
+    
+    # 파일 저장
+    file.save(filepath)
+    
+    # DB 업데이트
+    t.file_path = filepath
+    t.file_type = file_ext
+    t.original_filename = secure_filename(file.filename)
+    t.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+    
+    return jsonify(success=True, message='파일이 업로드되었습니다.', template=t.to_dict())
+
+
+@admin_bp.route('/templates/<int:template_id>/file', methods=['GET'])
+@admin_required
+def get_template_file(template_id):
+    """템플릿 파일 다운로드/미리보기"""
+    from flask import send_file
+    
+    t = ResumeTemplate.query.get_or_404(template_id)
+    
+    if not t.file_path or not os.path.exists(t.file_path):
+        return jsonify(success=False, message='파일을 찾을 수 없습니다.'), 404
+    
+    return send_file(
+        t.file_path,
+        as_attachment=False,
+        mimetype='application/pdf' if t.file_type == 'pdf' else 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
 
 
 # ── 이력서 관리 ──────────────────────────────────────────────────────

@@ -45,7 +45,10 @@ class ResumeTemplate(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     category = db.Column(db.String(50), default='general')
-    html_content = db.Column(db.Text, nullable=False)
+    html_content = db.Column(db.Text, nullable=True)  # 호환성을 위해 nullable로 변경
+    file_path = db.Column(db.String(500), nullable=True)  # PDF/WORD 파일 경로
+    file_type = db.Column(db.String(10), nullable=True)  # 'pdf' 또는 'docx'
+    original_filename = db.Column(db.String(255), nullable=True)  # 원본 파일명
     thumbnail_url = db.Column(db.String(500))
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
@@ -58,6 +61,9 @@ class ResumeTemplate(db.Model):
             'description': self.description,
             'category': self.category,
             'html_content': self.html_content,
+            'file_path': self.file_path,
+            'file_type': self.file_type,
+            'original_filename': self.original_filename,
             'thumbnail_url': self.thumbnail_url,
             'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,

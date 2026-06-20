@@ -1,6 +1,6 @@
 # 작업 진행 현황 (자동 관리 파일)
 
-> 최종 업데이트: 2026-06-19
+> 최종 업데이트: 2026-06-20
 
 ## 완료된 작업
 
@@ -53,6 +53,28 @@
 | demo 로그인 → 200 | PASS |
 | 잘못된 비밀번호 → 401 | PASS |
 | 코칭 빈 텍스트 → 400 | PASS |
+
+### [T006] 어드민 템플릿 관리 시스템 ✅ (2026-06-20)
+- **HTML 텍스트 입력 → PDF/WORD 파일 업로드 방식으로 전환**
+- `models.py` ResumeTemplate 모델 확장:
+  - `file_path`: 업로드된 파일 경로
+  - `file_type`: 파일 타입 ('pdf' 또는 'docx')
+  - `original_filename`: 원본 파일명
+  - `html_content`: nullable 변경 (호환성 유지)
+- `admin_routes.py` 새로운 엔드포인트:
+  - POST `/api/admin/templates/<id>/upload` — PDF/WORD 파일 업로드
+  - GET `/api/admin/templates/<id>/file` — 파일 미리보기/다운로드
+  - DELETE 로직 개선: 파일 자동 삭제
+- `admin.html` UI/UX 개선:
+  - 파일 선택 UI (드래그&드롭 지원)
+  - **미리보기 기능** — 새 창에서 파일 표시
+  - **인쇄 기능** — 브라우저 인쇄 다이얼로그
+  - 파일 업로드 상태 표시 및 피드백
+  - JavaScript 함수 추가:
+    - `handleTemplateFileSelect()`: 파일 검증 및 표시
+    - `previewTemplate()`: 미리보기
+    - `printTemplate()`: 인쇄
+  - `saveTemplate()` 업데이트: 파일 업로드 로직 통합
 
 ## 미구현 / 업데이트 예정
 - Google OAuth 로그인 (현재: 이메일/비밀번호 세션 방식)
