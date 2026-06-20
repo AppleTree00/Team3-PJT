@@ -8,6 +8,20 @@ from flask_cors import CORS
 from werkzeug.exceptions import RequestEntityTooLarge, HTTPException
 from models import db, User, UploadedFile, Resume, ResumeTemplate, JobApplication
 
+def load_env():
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    if os.path.exists(env_path):
+        with open(env_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if '=' in line:
+                    key, value = line.split('=', 1)
+                    os.environ[key.strip()] = value.strip().strip("'\"")
+
+load_env()
+
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.secret_key = os.environ.get('SECRET_KEY', 'a4u-dev-secret-key-change-in-production')
 app.permanent_session_lifetime = timedelta(hours=8)
