@@ -76,6 +76,9 @@
     - `printTemplate()`: 인쇄
   - `saveTemplate()` 업데이트: 파일 업로드 로직 통합
 
+### [T007] Git 환경 설정 (.gitignore) ✅ (2026-06-20)
+- 루트 폴더에 `.gitignore` 파일 생성 및 설정 적용 (.vs, .vscode, *.db, *.sqlite, *.sqlite3, __pycache__, *.pyc 제외)
+
 ## 미구현 / 업데이트 예정
 - Google OAuth 로그인 (현재: 이메일/비밀번호 세션 방식)
 - 이력서 PDF 다운로드 (현재: 팝업 안내)
