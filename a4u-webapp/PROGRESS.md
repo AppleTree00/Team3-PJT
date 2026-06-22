@@ -101,6 +101,9 @@
 - **데모 계정 아바타 자동 설정**: `demo@a4u.com` 로그인 시 `/static/avatars/demo_avatar.png` 자동 반영
 - **전체 7개 페이지 아바타 동기화**: main, dashboard, resume, timeline, select, builder, profile-menu — person-icon fallback 포함
 
+### [T010-1] 메인화면 "무료로 시작하기" 버튼 연결 수정 ✅ (2026-06-22)
+- `main.html` 히어로 섹션 "무료로 시작하기" 버튼 `href`: `select.html` → `login.html`
+
 ### [T011] 이름 입력 필드 통합 ✅ (2026-06-22)
 - **변경 전** (`select.html`, `builder.html`): `성(lastName)` + `이름(firstName)` 2컬럼 grid
 - **변경 후**: `이름` 단일 전체너비 입력 (`id="personalFullName"`, 기본값 `홍길동`)
