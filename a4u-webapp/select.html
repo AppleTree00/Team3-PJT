@@ -220,6 +220,73 @@
 </nav>
 <!-- Main Content Shell -->
 <main class="flex min-h-screen pt-24">
+<!-- Start Selection Overlay -->
+<div id="start-selection-overlay" class="fixed inset-0 z-[60] bg-surface-gray flex items-center justify-center">
+    <div class="max-w-4xl w-full mx-auto px-4">
+        <div class="text-center mb-12">
+            <h1 class="font-display-lg text-display-lg text-on-background mb-4">어떻게 시작할까요?</h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant">AI를 통해 기존 이력서를 분석하거나, 완전히 새로운 이력서를 작성해보세요.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Upload Option -->
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-border-subtle flex flex-col h-full">
+                <div class="w-12 h-12 bg-primary-container text-on-primary-container rounded-xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-2xl">upload_file</span>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-on-surface mb-2">기존 이력서 업로드 (AI 파싱)</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-8 flex-grow">
+                    PDF, Word 형태의 기존 이력서를 업로드하세요. a4u의 AI가 내용을 분석하여 자동으로 양식을 채워줍니다.
+                </p>
+                
+                <!-- Dropzone -->
+                <div id="uploadDropZone" class="border-2 border-dashed border-outline-variant rounded-xl p-8 text-center hover:border-primary hover:bg-surface-container transition-all cursor-pointer mb-4" onclick="document.getElementById('resumeFileInput').click()">
+                    <input type="file" id="resumeFileInput" class="hidden" accept=".pdf,.doc,.docx">
+                    <span class="material-symbols-outlined text-4xl text-outline mb-2">cloud_upload</span>
+                    <p id="uploadStatusText" class="font-body-sm text-body-sm text-on-surface-variant">파일을 선택하거나 드래그하세요.</p>
+                </div>
+                
+                <button id="uploadResumeButton" disabled class="w-full py-3 bg-primary text-white rounded-xl font-label-md disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                    업로드 및 AI 분석 시작
+                </button>
+
+                <!-- Result Card (Hidden by default) -->
+                <div id="uploadResultCard" class="hidden mt-6 flex flex-col gap-4">
+                    <div class="p-4 bg-success-mint border border-success-mint/50 rounded-xl">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-secondary">check_circle</span>
+                            <div>
+                                <p class="font-label-md text-label-md text-on-surface mb-1">분석 완료: <span id="parsedFileName"></span></p>
+                                <p id="parsedName" class="font-body-sm text-body-sm text-on-surface-variant hidden"></p>
+                                <p id="parsedTitle" class="font-body-sm text-body-sm text-on-surface-variant hidden"></p>
+                                <p id="parsedSummary" class="font-body-sm text-body-sm text-on-surface-variant mt-2 mb-2"></p>
+                                <div id="parsedSkills" class="flex flex-wrap gap-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="uploadContinueButton" disabled class="w-full py-3 bg-secondary text-white rounded-xl font-label-md disabled:opacity-50 transition-all">
+                        분석 내용을 빌더로 적용
+                    </button>
+                </div>
+            </div>
+
+            <!-- Start Blank Option -->
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-border-subtle flex flex-col h-full">
+                <div class="w-12 h-12 bg-tertiary-container text-on-tertiary-container rounded-xl flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-2xl">edit_document</span>
+                </div>
+                <h2 class="font-headline-md text-headline-md text-on-surface mb-2">직접 새로 작성하기</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-8 flex-grow">
+                    빈 양식에서부터 직접 텍스트를 입력하며 나만의 이력서를 완성합니다. 단계별 가이드를 제공합니다.
+                </p>
+                <div class="flex-grow"></div>
+                <button onclick="document.getElementById('start-selection-overlay').remove()" class="w-full py-3 border border-outline text-on-surface rounded-xl font-label-md hover:bg-surface-container transition-all">
+                    빈 양식으로 시작
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Builder Interface -->
 <div class="w-full flex">
 <!-- Form Side -->
