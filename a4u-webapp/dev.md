@@ -57,3 +57,48 @@
 ### **delete_template() 업데이트**
 - 템플릿 삭제 시 연관 파일도 자동 삭제
 - 파일 삭제 실패 시 로그 남기고 계속 진행
+
+## **5. 프로필 관리 API (2026-06-20 추가)**
+
+### 신규 엔드포인트
+| 엔드포인트 | 메서드 | 설명 |
+|------------|--------|------|
+| `/api/auth/profile` | PUT | 이름/이메일 수정. Body: `{name, email, current_password}` |
+| `/api/auth/change-password` | PUT | 비밀번호 변경. Body: `{current_password, new_password}` |
+| `/api/auth/reset-password` | POST | 임시 비밀번호 발급. Body: `{email}` |
+| `/api/auth/avatar` | POST | 프로필 이미지 업로드. `multipart/form-data`, 필드명: `avatar` |
+
+### DB 마이그레이션 패턴
+- `app.py`의 `init_db()` 내 `migrations` 리스트에 `ALTER TABLE` SQL 문자열 추가
+- try/except로 감싸 중복 실행 시 무시 (컬럼이 이미 있으면 패스)
+- User 모델 사용 전에 실행되어야 하므로 `db.create_all()` 직후에 위치
+
+```python
+migrations = [
+    "ALTER TABLE user ADD COLUMN avatar_url VARCHAR(500)",
+    # 새 컬럼 추가 시 여기에 append
+]
+for sql in migrations:
+    try:
+        db.session.execute(text(sql))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+```
+
+## **6. Gemini AI 연동 (2026-06-22 업데이트)**
+
+### 패키지 변경
+- **제거:** `google-generativeai` (공식 deprecated)
+- **추가:** `google-genai` (`from google import genai`)
+
+### coaching_routes.py 변경사항
+- `_call_anthropic()` → `_call_gemini()` 대체
+- 환경변수: `ANTHROPIC_API_KEY` → `GEMINI_API_KEY`
+- 모델 fallback 순서: `gemini-2.0-flash` → `gemini-2.0-flash-lite` → `gemini-flash-latest`
+- AI 호출 우선순위: OpenAI → Gemini → Mock
+
+### 주의사항
+- Free Tier Gemini 키는 `generate_content_free_tier_requests` 일별 한도 있음 (초과 시 429 에러)
+- 429 발생 시 다음 모델로 자동 fallback, 모두 실패 시 Mock 응답 반환
+- `GEMINI_API_KEY`는 Replit Secrets에 등록 완료 (2026-06-22)

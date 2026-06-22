@@ -39,7 +39,7 @@
 ### AI 코칭 (coaching_routes.py)
 | 엔드포인트 | 메서드 | 상태 |
 |------------|--------|------|
-| /api/coaching | POST | ✅ (Mock/OpenAI/Anthropic) |
+| /api/coaching | POST | ✅ (Mock/OpenAI/Gemini) |
 | /api/coaching/samples | GET | ✅ |
 
 ### 지원 샘플 타입
@@ -49,10 +49,22 @@
 | management | 경영 관리자형 | 2개 |
 | general | 일반 범용형 | 2개 |
 
-### AI 연동 방식
-1. `OPENAI_API_KEY` 환경변수 있으면 → GPT-4o-mini 사용
-2. `ANTHROPIC_API_KEY` 있으면 → Claude-3-Haiku 사용
+### AI 연동 방식 (2026-06-22 업데이트)
+1. `OPENAI_API_KEY` 있으면 → GPT-4o-mini 사용 (최우선)
+2. `GEMINI_API_KEY` 있으면 → Gemini 사용 (모델 자동 fallback)
+   - 시도 순서: `gemini-2.0-flash` → `gemini-2.0-flash-lite` → `gemini-flash-latest`
+   - Free Tier 키는 일별 쿼터 제한 있음
 3. 둘 다 없으면 → Mock 피드백 반환 (시연용)
+
+> **주의:** `ANTHROPIC_API_KEY` (Claude) 연동은 제거됨. `google-generativeai` 패키지(deprecated)에서 `google-genai` 패키지로 교체됨.
+
+### 프로필 관련 API (2026-06-20 추가)
+| 엔드포인트 | 메서드 | 상태 | 설명 |
+|------------|--------|------|------|
+| /api/auth/profile | PUT | ✅ | 이름/이메일 수정 (현재 비밀번호 확인) |
+| /api/auth/change-password | PUT | ✅ | 비밀번호 변경 |
+| /api/auth/reset-password | POST | ✅ | 비밀번호 재설정 (임시 비밀번호 발급) |
+| /api/auth/avatar | POST | ✅ | 프로필 이미지 업로드 (PNG/JPG/GIF/WebP) |
 
 ## 4. 3일차 마일스톤 달성 현황
 

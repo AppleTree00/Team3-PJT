@@ -59,3 +59,25 @@ function handleUnavailableFeature() {
 * **1일차:** ✅ 로그인 화면 및 기본 이력서 작성 폼 구조 설계
 * **2일차:** ✅ 이력서/지원처 미리보기 화면, AI 코칭 대화창 레이아웃
 * **3일차:** ✅ 전체 페이지 인터랙션 점검, 미구현 기능 팝업 연결 확인
+
+## 5. 최근 변경사항 (2026-06-20 ~ 2026-06-22)
+
+### 프로필 관리 UI 추가 (2026-06-20)
+| 기능 | 위치 | 상태 |
+|------|------|------|
+| 프로필 편집 모달 (이름·이메일) | profile-menu.html | ✅ |
+| 보안 모달 (비밀번호 변경) | profile-menu.html | ✅ |
+| 비밀번호 재설정 모달 (2단계) | login.html | ✅ |
+| 아바타 업로드 UI | profile-menu.html | ✅ |
+| 전체 7개 페이지 아바타 표시 | 공통 헤더 | ✅ |
+
+### 이름 필드 통합 (2026-06-22)
+- **select.html, builder.html**: `성` + `이름` 두 칸 → `이름` 단일 칸으로 통합
+- **영향받은 JS 식별자**:
+  - `personalFirstName`, `personalLastName` → `personalFullName`
+  - localStorage key: `firstName`/`lastName` → `fullName`
+- **라벨 텍스트**: "이름 (NAME)" → "이름"
+
+### 빌더 ↔ 미리보기 실시간 연동 (2026-06-22, 팀원 완성)
+- builder.html 입력 폼 변경 시 우측 미리보기 패널 실시간 반영
+- input 이벤트 리스너 기반 양방향 바인딩 구현 완료
