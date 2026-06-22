@@ -103,6 +103,7 @@
 
 ### [T010-1] 메인화면 버튼 연결 수정 ✅ (2026-06-22)
 - "무료로 시작하기" 버튼 `href`: `select.html` → `login.html`
+- 하단 CTA "지금 이력서 만들기" 버튼 `href`: `select.html` → `login.html`
 - "데모 보기" 버튼: `href="dashboard.html"` → `demoLogin()` JS 함수 호출로 교체
   - `POST /api/auth/login` (demo@a4u.com / demo1234) 후 `dashboard.html` 리다이렉트
   - 클릭 시 버튼 "로그인 중..." 텍스트 + `disabled` 처리 (중복 클릭 방지)
