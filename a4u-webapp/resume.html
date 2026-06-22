@@ -111,15 +111,6 @@
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(24px);
-            animation: fadeInUp 0.4s ease-out forwards;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body class="bg-surface-gray text-on-surface font-body-md">
@@ -180,55 +171,10 @@
     
     <div class="text-center py-20 bg-surface-container-low rounded-xl border border-dashed border-border-subtle">
         <p class="text-on-surface-variant">이력서 관리 페이지 콘텐츠가 여기에 표시됩니다.</p>
-        <a href="#" id="btnCreateNew" class="mt-4 inline-block px-6 py-3 bg-primary text-on-primary rounded-xl font-label-md hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+        <a href="select.html" class="mt-4 inline-block px-6 py-3 bg-primary text-on-primary rounded-xl font-label-md hover:opacity-90 transition-all shadow-lg shadow-primary/20">
             새 이력서 만들기
         </a>
     </div>
-
-    <!-- New Resume Modal -->
-    <div id="newResumeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
-        <div class="absolute inset-0 bg-black/50" onclick="closeNewResumeModal()"></div>
-        <div class="bg-surface-container-lowest rounded-xl shadow-2xl p-8 max-w-lg w-full mx-4 relative z-10 fade-in-up">
-            <button onclick="closeNewResumeModal()" class="absolute top-4 right-4 text-on-surface-variant hover:text-primary">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            <h2 class="font-headline-md text-headline-md mb-6">새 이력서 작성 방식</h2>
-            
-            <div class="space-y-4">
-                <!-- Option 1: Start fresh -->
-                <a href="select.html" class="flex items-start p-4 rounded-lg border border-border-subtle hover:border-primary hover:bg-surface-container-low transition-colors group">
-                    <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 mr-4 group-hover:bg-primary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined">note_add</span>
-                    </div>
-                    <div>
-                        <h3 class="font-label-md text-label-md text-on-surface mb-1">신규 작성 (기본 양식)</h3>
-                        <p class="font-body-sm text-body-sm text-on-surface-variant">빈 양식에서부터 시작하거나 파일을 업로드하여 AI 분석을 받습니다.</p>
-                    </div>
-                </a>
-
-                <!-- Option 2: Clone existing -->
-                <div class="flex items-start p-4 rounded-lg border border-border-subtle hover:border-primary hover:bg-surface-container-low transition-colors group cursor-pointer" onclick="alert('현재 저장된 이력서를 불러오는 기능은 백엔드 고도화 단계에서 연동될 예정입니다. 시연 시나리오에서는 \'신규 작성\'으로 진행해주세요.')">
-                    <div class="w-10 h-10 rounded-full bg-surface-variant text-on-surface flex items-center justify-center shrink-0 mr-4 group-hover:bg-secondary group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined">file_copy</span>
-                    </div>
-                    <div class="flex-grow">
-                        <h3 class="font-label-md text-label-md text-on-surface mb-1">기존 이력서 복사 및 수정</h3>
-                        <p class="font-body-sm text-body-sm text-on-surface-variant mb-3">저장된 내 이력서를 불러와서 내용만 수정합니다.</p>
-                        
-                        <div class="relative w-full" onclick="event.stopPropagation();">
-                            <select class="w-full px-3 py-2 border border-border-subtle rounded-md text-sm text-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none cursor-pointer">
-                                <option value="" disabled selected>불러올 이력서 선택 (업데이트 예정)</option>
-                                <option value="1">PM 지원 이력서_최종 (2026.05.10)</option>
-                                <option value="2">Java 개발자_기본 (2026.04.01)</option>
-                            </select>
-                            <span class="absolute right-3 top-2 text-outline-variant pointer-events-none">
-                                <span class="material-symbols-outlined text-xl">expand_more</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 </main>
 
 <footer class="w-full mt-auto bg-surface-container-low border-t border-border-subtle">
@@ -326,21 +272,6 @@
             console.log('[a4u] 이력서 목록:', data.resumes.length, '건');
         })
         .catch(() => {});
-
-    // ── 새 이력서 모달 제어 ────────────────────────────────────────────
-    const newResumeModal = document.getElementById('newResumeModal');
-    const btnCreateNew = document.getElementById('btnCreateNew');
-
-    if (btnCreateNew) {
-        btnCreateNew.addEventListener('click', (e) => {
-            e.preventDefault();
-            newResumeModal.classList.remove('hidden');
-        });
-    }
-
-    function closeNewResumeModal() {
-        newResumeModal.classList.add('hidden');
-    }
 </script>
 
 </body>
