@@ -234,9 +234,9 @@
 <a class="px-8 py-4 bg-primary text-on-primary rounded-xl font-label-md hover:opacity-90 transition-all shadow-lg shadow-primary/20 btn-raise inline-flex items-center justify-center" href="login.html">
                             무료로 시작하기
                         </a>
-<a class="px-8 py-4 bg-surface-container-lowest border border-border-subtle text-primary rounded-xl font-label-md hover:bg-surface-container-low transition-all btn-raise inline-flex items-center justify-center" href="dashboard.html">
+<button onclick="demoLogin(this)" class="px-8 py-4 bg-surface-container-lowest border border-border-subtle text-primary rounded-xl font-label-md hover:bg-surface-container-low transition-all btn-raise inline-flex items-center justify-center">
                             데모 보기
-                        </a>
+                        </button>
 </div>
 <div class="flex items-center gap-4 pt-8 border-t border-border-subtle">
 <div class="flex -space-x-2">
@@ -464,6 +464,33 @@
             }
         } catch (_) {}
     })();
+
+    // ── 데모 계정 자동 로그인 ──────────────────────────────────────────
+    async function demoLogin(btn) {
+        const original = btn.textContent;
+        btn.textContent = '로그인 중...';
+        btn.disabled = true;
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ email: 'demo@a4u.com', password: 'demo1234' })
+            });
+            const data = await res.json();
+            if (data.success) {
+                window.location.href = 'dashboard.html';
+            } else {
+                alert('데모 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.');
+                btn.textContent = original;
+                btn.disabled = false;
+            }
+        } catch (e) {
+            alert('서버에 연결할 수 없습니다.');
+            btn.textContent = original;
+            btn.disabled = false;
+        }
+    }
 
     // ── 미구현 기능 안내 팝업 ──────────────────────────────────────────
     function handleUnavailableFeature() {

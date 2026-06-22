@@ -101,8 +101,12 @@
 - **데모 계정 아바타 자동 설정**: `demo@a4u.com` 로그인 시 `/static/avatars/demo_avatar.png` 자동 반영
 - **전체 7개 페이지 아바타 동기화**: main, dashboard, resume, timeline, select, builder, profile-menu — person-icon fallback 포함
 
-### [T010-1] 메인화면 "무료로 시작하기" 버튼 연결 수정 ✅ (2026-06-22)
-- `main.html` 히어로 섹션 "무료로 시작하기" 버튼 `href`: `select.html` → `login.html`
+### [T010-1] 메인화면 버튼 연결 수정 ✅ (2026-06-22)
+- "무료로 시작하기" 버튼 `href`: `select.html` → `login.html`
+- "데모 보기" 버튼: `href="dashboard.html"` → `demoLogin()` JS 함수 호출로 교체
+  - `POST /api/auth/login` (demo@a4u.com / demo1234) 후 `dashboard.html` 리다이렉트
+  - 클릭 시 버튼 "로그인 중..." 텍스트 + `disabled` 처리 (중복 클릭 방지)
+  - 실패 시 원래 상태로 복구
 
 ### [T011] 이름 입력 필드 통합 ✅ (2026-06-22)
 - **변경 전** (`select.html`, `builder.html`): `성(lastName)` + `이름(firstName)` 2컬럼 grid
