@@ -1,106 +1,36 @@
 <!DOCTYPE html>
-<html class="scroll-smooth" lang="ko">
+<html class="light" lang="ko">
 <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta property="og:title" content="내 프로필 - a4u">
+    <meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
+    <meta property="og:image" content="/og-image.png">
+    <meta property="og:type" content="website">
     <title>내 프로필 | a4u</title>
-    {% include '_head.html' %}
-    <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "secondary-fixed-dim": "#6bd8cb",
-                    "surface-gray": "#F8FAFC",
-                    "outline-variant": "#c7c4d8",
-                    "on-background": "#111c2d",
-                    "error": "#ba1a1a",
-                    "secondary-container": "#86f2e4",
-                    "on-primary-fixed-variant": "#3323cc",
-                    "surface-tint": "#4d44e3",
-                    "surface-container-highest": "#d8e3fb",
-                    "on-secondary": "#ffffff",
-                    "error-container": "#ffdad6",
-                    "inverse-surface": "#263143",
-                    "on-primary": "#ffffff",
-                    "success-mint": "#F0FDFA",
-                    "primary": "#3525cd",
-                    "inverse-on-surface": "#ecf1ff",
-                    "surface-dim": "#cfdaf2",
-                    "surface": "#f9f9ff",
-                    "background": "#f9f9ff",
-                    "on-tertiary": "#ffffff",
-                    "on-tertiary-fixed": "#001a42",
-                    "tertiary-fixed": "#d8e2ff",
-                    "inverse-primary": "#c3c0ff",
-                    "secondary-fixed": "#89f5e7",
-                    "border-subtle": "#E2E8F0",
-                    "surface-container-lowest": "#ffffff",
-                    "surface-container": "#e7eeff",
-                    "on-surface-variant": "#464555",
-                    "on-secondary-fixed": "#00201d",
-                    "surface-container-low": "#f0f3ff",
-                    "surface-container-high": "#dee8ff",
-                    "tertiary-container": "#005cc6",
-                    "tertiary-fixed-dim": "#adc6ff",
-                    "on-surface": "#111c2d",
-                    "primary-container": "#4f46e5",
-                    "on-tertiary-container": "#cedbff",
-                    "on-error": "#ffffff",
-                    "primary-fixed": "#e2dfff",
-                    "tertiary": "#004598",
-                    "on-primary-container": "#dad7ff",
-                    "secondary": "#006a61",
-                    "outline": "#777587",
-                    "primary-fixed-dim": "#c3c0ff",
-                    "on-secondary-container": "#006f66",
-                    "surface-variant": "#d8e3fb",
-                    "on-primary-fixed": "#00201d",
-                    "on-secondary-fixed-variant": "#005049",
-                    "on-tertiary-fixed-variant": "#004395",
-                    "surface-bright": "#f9f9ff",
-                    "on-error-container": "#93000a"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-            },
-            "spacing": {
-                    "margin-mobile": "16px",
-                    "gutter": "24px",
-                    "base": "4px",
-                    "margin-desktop": "40px",
-                    "max-width": "1280px"
-            },
-            "fontFamily": {
-                    "body-lg": ["Inter"],
-                    "body-md": ["Inter"],
-                    "headline-md": ["Inter"],
-                    "display-lg": ["Inter"],
-                    "label-md": ["Inter"],
-                    "label-sm": ["Inter"],
-                    "headline-lg-mobile": ["Inter"],
-                    "headline-lg": ["Inter"],
-                    "body-sm": ["Inter"]
-            },
-            "fontSize": {
-                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "600"}],
-                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
-                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
-                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
-            }
-          },
-        },
-      }
-    </script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        .btn-raise {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .btn-raise:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
         .avatar {
             background: linear-gradient(135deg, #3525cd 0%, #006a61 100%);
         }
@@ -113,11 +43,57 @@
         }
     </style>
 </head>
-<body class="bg-surface-gray text-on-surface font-body-md overflow-x-hidden">
-    {% include '_navbar.html' %}
+<body class="bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+    <!-- 헤더 -->
+    <nav class="bg-surface-container-lowest shadow-sm fixed top-0 w-full z-50">
+        <div class="max-w-max-width mx-auto px-margin-desktop">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-8">
+                    <a href="main.html" class="font-headline-md text-headline-md font-bold text-primary">a4u</a>
+                    <!-- Desktop Menu -->
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="main.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">메인</a>
+                        <a href="dashboard.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">대시보드</a>
+                        <a href="resume.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">이력서 관리</a>
+                        <a href="timeline.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">커리어 관리</a>
+                        <a href="select.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">제출 관리</a>
+                    </div>
+                </div>
+    
+                <div class="flex items-center gap-4">
+                    <button class="p-2 text-on-surface-variant hover:text-primary transition-colors hidden sm:block">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                    <a href="profile-menu.html">
+                        <div id="nav-avatar-wrap" class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle bg-primary flex items-center justify-center">
+                            <span id="nav-avatar-icon" class="material-symbols-outlined text-white text-[18px]">person</span>
+                            <img id="nav-avatar-img" class="hidden w-full h-full object-cover" alt="프로필"/>
+                        </div>
+                    </a>
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-button" class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                            <span class="material-symbols-outlined">menu</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-surface-container-lowest border-t border-border-subtle">
+            <div class="px-4 pt-2 pb-4 space-y-1">
+                <a href="main.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">메인</a>
+                <a href="dashboard.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">대시보드</a>
+                <a href="resume.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">이력서 관리</a>
+                <a href="timeline.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">커리어 관리</a>
+                <a href="select.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">제출 관리</a>
+            </div>
+        </div>
+    </nav>
 
     <!-- 메인 콘텐츠 -->
-    <main class="pt-24 pb-12 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
         <!-- 프로필 카드 -->
         <div class="glass-card rounded-2xl p-8 mb-8 shadow-lg">
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -380,7 +356,24 @@
             <p class="text-xs md:text-sm break-words">&copy; 2026 a4u. All rights reserved.</p>
         </div>
     </footer>
-    <script src="/static/js/common.js"></script><script>
+    <script>
+        // ── 모바일 메뉴 토글 ───────────────────────────────────────────
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        }
+
+        // ── 네비게이션 활성화 ──────────────────────────────────────────
+        const currentPath = window.location.pathname.split('/').pop();
+        document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
+            const lp = link.getAttribute('href');
+            if (lp === currentPath || (currentPath === '' && lp === 'main.html')) {
+                link.classList.add('text-primary', 'font-bold');
+                link.classList.remove('text-on-surface-variant');
+            }
+        });
+
         // ── 사이드바 메뉴 항목 연결 ────────────────────────────────────
         document.querySelectorAll('nav .menu-item').forEach(item => {
             const text = item.textContent.trim();
@@ -399,15 +392,7 @@
 
         // ── 계정 삭제 버튼 ─────────────────────────────────────────────
         document.querySelectorAll('button').forEach(btn => {
-            if (btn.textContent.trim().includes('계정 삭제')) {
-                btn.addEventListener('click', () => {
-                    if (_currentUser && _currentUser.email === 'demo@a4u.com') {
-                        showToast('데모 계정은 삭제할 수 없습니다.', 'error');
-                    } else {
-                        handleUnavailableFeature();
-                    }
-                });
-            }
+            if (btn.textContent.trim().includes('계정 삭제')) btn.addEventListener('click', handleUnavailableFeature);
         });
 
         // ── 아바타 표시 헬퍼 ───────────────────────────────────────────
@@ -679,6 +664,6 @@
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') { closeProfileModal(); closeSecurityModal(); }
         });
-    </script>
+    </script><script src="common.js"></script>
 </body>
 </html>

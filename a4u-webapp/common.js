@@ -66,19 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set active navigation link
     const currentPath = window.location.pathname.split('/').pop() || 'main.html';
-    const navLinks = document.querySelectorAll('.nav-link');
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-
-    const setActiveLink = (links) => {
-        links.forEach(link => {
-            const linkPath = link.getAttribute('href');
-            if (linkPath === currentPath) {
-                link.classList.add('text-primary', 'font-bold');
-                link.classList.remove('text-on-surface-variant');
-            }
-        });
-    };
-
-    setActiveLink(navLinks);
-    setActiveLink(mobileNavLinks);
+    document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
+        const linkPath = link.getAttribute('href');
+        if (linkPath === currentPath) {
+            link.classList.add('text-primary', 'font-bold');
+            link.classList.remove('text-on-surface-variant');
+        }
+    });
 });
