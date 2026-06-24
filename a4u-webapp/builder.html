@@ -356,6 +356,31 @@
         });
     }
 
+    function validateCurrentSection() {
+        const currentSection = SECTIONS[currentSectionIndex];
+
+        if (currentSection.id === 'Personal Info') {
+            for (const fieldId of currentSection.fields) {
+                const el = document.getElementById(fieldId);
+                if (!el || el.value.trim() === '') {
+                    const label = el.parentElement.querySelector('label');
+                    const labelText = label ? label.textContent.replace(/\(.*\)/, '').trim() : fieldId;
+                    showToast(`'${labelText}' 항목을 입력해주세요.`, 'warning');
+                    return false;
+                }
+            }
+        }
+
+        if (currentSection.id === 'Experience') {
+            const experienceEntries = document.querySelectorAll('#experience-entries .experience-entry');
+            for (const entry of experienceEntries) {
+                if (!entry.querySelector('input[data-field="title"]').value.trim()) { showToast(`'직책' 항목을 입력해주세요.`, 'warning'); return false; }
+                if (!entry.querySelector('input[data-field="company"]').value.trim()) { showToast(`'회사명' 항목을 입력해주세요.`, 'warning'); return false; }
+            }
+        }
+        return true;
+    }
+
     function switchSection(index) {
         currentSectionIndex = Math.max(0, Math.min(index, SECTIONS.length - 1));
         
@@ -376,7 +401,9 @@
             nextBtn.onclick = (e) => saveResume(e);
         } else {
             nextBtn.innerHTML = '다음 <span class="material-symbols-outlined">arrow_forward</span>';
-            nextBtn.onclick = () => switchSection(currentSectionIndex + 1);
+            nextBtn.onclick = () => {
+                if (validateCurrentSection()) { switchSection(currentSectionIndex + 1); }
+            };
         }
     }
 
@@ -534,15 +561,17 @@
     let experienceCount = 0;
     function addExperienceEntry(exp = {}) {
         experienceCount++;
-        const entryHtml = `
-            <div class="bg-white rounded-xl p-6 shadow-sm border border-border-subtle mb-6 relative experience-entry">
+        const container = document.getElementById('experience-entries');
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = `
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-border-subtle mb-6 relative experience-entry" id="exp-entry-${experienceCount}">
                 <button type="button" class="absolute top-4 right-4 text-outline hover:text-error transition-colors delete-experience-btn">
                     <span class="material-symbols-outlined">delete</span>
                 </button>
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block font-label-md text-label-md text-on-surface mb-2">직책</label><input data-field="title" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="${esc(exp.title || '')}"></div>
-                        <div><label class="block font-label-md text-label-md text-on-surface mb-2">회사명</label><input data-field="company" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="${esc(exp.company || '')}"></div>
+                        <div><label class="block font-label-md text-label-md text-on-surface mb-2">직책</label><input data-field="title" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="${esc(exp.title || '')}" required></div>
+                        <div><label class="block font-label-md text-label-md text-on-surface mb-2">회사명</label><input data-field="company" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="${esc(exp.company || '')}" required></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="block font-label-md text-label-md text-on-surface mb-2">시작일</label><input data-field="start" class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month" value="${esc(exp.start || '')}"></div>
@@ -552,8 +581,24 @@
                     <div><label class="block font-label-md text-label-md text-on-surface mb-2">주요 성과 (줄바꿈으로 구분)</label><textarea data-field="desc" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" rows="3">${esc(exp.desc || '')}</textarea></div>
                 </div>
             </div>
-        `;
-        document.getElementById('experience-entries').insertAdjacentHTML('beforeend', entryHtml);
+        `.trim();
+        const newEntry = tempDiv.firstChild;
+        container.appendChild(newEntry);
+
+        const updateAndSave = () => { updateProgress(); saveBuilderState(); };
+        
+        newEntry.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', updateAndSave));
+        
+        newEntry.querySelector('.delete-experience-btn').addEventListener('click', () => {
+            newEntry.remove();
+            updateAndSave();
+        });
+
+        newEntry.querySelector('input[data-field="current"]').addEventListener('change', (e) => {
+            const endDateInput = newEntry.querySelector('input[data-field="end"]');
+            endDateInput.disabled = e.target.checked;
+            if (e.target.checked) endDateInput.value = '';
+        });
     }
 
     function addSkillToForm(skill) {
@@ -905,16 +950,19 @@
         switchSection(0);
         updateProgress();
 
+        document.getElementById('add-experience-btn').addEventListener('click', () => addExperienceEntry());
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { closeCoachingModal(); }
+        });
+
+        // This listener will handle existing static form elements
         document.querySelectorAll('.form-section input, .form-section textarea').forEach(el => {
             el.addEventListener('input', () => {
                 updateProgress();
                 saveBuilderState();
             });
-        });
-
-        // ESC 키로 모달 닫기
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') { closeCoachingModal(); }
         });
     });
 </script>
