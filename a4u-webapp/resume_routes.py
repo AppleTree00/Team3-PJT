@@ -64,7 +64,9 @@ def login():
     session['user_name'] = user.name
     session['is_admin'] = user.is_admin
 
-    if user.email == 'demo@a4u.com':
+    if user.is_admin:
+        session['mode'] = 'ADMIN'
+    elif user.email == 'demo@a4u.com':
         session['mode'] = 'DEMO'
     else:
         session['mode'] = 'GENERAL'

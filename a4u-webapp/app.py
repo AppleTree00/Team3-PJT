@@ -96,10 +96,9 @@ def require_login():
             if path == 'main.html':
                 return
             return redirect(f'/login.html?next={path}&reason=auth')
-        # 관리자가 사용자 페이지에 접근 시도 시 로그아웃 처리
+        # 관리자가 사용자 페이지에 접근 시도 시 → 세션 유지하고 /admin으로 리다이렉트
         if session.get('is_admin'):
-            session.clear()
-            return redirect('/')
+            return redirect('/admin')
 
 # ── 기본 라우트 ───────────────────────────────────────────────────────
 @app.route('/')
@@ -110,6 +109,8 @@ def index():
 @app.route('/login.html')
 def login_page():
     if session.get('user_id'):
+        if session.get('is_admin'):
+            return redirect('/admin')
         return redirect('/dashboard.html')
     return render_template('login.html')
 

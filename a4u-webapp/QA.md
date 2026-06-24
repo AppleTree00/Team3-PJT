@@ -79,6 +79,30 @@
 - `cdn.tailwindcss.com should not be used in production` 경고: 기능 무관, 프로덕션 배포 시 Tailwind CLI 빌드로 전환 권장 (설계 사양)
 - Gemini 사용 제한 정책 QA: 단일 파일 단순 수정에만 허용, 위반 시 PM에 즉시 보고
 
+## 6. 관리자 데모 세션 격리 QA 결과 (2026-06-24) ✅ 전건 PASS
+
+### 6.1 세션 mode 체계 확정
+| 사용자 유형 | session[mode] | session[is_admin] |
+|---|---|---|
+| 관리자 (admin@a4u.com) | `ADMIN` | `True` |
+| 데모 (demo@a4u.com) | `DEMO` | `False` |
+| 일반 사용자 | `GENERAL` | `False` |
+
+### 6.2 격리 시나리오 전건 검증
+| 시나리오 | 기대 결과 | 실제 결과 |
+|---|---|---|
+| 관리자 로그인 → session[mode] | `ADMIN` | `ADMIN` ✅ |
+| 관리자 → /login.html 재접근 | 302 → /admin | 302 → /admin ✅ |
+| 관리자 → /dashboard.html | 302 → /admin (세션 유지) | 302 → /admin, user_id 보존 ✅ |
+| 관리자 → /builder.html | 302 → /admin | 302 → /admin ✅ |
+| 관리자 → /timeline.html | 302 → /admin | 302 → /admin ✅ |
+| 데모 → /admin | 302 → /dashboard.html | 302 → /dashboard.html ✅ |
+| 데모 session[mode] | `DEMO` | `DEMO` ✅ |
+
+### 6.3 핵심 개선: 세션 삭제 버그 제거
+- **수정 전:** 관리자가 일반 사용자 페이지 접근 시 `session.clear()` → 강제 로그아웃 (UX 치명적 결함)
+- **수정 후:** 세션 유지 + `/admin`으로 리다이렉트 (세션 user_id=1 보존 확인)
+
 ## 4. 기능별 테스트 결과 (2026-06-24)
 
 ### 4.1. 이력서 빌더 - AI 코칭 기능 확장

@@ -184,6 +184,30 @@
   - 비인증 사용자: /admin 접근 시 302 차단 ✅
   - 데모 사용자: /admin 직접 접근 시 302 → /dashboard.html 차단 ✅
 
+### [T020] 관리자 데모 세션 어드민 전용 격리 ✅ (2026-06-24)
+- **수정 파일:** `app.py`, `resume_routes.py`
+- **수정 1 — 관리자 세션 mode 값 통일** (`resume_routes.py` login 함수)
+  - 기존: 관리자도 `mode='GENERAL'`로 설정 → 수정: `mode='ADMIN'`으로 명확히 구분
+  - 세션 mode 체계: `ADMIN` / `DEMO` / `GENERAL` 3종으로 완전 분리
+- **수정 2 — 관리자가 login.html 재접근 시** (`app.py` login_page 라우트)
+  - 기존: `session['user_id']` 있으면 무조건 `/dashboard.html` 리다이렉트
+  - 수정: `is_admin=True`이면 `/admin`으로 리다이렉트
+- **수정 3 — 관리자가 일반 사용자 페이지 접근 시** (`app.py` require_login 미들웨어)
+  - 기존: `session.clear()` 후 `/` 리다이렉트 (세션 삭제 = 강제 로그아웃)
+  - 수정: 세션 유지한 채로 `/admin` 리다이렉트
+  - 적용 범위: dashboard, builder, resume, timeline, profile-menu, select, main
+- **검증 결과 (서버사이드):**
+
+| 시나리오 | 기대 결과 | 실제 결과 |
+|---|---|---|
+| 관리자 로그인 → session[mode] | ADMIN | ADMIN ✅ |
+| 관리자 → /login.html | 302 → /admin | 302 → /admin ✅ |
+| 관리자 → /dashboard.html | 302 → /admin (세션 유지) | 302 → /admin, user_id=1 ✅ |
+| 관리자 → /builder.html | 302 → /admin | 302 → /admin ✅ |
+| 관리자 → /timeline.html | 302 → /admin | 302 → /admin ✅ |
+| 데모 → /admin | 302 → /dashboard.html | 302 → /dashboard.html ✅ |
+| 데모 session[mode] | DEMO | DEMO ✅ |
+
 ## 미구현 / 업데이트 예정
 - Google, 네이버, 카카오 간편로그인 (현재: 이메일/비밀번호 세션 방식)
 - 이력서 PDF 다운로드 (현재: 팝업 안내)
