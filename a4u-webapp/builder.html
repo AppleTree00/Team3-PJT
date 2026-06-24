@@ -169,6 +169,15 @@
     </script>
 </head>
 <body class="bg-surface-gray font-body-md text-on-surface">
+<!-- Demo Mode Banner -->
+<div id="demo-banner" class="hidden fixed top-16 left-0 w-full bg-amber-100 border-b-2 border-amber-300 text-amber-800 px-4 py-2 text-center text-sm font-semibold z-40">
+    <div class="max-w-max-width mx-auto flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined">experiment</span>
+        <span>현재 데모 모드를 체험 중입니다. 저장, 수정 등 일부 기능이 제한됩니다.</span>
+        <a href="login.html" class="ml-4 px-3 py-1 bg-primary text-white rounded-full text-xs hover:opacity-90">일반 계정으로 전환</a>
+    </div>
+</div>
+
 <!-- TopNavBar -->
 <nav class="bg-surface-container-lowest shadow-sm fixed top-0 w-full z-50">
     <div class="max-w-max-width mx-auto px-margin-desktop">
@@ -243,16 +252,16 @@
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">전문가 요약</label>
-<textarea class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="4">25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있으며, 현재는 은퇴를 앞두고 후배 개발자 양성과 기술 고도화에 전념하고 있습니다.</textarea>
+<textarea id="personalSummary" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="4">25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있으며, 현재는 은퇴를 앞두고 후배 개발자 양성과 기술 고도화에 전념하고 있습니다.</textarea>
 </div>
 <div class="grid grid-cols-2 gap-4">
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">이메일</label>
-<input class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="email" value="alex.r@design.com">
+<input id="personalEmail" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="email" value="alex.r@design.com">
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">전화번호</label>
-<input class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="+1 (555) 000-1234">
+<input id="personalPhone" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="+1 (555) 000-1234">
 </div>
 </div>
 </div>
@@ -272,26 +281,27 @@
 <div class="grid grid-cols-2 gap-4">
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">직책</label>
-<input class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="시니어 프로덕트 디자이너">
+<input id="exp1-title" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="수석 개발자 / PM">
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">회사명</label>
-<input class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="InnovateTech Inc.">
+<input id="exp1-company" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="(주)미래정보시스템">
 </div>
 </div>
 <div class="grid grid-cols-2 gap-4">
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">시작일</label>
-<input class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month">
+<input id="exp1-start" class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month" value="2010-03">
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">종료일</label>
-<input class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month">
+<input id="exp1-end" class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month" value="">
 </div>
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">주요 성과</label>
-<textarea class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" rows="3">• 200만 명의 사용자가 이용하는 결제 플랫폼 디자인 주도.&lt;br&gt;• UX 오딧을 통해 이탈률 15% 감소.</textarea>
+<textarea id="exp1-desc" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" rows="3">• 공공기관 차세대 시스템 구축 프로젝트 PM 및 아키텍처 설계 주도
+• Java/Spring 기반 레거시 시스템 고도화 및 유지보수 총괄</textarea>
 </div>
 </div>
 </div>
@@ -314,21 +324,31 @@
 </span>
 </div>
 <div class="relative">
-<input class="w-full pl-4 pr-12 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="기술 추가..." type="text">
+<input id="skills-input" class="w-full pl-4 pr-12 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="기술 추가..." type="text">
 <button class="absolute right-2 top-2 w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center">
 <span class="material-symbols-outlined">add</span>
 </button>
 </div>
 </div>
 </div>
+<div class="form-section" id="Cover Letter">
+    <h1 class="font-headline-lg text-headline-lg mb-8">자기소개서</h1>
+    <div class="space-y-6">
+        <div>
+            <label class="block font-label-md text-label-md text-on-surface mb-2">자기소개서 내용</label>
+            <textarea id="coverLetter" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="15" placeholder="성장 과정, 지원 동기, 장단점 등을 자유롭게 서술해주세요."></textarea>
+        </div>
+    </div>
+</div>
 <!-- Navigation buttons -->
 <div class="mt-12 flex justify-between items-center">
-<button class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
-                    대시보드로 돌아가기
-                </button>
-<button class="px-8 py-3 rounded-lg bg-primary text-white font-label-md text-label-md shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
-                    다음 섹션
-                    <span class="material-symbols-outlined">arrow_forward</span>
+<button id="prev-section-btn" class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all flex items-center gap-2">
+    <span class="material-symbols-outlined">arrow_back</span>
+    이전
+</button>
+<button id="next-section-btn" class="px-8 py-3 rounded-lg bg-primary text-white font-label-md text-label-md shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
+    다음
+    <span class="material-symbols-outlined">arrow_forward</span>
 </button>
 </div>
 </div>
@@ -341,7 +361,7 @@
                 </div>
 <!-- Resume Header -->
 <div class="border-b-4 border-primary pb-8 mb-8 flex justify-between items-start">
-<div>
+<div id="preview-personal-info">
 <h1 class="font-display-lg text-display-lg uppercase tracking-tight text-on-background">홍길동</h1>
 <p class="font-headline-md text-headline-md text-primary mt-2">시니어 Java 개발자 / PM</p>
 <div class="flex gap-4 mt-4 text-label-sm text-outline font-label-sm">
@@ -360,19 +380,19 @@
 <!-- Main Column -->
 <div class="col-span-2 space-y-8">
 <section>
-<h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">소개</h3>
-<p class="text-body-sm font-body-sm leading-relaxed text-on-surface-variant">25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있으며, 현재는 은퇴를 앞두고 후배 개발자 양성과 기술 고도화에 전념하고 있습니다.</p>
+<h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">전문가 요약</h3>
+<p id="preview-summary" class="text-body-sm font-body-sm leading-relaxed text-on-surface-variant">25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있으며, 현재는 은퇴를 앞두고 후배 개발자 양성과 기술 고도화에 전념하고 있습니다.</p>
 </section>
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">경력</h3>
-<div class="space-y-6"><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">수석 개발자 / 프로젝트 매니저 (PM)</h4><span class="text-[11px] font-bold text-outline">2010 — 현재</span></div><p class="text-label-sm font-label-sm text-primary mb-2">(주)한국시스템통합 (SI 중소기업)</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li class="">차세대 금융 시스템 구축 프로젝트 총괄 PM 수행.</li><li class="">Java 기반 프레임워크 고도화 및 표준 가이드 수립.</li><li class="">50명 규모의 개발팀 리딩 및 기술 멘토링.</li></ul></div><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">선임 개발자</h4><span class="text-[11px] font-bold text-outline">2000 — 2010</span></div><p class="text-label-sm font-label-sm text-primary mb-2">미래정보기술</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li class="">공공기관 행정망 통합 시스템 개발 참여.</li><li class="">Spring Framework 기반 웹 서비스 아키텍처 설계.</li></ul></div></div>
+<div id="preview-experience" class="space-y-6"><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">수석 개발자 / PM</h4><span class="text-[11px] font-bold text-outline">2010-03 — 현재</span></div><p class="text-label-sm font-label-sm text-primary mb-2">(주)미래정보시스템</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li>공공기관 차세대 시스템 구축 프로젝트 PM 및 아키텍처 설계 주도</li><li>Java/Spring 기반 레거시 시스템 고도화 및 유지보수 총괄</li></ul></div><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">선임 개발자</h4><span class="text-[11px] font-bold text-outline">2000 — 2010</span></div><p class="text-label-sm font-label-sm text-primary mb-2">미래정보기술</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li>공공기관 행정망 통합 시스템 개발 참여.</li><li>Spring Framework 기반 웹 서비스 아키텍처 설계.</li></ul></div></div>
 </section>
 </div>
 <!-- Sidebar Column -->
 <div class="space-y-8 border-l border-border-subtle pl-8">
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">기술</h3>
-<div class="flex flex-wrap gap-2"><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">JAVA / J2EE</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">SPRING FRAMEWORK</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">ORACLE / MYSQL</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">PM / PL</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">SYSTEM ARCHITECTURE</span></div>
+<div id="preview-skills" class="flex flex-wrap gap-2"><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">JAVA / J2EE</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">SPRING FRAMEWORK</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">ORACLE / MYSQL</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">PM / PL</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">SYSTEM ARCHITECTURE</span></div>
 </section>
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">학력</h3>
@@ -407,44 +427,114 @@
 </div>
 </footer>
 <script>
-    function switchTab(tabId) {
-        // Update Navigation UI
-        const tabs = document.querySelectorAll('.nav-tab');
-        const tabMappings = {
-            'Personal Info': '인적 사항',
-            'Experience': '경력 사항',
-            'Education': '학력 사항',
-            'Skills': '보유 기술',
-            'Certifications': '자격증'
-        };
+    const SECTIONS = [
+        { id: 'Personal Info', label: '인적 사항', fields: ['personalFullName', 'personalSummary', 'personalEmail', 'personalPhone'] },
+        { id: 'Experience', label: '경력 사항', fields: ['exp1-title', 'exp1-company', 'exp1-start', 'exp1-desc'] },
+        { id: 'Skills', label: '보유 기술', fields: ['skills-input'] },
+        { id: 'Cover Letter', label: '자기소개서', fields: ['coverLetter'] }
+    ];
+    let currentSectionIndex = 0;
 
-        tabs.forEach(tab => {
-            const label = tab.getAttribute('data-tab');
-            if (label === tabId) {
-                tab.classList.add('bg-primary-container', 'text-on-primary-container');
-                tab.classList.remove('text-on-surface-variant');
-            } else {
-                tab.classList.remove('bg-primary-container', 'text-on-primary-container');
-                tab.classList.add('text-on-surface-variant');
-            }
-        });
-
-        // Update Form Visibility
-        const sections = document.querySelectorAll('.form-section');
-        sections.forEach(section => {
-            section.classList.remove('active');
-            if (section.id === tabId) {
-                section.classList.add('active');
-            }
+    function generateBreadcrumbs() {
+        const container = document.getElementById('breadcrumbs');
+        container.innerHTML = SECTIONS.map((section, index) => `
+            <button data-index="${index}" class="nav-tab flex-col items-center justify-center p-2 rounded-lg transition-all text-xs font-bold">
+                <span class="check-icon material-symbols-outlined text-lg mb-1 hidden">check_circle</span>
+                <span class="label">${section.label}</span>
+            </button>
+        `).join('');
+        container.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => switchSection(parseInt(tab.dataset.index)));
         });
     }
 
-    // Add some subtle interaction to the preview
-    document.querySelectorAll('input, textarea').forEach(el => {
-        el.addEventListener('focus', () => {
-            // Focus ring handled by Tailwind, but could trigger preview highlights here
+    function switchSection(index) {
+        currentSectionIndex = Math.max(0, Math.min(index, SECTIONS.length - 1));
+        
+        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(SECTIONS[currentSectionIndex].id).classList.add('active');
+
+        document.querySelectorAll('#breadcrumbs .nav-tab').forEach((tab, i) => {
+            tab.classList.toggle('bg-primary', i === currentSectionIndex);
+            tab.classList.toggle('text-white', i === currentSectionIndex);
+            tab.classList.toggle('text-on-surface-variant', i !== currentSectionIndex);
+            tab.classList.toggle('bg-surface-container', i !== currentSectionIndex);
         });
-    });
+
+        document.getElementById('prev-section-btn').style.visibility = currentSectionIndex > 0 ? 'visible' : 'hidden';
+        const nextBtn = document.getElementById('next-section-btn');
+        if (currentSectionIndex === SECTIONS.length - 1) {
+            nextBtn.innerHTML = '저장하기 <span class="material-symbols-outlined">save</span>';
+            nextBtn.onclick = saveResume;
+        } else {
+            nextBtn.innerHTML = '다음 <span class="material-symbols-outlined">arrow_forward</span>';
+            nextBtn.onclick = () => switchSection(currentSectionIndex + 1);
+        }
+    }
+
+    function updateProgress() {
+        let completedFields = 0;
+        let totalFields = 0;
+
+        SECTIONS.forEach(section => {
+            let sectionCompleted = true;
+            section.fields.forEach(fieldId => {
+                totalFields++;
+                const el = document.getElementById(fieldId);
+                if (el && el.value.trim() !== '') {
+                    completedFields++;
+                } else {
+                    sectionCompleted = false;
+                }
+            });
+            const checkIcon = document.querySelector(`#breadcrumbs [data-index="${SECTIONS.indexOf(section)}"] .check-icon`);
+            if (checkIcon) checkIcon.classList.toggle('hidden', !sectionCompleted);
+        });
+
+        const percentage = totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
+        document.getElementById('progress-bar').style.width = `${percentage}%`;
+        document.getElementById('progress-text').textContent = `${percentage}%`;
+        
+        // Also update preview in real-time
+        updatePreview();
+    }
+
+    function updatePreview() {
+        // Personal Info
+        document.querySelector('#preview-personal-info h1').textContent = document.getElementById('personalFullName').value || '이름';
+        document.querySelector('#preview-personal-info p').textContent = document.getElementById('personalSummary').value.split('\n')[0] || '직무';
+        document.querySelector('#preview-personal-info span:has(> span:contains(mail))').lastChild.textContent = ' ' + (document.getElementById('personalEmail').value || '이메일');
+        document.querySelector('#preview-personal-info span:has(> span:contains(phone))').lastChild.textContent = ' ' + (document.getElementById('personalPhone').value || '전화번호');
+        document.getElementById('preview-summary').textContent = document.getElementById('personalSummary').value || '전문가 요약...';
+
+        // Experience
+        const expTitle = document.getElementById('exp1-title').value;
+        const expCompany = document.getElementById('exp1-company').value;
+        const expStart = document.getElementById('exp1-start').value;
+        const expEnd = document.getElementById('exp1-end').value || '현재';
+        const expDesc = document.getElementById('exp1-desc').value.split('\n').map(line => `<li>${line}</li>`).join('');
+        document.querySelector('#preview-experience div h4').textContent = expTitle || '직책';
+        document.querySelector('#preview-experience div p').textContent = expCompany || '회사명';
+        document.querySelector('#preview-experience div span').textContent = `${expStart} — ${expEnd}`;
+        document.querySelector('#preview-experience div ul').innerHTML = expDesc;
+    }
+
+    function saveBuilderState() {
+        const state = {};
+        SECTIONS.flatMap(s => s.fields).forEach(fieldId => {
+            const el = document.getElementById(fieldId);
+            if (el) state[fieldId] = el.value;
+        });
+        localStorage.setItem('a4uBuilderState', JSON.stringify(state));
+    }
+
+    function loadBuilderState() {
+        const state = JSON.parse(localStorage.getItem('a4uBuilderState') || '{}');
+        Object.keys(state).forEach(fieldId => {
+            const el = document.getElementById(fieldId);
+            if (el) el.value = state[fieldId];
+        });
+    }
 
     // Mobile menu toggle
     const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -476,6 +566,8 @@
     setActiveLink(navLinks);
     setActiveLink(mobileNavLinks);
 
+    let _currentUser = null;
+
     // ── 네비게이션 인증 상태 동적 표시 ────────────────────────────────
     (async function updateNavAuth() {
         try {
@@ -485,6 +577,7 @@
             if (!profileLink) return;
             if (data.success && data.user) {
                 const nameEl = document.createElement('span');
+                _currentUser = data.user;
                 nameEl.className = 'hidden sm:block text-sm font-semibold text-on-surface truncate max-w-[80px]';
                 nameEl.textContent = data.user.name;
                 profileLink.parentNode.insertBefore(nameEl, profileLink);
@@ -496,13 +589,68 @@
                         if (icon) icon.classList.add('hidden');
                     });
                 }
+                // 데모 모드일 때 배너 표시
+                if (_currentUser && _currentUser.email === 'demo@a4u.com') {
+                    const banner = document.getElementById('demo-banner');
+                    if (banner) {
+                        banner.classList.remove('hidden');
+                    }
+                }
             }
         } catch (_) {}
     })();
 
+    // ── 토스트 알림 (Toast) ──────────────────────────────────────────
+    function showToast(message, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `p-4 rounded-xl shadow-lg text-white font-medium text-sm transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center gap-3`;
+        
+        if (type === 'success') {
+            toast.classList.add('bg-emerald-600');
+        } else if (type === 'error') {
+            toast.classList.add('bg-rose-600');
+        } else if (type === 'warning') {
+            toast.classList.add('bg-amber-500');
+        } else {
+            toast.classList.add('bg-slate-800');
+        }
+
+        let iconName = 'info';
+        if (type === 'success') iconName = 'check_circle';
+        if (type === 'error') iconName = 'error';
+        if (type === 'warning') iconName = 'warning';
+
+        toast.innerHTML = `
+            <span class="material-symbols-outlined text-[20px] shrink-0">${iconName}</span>
+            <span class="flex-1">${message}</span>
+        `;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.remove('translate-y-2', 'opacity-0');
+        }, 10);
+
+        setTimeout(() => {
+            toast.classList.add('translate-y-2', 'opacity-0');
+            setTimeout(() => {
+                toast.remove();
+                if (container.children.length === 0) container.remove();
+            }, 300);
+        }, 3000);
+    }
+
     // ── 미구현 기능 안내 팝업 ──────────────────────────────────────────
     function handleUnavailableFeature() {
-        alert('현재 이 기능은 고도화 단계에 있습니다. 업데이트 이후 사용 가능하니 잠시만 기다려주세요.');
+        showToast('준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다.', 'warning');
     }
 
     // ── 알림 버튼 ──────────────────────────────────────────────────────
@@ -515,19 +663,24 @@
 
     // ── 이력서 저장 (API 연동) ─────────────────────────────────────────
     async function saveResume() {
+        if (_currentUser && _currentUser.email === 'demo@a4u.com') {
+            showToast('데모 체험 중에는 저장할 수 없습니다. 일반 계정으로 이용해주세요.', 'warning');
+            return;
+        }
+
         const fields = {};
         document.querySelectorAll('input[id], textarea[id]').forEach(el => {
             fields[el.id] = el.value;
         });
 
         const payload = {
-            title: fields['resumeTitle'] || fields['jobTitle'] || '내 이력서',
-            full_name: (fields['firstName'] || '') + ' ' + (fields['lastName'] || ''),
-            email: fields['email'] || '',
-            phone: fields['phone'] || '',
-            location: fields['location'] || '',
-            job_title: fields['jobTitle'] || fields['currentTitle'] || '',
-            summary: fields['summary'] || fields['professionalSummary'] || '',
+            title: document.getElementById('personalFullName').value + '의 이력서',
+            full_name: document.getElementById('personalFullName').value,
+            email: document.getElementById('personalEmail').value,
+            phone: document.getElementById('personalPhone').value,
+            location: '미기재',
+            job_title: document.getElementById('exp1-title').value,
+            summary: document.getElementById('personalSummary').value,
             sample_type: 'custom'
         };
 
@@ -540,23 +693,56 @@
             });
             const data = await r.json();
             if (data.success) {
-                alert('이력서가 저장되었습니다!');
+                showToast('이력서가 저장되었습니다!', 'success');
             } else {
-                alert('저장 중 오류가 발생했습니다: ' + (data.message || ''));
+                showToast('저장 중 오류가 발생했습니다: ' + (data.message || ''), 'error');
             }
         } catch (err) {
-            alert('저장 중 네트워크 오류가 발생했습니다.');
+            showToast('저장 중 네트워크 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    // ── AI 코칭 모달 ───────────────────────────────────────────────────
+    function openCoachingModal(content) {
+        const modal = document.getElementById('coaching-modal');
+        const contentEl = document.getElementById('coaching-modal-content');
+        if (modal && contentEl) {
+            // Simple markdown-to-HTML for better readability
+            let htmlContent = content
+                .replace(/</g, "&lt;").replace(/>/g, "&gt;") // Basic XSS protection
+                .replace(/▶ 개선 전:/g, '<strong class="text-rose-600">▶ 개선 전:</strong>')
+                .replace(/▶ 개선 후:/g, '<strong class="text-emerald-600">▶ 개선 후:</strong>')
+                .replace(/💡 팁:/g, '<strong class="text-blue-600">💡 팁:</strong>')
+                .replace(/\n/g, '<br>');
+
+            contentEl.innerHTML = htmlContent;
+            modal.classList.remove('hidden');
+        }
+    }
+
+    function closeCoachingModal() {
+        const modal = document.getElementById('coaching-modal');
+        if (modal) {
+            modal.classList.add('hidden');
         }
     }
 
     // ── AI 코칭 요청 ───────────────────────────────────────────────────
     async function requestAICoaching() {
-        const summaryEl = document.querySelector('textarea[id]');
+        const summaryEl = document.getElementById('personalSummary');
         const resumeText = summaryEl ? summaryEl.value : '';
         if (!resumeText.trim()) {
-            alert('이력서 내용을 먼저 입력해주세요.');
+            showToast('이력서 내용을 먼저 입력해주세요.', 'warning');
             return;
         }
+
+        const coachingBtn = Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.trim().includes('AI 코칭') || btn.querySelector('.material-symbols-outlined')?.textContent.trim() === 'psychology');
+        const originalBtnContent = coachingBtn ? coachingBtn.innerHTML : '';
+        if (coachingBtn) {
+            coachingBtn.disabled = true;
+            coachingBtn.innerHTML = `<span class="material-symbols-outlined animate-spin">progress_activity</span> 분석 중...`;
+        }
+
         try {
             const r = await fetch('/api/coaching', {
                 method: 'POST',
@@ -566,12 +752,17 @@
             });
             const data = await r.json();
             if (data.success) {
-                alert('[AI 코칭 결과]\n\n' + data.coaching);
+                openCoachingModal(data.coaching);
             } else {
-                alert(data.message || 'AI 코칭 요청에 실패했습니다.');
+                showToast(data.message || 'AI 코칭 요청에 실패했습니다.', 'error');
             }
         } catch (err) {
-            alert('AI 코칭 요청 중 네트워크 오류가 발생했습니다.');
+            showToast('AI 코칭 요청 중 네트워크 오류가 발생했습니다.', 'error');
+        } finally {
+            if (coachingBtn) {
+                coachingBtn.disabled = false;
+                coachingBtn.innerHTML = originalBtnContent;
+            }
         }
     }
 
@@ -591,6 +782,26 @@
         } else if (iconText === 'share' || text.includes('공유')) {
             btn.addEventListener('click', handleUnavailableFeature);
         }
+    });
+
+    // ── 초기화 ───────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        generateBreadcrumbs();
+        loadBuilderState();
+        switchSection(0);
+        updateProgress();
+
+        document.querySelectorAll('.form-section input, .form-section textarea').forEach(el => {
+            el.addEventListener('input', () => {
+                updateProgress();
+                saveBuilderState();
+            });
+        });
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { closeCoachingModal(); }
+        });
     });
 </script>
 

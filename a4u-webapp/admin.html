@@ -289,6 +289,7 @@ tailwind.config = {
                 <th class="text-left px-4 py-3 font-semibold">이름</th>
                 <th class="text-left px-4 py-3 font-semibold">이메일</th>
                 <th class="text-left px-4 py-3 font-semibold">이력서</th>
+                <th class="text-left px-4 py-3 font-semibold">이력서</th>
                 <th class="text-left px-4 py-3 font-semibold">상태</th>
                 <th class="text-left px-4 py-3 font-semibold">가입일</th>
                 <th class="text-left px-4 py-3 font-semibold">액션</th>
@@ -609,6 +610,9 @@ async function checkAIStatus() {
         const hasAI = d.ai_available;
         const badge = document.getElementById('ai-status-badge');
         const dashBadge = document.getElementById('ai-status-indicator');
+        const navSchema = document.getElementById('nav-schema');
+        const schemaSection = document.getElementById('section-schema');
+
         if (hasAI) {
             badge.className = 'badge badge-green';
             badge.innerHTML = '<span class="ms" style="font-size:13px">smart_toy</span>&nbsp;AI 연동됨';
@@ -617,6 +621,25 @@ async function checkAIStatus() {
             badge.className = 'badge badge-yellow';
             badge.innerHTML = '<span class="ms" style="font-size:13px">smart_toy</span>&nbsp;Mock 모드';
             if (dashBadge) { dashBadge.className = 'badge badge-yellow'; dashBadge.textContent = 'Mock 모드'; }
+
+            // AI 스키마 콘솔 비활성화 및 안내 메시지 표시
+            if (navSchema) {
+                navSchema.classList.add('opacity-60');
+                navSchema.title = 'AI 스키마 콘솔은 AI 키 설정이 필요합니다.';
+            }
+            if (schemaSection) {
+                schemaSection.innerHTML = `
+                    <div class="card p-8 text-center h-full flex flex-col justify-center items-center">
+                        <span class="ms text-5xl text-on-surface-variant mb-4" style="font-size: 48px;">smart_toy</span>
+                        <h2 class="text-lg font-bold text-on-surface mb-2">AI 키가 필요합니다</h2>
+                        <p class="text-sm text-on-surface-variant max-w-md mx-auto">
+                            'AI 스키마 콘솔' 기능은 자연어 처리를 위해 OpenAI 또는 Gemini API 키가 필요합니다.
+                            <br>
+                            서버 환경변수에 <code>OPENAI_API_KEY</code> 또는 <code>GEMINI_API_KEY</code>를 설정한 후 다시 시도해주세요.
+                        </p>
+                    </div>
+                `;
+            }
         }
     } catch (_) {}
 }
@@ -642,7 +665,12 @@ function showSection(name) {
     if (name === 'resumes') loadResumes();
     if (name === 'templates') loadTemplates();
     if (name === 'files') loadFiles();
-    if (name === 'schema') { loadSchema(); loadMigrations(); }
+    if (name === 'schema') {
+        // AI 키가 없어 섹션 내용이 대체된 경우, load 함수를 호출하지 않음
+        if (document.getElementById('schema-display')) {
+            loadSchema(); loadMigrations();
+        }
+    }
 }
 
 // ── 대시보드 ──────────────────────────────────────────────────────────
@@ -705,7 +733,7 @@ async function loadUsers() {
             <td class="px-4 py-3 text-on-surface-variant text-xs">#${u.id}</td>
             <td class="px-4 py-3 font-medium">${esc(u.name)}${u.is_admin ? ' <span class="badge badge-purple" style="font-size:10px">관리자</span>' : ''}</td>
             <td class="px-4 py-3 text-on-surface-variant">${esc(u.email)}</td>
-            <td class="px-4 py-3 text-on-surface-variant">${u.resume_count}개</td>
+            <td class="px-4 py-3 text-on-surface-variant">${u.resume_count ?? 0}개</td>
             <td class="px-4 py-3">${statusBadge(u.status)}</td>
             <td class="px-4 py-3 text-on-surface-variant text-xs">${fmtDate(u.created_at)}</td>
             <td class="px-4 py-3">

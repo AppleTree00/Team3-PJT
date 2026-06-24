@@ -20,6 +20,16 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated
 
+def demo_mode_blocked(f):
+    """데모 모드일 경우 쓰기 작업을 차단하는 데코레이터"""
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if session.get('mode') == 'DEMO':
+            return jsonify(success=False, status="blocked", message="데모 모드에서는 관리자 작업을 수행할 수 없습니다."), 403
+        return f(*args, **kwargs)
+    return decorated
+
 
 @admin_bp.route('/login', methods=['POST'])
 def admin_login():
@@ -79,6 +89,7 @@ def get_stats():
 @admin_bp.route('/users', methods=['GET'])
 @admin_required
 def list_users():
+    from models import Resume
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
     search = request.args.get('search', '')
@@ -94,8 +105,14 @@ def list_users():
 
     pagination = query.order_by(User.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
 
+    users_data = []
+    for u in pagination.items:
+        d = u.to_dict()
+        d['resume_count'] = Resume.query.filter_by(user_id=u.id, is_sample=False).count()
+        users_data.append(d)
+
     return jsonify(
-        users=[u.to_dict() for u in pagination.items],
+        users=users_data,
         total=pagination.total,
         pages=pagination.pages,
         current_page=page
@@ -111,6 +128,7 @@ def get_user(user_id):
 
 @admin_bp.route('/users', methods=['POST'])
 @admin_required
+@demo_mode_blocked
 def create_user():
     data = request.get_json()
     if User.query.filter_by(email=data.get('email')).first():
@@ -129,6 +147,7 @@ def create_user():
 
 @admin_bp.route('/users/<int:user_id>', methods=['PUT'])
 @admin_required
+@demo_mode_blocked
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     data = request.get_json()
@@ -152,6 +171,7 @@ def update_user(user_id):
 
 @admin_bp.route('/users/<int:user_id>', methods=['DELETE'])
 @admin_required
+@demo_mode_blocked
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
@@ -177,6 +197,7 @@ def get_template(template_id):
 
 @admin_bp.route('/templates', methods=['POST'])
 @admin_required
+@demo_mode_blocked
 def create_template():
     data = request.get_json()
     t = ResumeTemplate(
@@ -194,6 +215,7 @@ def create_template():
 
 @admin_bp.route('/templates/<int:template_id>', methods=['PUT'])
 @admin_required
+@demo_mode_blocked
 def update_template(template_id):
     t = ResumeTemplate.query.get_or_404(template_id)
     data = request.get_json()
@@ -207,6 +229,7 @@ def update_template(template_id):
 
 @admin_bp.route('/templates/<int:template_id>', methods=['DELETE'])
 @admin_required
+@demo_mode_blocked
 def delete_template(template_id):
     t = ResumeTemplate.query.get_or_404(template_id)
     # 파일 삭제
@@ -222,6 +245,7 @@ def delete_template(template_id):
 
 @admin_bp.route('/templates/<int:template_id>/upload', methods=['POST'])
 @admin_required
+@demo_mode_blocked
 def upload_template_file(template_id):
     """PDF/WORD 파일 업로드 및 템플릿 등록"""
     from werkzeug.utils import secure_filename
@@ -332,6 +356,7 @@ def list_all_resumes():
 
 @admin_bp.route('/resumes/<int:resume_id>', methods=['DELETE'])
 @admin_required
+@demo_mode_blocked
 def delete_resume(resume_id):
     from models import Resume
     r = Resume.query.get_or_404(resume_id)
@@ -367,6 +392,7 @@ def list_files():
 
 @admin_bp.route('/files/<int:file_id>', methods=['DELETE'])
 @admin_required
+@demo_mode_blocked
 def delete_file(file_id):
     f = UploadedFile.query.get_or_404(file_id)
     upload_folder = current_app.config['UPLOAD_FOLDER']
@@ -405,10 +431,10 @@ def generate_migration():
 
     # AI 미연동 상태: 자연어 → SQL 변환 플레이스홀더
     # TODO: OpenAI / Claude API 키 설정 후 실제 AI 연동
-    ai_available = bool(os.environ.get('OPENAI_API_KEY') or os.environ.get('ANTHROPIC_API_KEY'))
+    ai_available = bool(os.environ.get('OPENAI_API_KEY') or os.environ.get('GEMINI_API_KEY'))
 
     if ai_available:
-        sql = _call_ai_for_sql(natural_language)
+        sql = _call_ai_for_sql(natural_language, db)
     else:
         sql = _mock_sql_from_description(natural_language)
 
@@ -422,6 +448,7 @@ def generate_migration():
 
 @admin_bp.route('/schema/apply', methods=['POST'])
 @admin_required
+@demo_mode_blocked
 def apply_migration():
     data = request.get_json()
     sql_query = data.get('sql_query', '').strip()
@@ -468,20 +495,20 @@ def list_migrations():
 def _mock_sql_from_description(description: str) -> str:
     desc_lower = description.lower()
     if '컬럼' in description or 'column' in desc_lower or '추가' in description:
-        return "-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 ANTHROPIC_API_KEY 환경변수를 설정하세요.\n-- 예시:\nALTER TABLE users ADD COLUMN phone VARCHAR(20);"
+        return "-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 GEMINI_API_KEY 환경변수를 설정하세요.\n-- 예시:\nALTER TABLE users ADD COLUMN phone VARCHAR(20);"
     elif '테이블' in description or 'table' in desc_lower or '생성' in description:
-        return "-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 ANTHROPIC_API_KEY 환경변수를 설정하세요.\n-- 예시:\nCREATE TABLE new_table (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n  name VARCHAR(100) NOT NULL,\n  created_at DATETIME DEFAULT CURRENT_TIMESTAMP\n);"
+        return "-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 GEMINI_API_KEY 환경변수를 설정하세요.\n-- 예시:\nCREATE TABLE new_table (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n  name VARCHAR(100) NOT NULL,\n  created_at DATETIME DEFAULT CURRENT_TIMESTAMP\n);"
     elif '인덱스' in description or 'index' in desc_lower:
-        return "-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 ANTHROPIC_API_KEY 환경변수를 설정하세요.\n-- 예시:\nCREATE INDEX idx_users_email ON users(email);"
+        return "-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 GEMINI_API_KEY 환경변수를 설정하세요.\n-- 예시:\nCREATE INDEX idx_users_email ON users(email);"
     else:
-        return f"-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 ANTHROPIC_API_KEY 환경변수를 설정하세요.\n-- 입력: {description}\n-- 여기에 SQL을 직접 작성하세요."
+        return f"-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 GEMINI_API_KEY 환경변수를 설정하세요.\n-- 입력: {description}\n-- 여기에 SQL을 직접 작성하세요."
 
 
-def _call_ai_for_sql(description: str) -> str:
+def _call_ai_for_sql(description: str, db_instance) -> str:
     openai_key = os.environ.get('OPENAI_API_KEY')
-    anthropic_key = os.environ.get('ANTHROPIC_API_KEY')
+    gemini_key = os.environ.get('GEMINI_API_KEY')
 
-    inspector = inspect(db.engine)
+    inspector = inspect(db_instance.engine)
     schema_info = {}
     for table_name in inspector.get_table_names():
         cols = [f"{c['name']} {c['type']}" for c in inspector.get_columns(table_name)]
@@ -509,17 +536,26 @@ SQL만 반환하고 다른 설명은 생략하세요."""
         except Exception as e:
             return f"-- OpenAI 오류: {e}"
 
-    if anthropic_key:
+    if gemini_key:
         try:
-            import anthropic
-            client = anthropic.Anthropic(api_key=anthropic_key)
-            message = client.messages.create(
-                model="claude-3-haiku-20240307",
-                max_tokens=500,
-                messages=[{"role": "user", "content": prompt}]
-            )
-            return message.content[0].text.strip()
+            from google import genai
+            from google.genai import types
+            client = genai.Client(api_key=gemini_key)
+            models_to_try = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-flash-latest']
+            last_error = None
+            for model_name in models_to_try:
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(max_output_tokens=500, temperature=0.3)
+                    )
+                    return response.text
+                except Exception as e:
+                    last_error = e
+                    continue
+            return f"-- Gemini 오류: {last_error}"
         except Exception as e:
-            return f"-- Anthropic 오류: {e}"
+            return f"-- Gemini 오류: {e}"
 
     return _mock_sql_from_description(description)

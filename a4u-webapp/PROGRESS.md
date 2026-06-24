@@ -29,7 +29,7 @@
 - `coaching_routes.py` 신규 생성
   - POST /api/coaching — Few-shot 3종 프롬프트 기반 코칭
   - GET  /api/coaching/samples — 지원 가능한 샘플 타입 목록
-  - OpenAI(gpt-4o-mini) → Anthropic(claude-3-haiku) → Mock 순서로 Fallback
+  - OpenAI(gpt-4o-mini) → Gemini → Mock 순서로 Fallback
   - 미지원 타입: 422 + "고도화 단계" 안내 메시지
 
 ### [T004] 프론트엔드 팝업 + API 연동 ✅

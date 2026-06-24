@@ -323,7 +323,45 @@
 
     // ── 미구현 기능 안내 팝업 ──────────────────────────────────────────
     function handleUnavailableFeature() {
-        alert('현재 이 기능은 고도화 단계에 있습니다. 업데이트 이후 사용 가능하니 잠시만 기다려주세요.');
+        showToast('준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다.', 'warning');
+    }
+
+    // ── 토스트 알림 (Toast) ──────────────────────────────────────────
+    function showToast(message, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `p-4 rounded-xl shadow-lg text-white font-medium text-sm transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center gap-3`;
+        
+        if (type === 'success') {
+            toast.classList.add('bg-emerald-600');
+        } else if (type === 'error') {
+            toast.classList.add('bg-rose-600');
+        } else if (type === 'warning') {
+            toast.classList.add('bg-amber-500');
+        } else {
+            toast.classList.add('bg-slate-800');
+        }
+
+        let iconName = 'info';
+        if (type === 'success') iconName = 'check_circle';
+        if (type === 'error') iconName = 'error';
+        if (type === 'warning') iconName = 'warning';
+
+        toast.innerHTML = `
+            <span class="material-symbols-outlined text-[20px] shrink-0">${iconName}</span>
+            <span class="flex-1">${message}</span>
+        `;
+
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+        setTimeout(() => { toast.classList.add('translate-y-2', 'opacity-0'); setTimeout(() => { toast.remove(); if (container.children.length === 0) container.remove(); }, 300); }, 3000);
     }
 
     // ── 알림 버튼 ──────────────────────────────────────────────────────

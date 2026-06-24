@@ -180,7 +180,7 @@ def _mock_coaching(sample_type: str, resume_text: str) -> str:
 
 ---
 ⚠️ 이 결과는 데모 목적의 Mock 응답입니다.
-실제 AI 코칭을 사용하려면 OPENAI_API_KEY 또는 ANTHROPIC_API_KEY를 설정하세요.
+실제 AI 코칭을 사용하려면 OPENAI_API_KEY 또는 GEMINI_API_KEY를 설정하세요.
 """
 
 
