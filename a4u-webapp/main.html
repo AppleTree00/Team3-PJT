@@ -1,16 +1,9 @@
 <!DOCTYPE html>
 
 <html class="scroll-smooth" lang="ko"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta property="og:title" content="a4u - 인공지능으로 커리어의 가치를 높이세요">
-<meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
-<meta property="og:image" content="/og-image.png">
-<meta property="og:type" content="website">
 <title>a4u - 인공지능으로 커리어의 가치를 높이세요</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+{% include '_head.html' %}
 <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
@@ -391,21 +384,7 @@
 </div>
 </section>
 </main>
-<!-- Footer -->
-<footer class="bg-surface-container-low border-t border-border-subtle mt-auto w-full">
-<div class="flex flex-col md:flex-row justify-between items-center px-2 md:px-margin-desktop py-4 md:py-gutter max-w-max-width mx-auto gap-4 md:gap-8">
-<div class="mb-3 md:mb-0 space-y-2 text-center md:text-left">
-<span class="font-headline-md text-headline-md text-primary font-bold">a4u</span>
-<p class="font-body-sm text-on-surface-variant text-xs md:text-sm break-words">© 2026 a4u 커리어 매니지먼트. All rights reserved.</p>
-</div>
-<div class="flex gap-3 md:gap-8 flex-wrap justify-center md:justify-start text-center md:text-left">
-<a class="font-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">소개</a>
-<a class="font-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">개인정보 처리방침</a>
-<a class="font-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">이용약관</a>
-<a class="font-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">고객 센터</a>
-</div>
-</div>
-</footer>
+{% include '_footer.html' %}
 <script>
     // Mobile menu toggle
     const mobileMenuButton = document.getElementById('mobile-menu-button');

@@ -1,14 +1,9 @@
 <!DOCTYPE html>
 
 <html class="light" lang="ko"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta property="og:title" content="이력서 선택 - a4u">
-<meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
-<meta property="og:image" content="/og-image.png">
-<meta property="og:type" content="website"><title>이력서 빌더 - a4u</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<meta property="og:title" content="이력서 선택 - a4u">
+<title>이력서 빌더 - a4u</title>
+{% include '_head.html' %}
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -462,18 +457,7 @@
 </div>
 </div>
 </main>
-<!-- Footer -->
-<footer class="w-full mt-auto bg-surface-container-low border-t border-border-subtle">
-<div class="flex flex-col md:flex-row justify-between items-center px-2 md:px-margin-desktop py-4 md:py-gutter max-w-max-width mx-auto gap-3 md:gap-6">
-<span class="font-body-sm text-body-sm text-on-surface-variant text-xs md:text-sm break-words text-center md:text-left">© 2026 a4u 커리어 관리</span>
-<div class="flex gap-2 md:gap-6 mt-2 md:mt-0 flex-wrap justify-center md:justify-end">
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">소개</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">개인정보처리방침</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">이용약관</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">고객센터</a>
-</div>
-</div>
-</footer>
+{% include '_footer.html' %}
 <script>
     function switchTab(tabId) {
         // Update Navigation UI

@@ -1,16 +1,9 @@
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta property="og:title" content="로그인 - a4u">
-<meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
-<meta property="og:image" content="/og-image.png">
-<meta property="og:type" content="website">
 <title>a4u - 로그인</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+{% include '_head.html' %}
 <script id="tailwind-config">
 tailwind.config = {
   theme: {
@@ -294,10 +287,9 @@ tailwind.config = {
       </div>
     </div>
 
-    <p class="text-center text-xs md:text-sm text-on-surface-variant mt-4 md:mt-6 break-words px-2">© 2026 a4u 커리어 매니지먼트</p>
   </div>
 </main>
-
+{% include '_footer.html' %}
 <script>
 // ── 탭 전환 ──────────────────────────────────────────────────────────
 function switchTab(tab) {
