@@ -9,3 +9,12 @@
     max-height: 320px;
     opacity: 1;
 }
+
+#mobile-menu-button .material-symbols-outlined {
+    display: inline-block;
+    transition: transform 0.25s ease, opacity 0.15s ease;
+}
+
+#mobile-menu-button.open .material-symbols-outlined {
+    transform: rotate(90deg);
+}

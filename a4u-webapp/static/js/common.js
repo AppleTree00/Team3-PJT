@@ -39,16 +39,30 @@ document.addEventListener('DOMContentLoaded', function () {
     if (mobileMenuButton && mobileMenu) {
         mobileMenu.classList.remove('hidden');
 
+        var menuIcon = mobileMenuButton.querySelector('.material-symbols-outlined');
+
+        function openMenu() {
+            mobileMenu.classList.add('open');
+            mobileMenuButton.classList.add('open');
+            if (menuIcon) menuIcon.textContent = 'close';
+        }
+
+        function closeMenu() {
+            mobileMenu.classList.remove('open');
+            mobileMenuButton.classList.remove('open');
+            if (menuIcon) menuIcon.textContent = 'menu';
+        }
+
         mobileMenuButton.addEventListener('click', function (e) {
             e.stopPropagation();
-            mobileMenu.classList.toggle('open');
+            mobileMenu.classList.contains('open') ? closeMenu() : openMenu();
         });
 
         document.addEventListener('click', function (e) {
             if (mobileMenu.classList.contains('open') &&
                 !mobileMenu.contains(e.target) &&
                 !mobileMenuButton.contains(e.target)) {
-                mobileMenu.classList.remove('open');
+                closeMenu();
             }
         });
     }
