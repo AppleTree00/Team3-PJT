@@ -78,3 +78,34 @@
 ### 5.5 파일 업로드 예외 처리 (Task 1 완료)
 - `select.html` `<input accept=".pdf,.docx,.doc">` 명시적 추가
 - Try-Catch 기반 예외 처리: UI 멈춤 없이 에러 메시지 노출
+
+---
+
+## **6. Gemini 손상 복구 — tailwind.config 복원 (2026-06-24)**
+
+### 6.1 손상 내용
+- **파일:** `a4u-webapp/_head.html`
+- **Gemini가 한 것:** `<script id="tailwind-config">` 블록 전체 삭제
+- **영향:** `_head.html`은 `{% include '_head.html' %}`로 모든 HTML 페이지에 공유됨. 삭제로 인해 전 페이지의 커스텀 Tailwind 클래스가 무효화:
+  - 색상 클래스: `bg-primary`, `text-on-surface`, `bg-surface-container-lowest` 등 51개 토큰 전부
+  - 폰트 크기: `font-headline-lg`, `text-display-lg`, `text-label-md` 등
+  - 여백: `max-w-max-width`, `px-margin-desktop`, `gap-gutter` 등
+  - 외관 컴포넌트: `.tonal-elevation` (카드 그림자)
+
+### 6.2 복원 내용
+복원된 `tailwind.config` 구성 요소:
+
+| 카테고리 | 항목 수 | 주요 예시 |
+|---|---|---|
+| colors | 51개 | `primary: #3525cd`, `on-surface: #111c2d`, `surface-container-lowest: #ffffff` |
+| spacing | 5개 | `margin-desktop: 40px`, `gutter: 24px`, `max-width: 1280px` |
+| fontSize | 9개 | `display-lg: 48px/700`, `headline-lg: 32px/600`, `label-md: 14px/600` |
+| fontFamily | 9개 | 모두 Inter |
+| maxWidth | 1개 | `max-width: 1280px` |
+| borderRadius | 4개 | DEFAULT~full |
+| 추가 CSS | 1개 | `.tonal-elevation { box-shadow: 0px 4px 12px ... }` |
+
+### 6.3 복원 검증
+- **방법:** 팀원 Replit 원본 사이트(`pike.replit.dev/main.html`)를 curl로 접근해 `tailwind.config` 블록 추출 → 대조 후 복원
+- **시각 확인:** 복원 전/후 main.html 스크린샷 비교 — 참고 사이트와 완전 일치 ✅
+- **주의사항:** `_head.html` 수정은 반드시 Replit Agent에서만. 전 페이지에 즉시 영향을 미치는 전역 파일이므로 Gemini 사용 금지

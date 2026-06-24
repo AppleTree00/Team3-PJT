@@ -52,6 +52,33 @@
 - 제출처 `submitted_at`: status=`submitted` 변경 시에만 자동 기록 (설계 사양)
 - Tailwind CDN 경고: 기능 무관, 프로덕션 배포 시 빌드 방식으로 전환 권장
 
+## 5. Gemini 손상 복구 QA 결과 (2026-06-24) ✅ 전건 PASS
+
+### 5.1 BUG-004: admin.html 사이드바·헤더 중복 렌더링
+| 항목 | 수정 전 | 수정 후 | 결과 |
+|---|---|---|---|
+| `<aside>` 태그 수 | 2개 | 1개 | PASS ✅ |
+| `<header>` 태그 수 | 2개 | 1개 | PASS ✅ |
+| ADMIN CONSOLE 텍스트 수 | 2개 | 1개 | PASS ✅ |
+| 관리자 로그인 → /admin | - | 200 OK | PASS ✅ |
+| 데모 사용자 → /admin 접근 | - | 302 차단 → /dashboard.html | PASS ✅ |
+| 비인증 사용자 → /admin 접근 | - | 302 차단 → /login.html | PASS ✅ |
+
+### 5.2 BUG-005: _head.html tailwind.config 삭제로 전 페이지 CSS 붕괴
+| 항목 | 수정 전 | 수정 후 | 결과 |
+|---|---|---|---|
+| a4u 로고 색상 | 색상 없음 | 파란색 볼드 | PASS ✅ |
+| 히어로 제목 크기 | 기본값 (소) | display-lg 48px 볼드 | PASS ✅ |
+| "지능" 강조 색상 | 없음 | `text-primary` (#3525cd) | PASS ✅ |
+| 배지 배경 | 없음 | `bg-primary-fixed` (#e2dfff) | PASS ✅ |
+| "무료로 시작하기" 버튼 | 테두리만 | `bg-primary` 파란색 채움 | PASS ✅ |
+| "로그인" 버튼 | 텍스트만 | `bg-primary` 파란색 박스 | PASS ✅ |
+| 참고 사이트 대비 | 전혀 다름 | 시각적 완전 일치 | PASS ✅ |
+
+### 5.3 잔여 참고사항
+- `cdn.tailwindcss.com should not be used in production` 경고: 기능 무관, 프로덕션 배포 시 Tailwind CLI 빌드로 전환 권장 (설계 사양)
+- Gemini 사용 제한 정책 QA: 단일 파일 단순 수정에만 허용, 위반 시 PM에 즉시 보고
+
 ## 4. 기능별 테스트 결과 (2026-06-24)
 
 ### 4.1. 이력서 빌더 - AI 코칭 기능 확장

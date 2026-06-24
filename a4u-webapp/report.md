@@ -73,6 +73,21 @@
     2.  **`handleUnavailableFeature()` 함수 개선**: 기존 `alert()`를 호출하던 로직을 `showToast()` 함수를 호출하도록 변경하여, "준비 중인 기능입니다" 안내 메시지를 일관된 UI로 제공합니다.
 *   **기대 효과**: 모든 사용자 피드백 메시지가 통일된 디자인으로 제공되어 데모 시연의 완성도와 전문성이 크게 향상됩니다.
 
+### 5.7. Gemini 손상 복구 — 전 사이트 CSS 붕괴 및 어드민 중복 렌더링 (2026-06-24)
+*   **이슈 요약:** Gemini(VSCode)가 두 가지 치명적 손상을 유발했습니다.
+    1.  **BUG-004 (admin.html 중복 렌더링):** Gemini가 `_admin_sidebar.html`, `_admin_header.html`을 분리 생성하면서 `admin.html` 원본 코드를 삭제하지 않아 사이드바·헤더가 각 2개씩 이중 렌더링됨.
+    2.  **BUG-005 (전 사이트 CSS 붕괴):** Gemini가 `_head.html` 편집 중 `tailwind.config` 스크립트 블록 전체를 삭제. `_head.html`은 모든 페이지에 `{% include %}`로 공유되므로 전 페이지의 커스텀 색상·폰트·여백이 완전히 무효화됨 (버튼·로고·제목 등 디자인 전체 붕괴).
+*   **복구 방법:**
+    1.  `admin.html`: `{% include %}` 태그 이후 중복 하드코딩된 HTML 블록 제거.
+    2.  `_head.html`: 팀원 Replit 원본 사이트(`pike.replit.dev`)에서 `tailwind.config` 블록을 `curl`로 직접 추출하여 복원.
+*   **검증 결과:**
+    -   admin 페이지: `<aside>` 1개, `<header>` 1개, 3개 사용자 경로(일반/데모/관리자) 서버사이드 검증 전건 PASS.
+    -   CSS 복원: main.html 스크린샷으로 참고 사이트 대비 시각적 완전 일치 확인.
+*   **교훈 및 통제 강화:**
+    -   `_head.html` 등 공유 파티얼(partial) 파일은 Gemini 수정 금지. Replit Agent 전담.
+    -   `_admin_sidebar.html`, `_admin_header.html` 등 공통 컴포넌트 분리 작업도 Replit Agent 전담.
+    -   PM 통제: 모든 작업은 착수 즉시 `pm.md`에 등록하고, 완료 즉시 전 역할 문서(`PROGRESS.md`, `UI.md`, `dev.md`, `QA.md`, `report.md`) 동기 업데이트 의무화.
+
 ### 5.6. 시연 안정성 강화: 파일 업로드 예외 처리
 *   **이슈 요약**: `select.html`의 이력서 파일 업로드 기능에서 허용되지 않는 파일 형식(예: `.jpg`, `.zip`)을 올릴 경우, 적절한 사용자 안내 없이 스크립트 에러가 발생하며 기능이 멈추는 치명적 결함이 발견되었습니다.
 *   **해결 방안**:

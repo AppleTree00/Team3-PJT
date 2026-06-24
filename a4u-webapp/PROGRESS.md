@@ -155,6 +155,35 @@
 - 워크플로우 커맨드: `cd a4u-webapp && python app.py` → `python main.py`
 - `replit.md` 신규 작성 (프로젝트 개요, 실행 방법, 기본 계정, AI 연동 안내)
 
+### [T017] Gemini 손상 복구 — admin.html 사이드바·헤더 중복 제거 ✅ (2026-06-24)
+- **원인:** Gemini(VSCode)가 `_admin_sidebar.html`, `_admin_header.html` 공통 파일을 분리하면서 `admin.html` 원본 코드를 삭제하지 않아 사이드바·헤더가 각 2개씩 렌더링되는 중복 버그 발생
+- **수정 파일:** `a4u-webapp/admin.html`
+  - `{% include '_admin_sidebar.html' %}` 직후 하드코딩 중복 사이드바 HTML 제거
+  - `{% include '_admin_header.html' %}` 직후 하드코딩 중복 헤더 HTML 제거
+- **검증 결과 (서버사이드 테스트):**
+  - `<aside>` 태그 수: 2개 → **1개** ✅
+  - `<header>` 태그 수: 2개 → **1개** ✅
+  - ADMIN CONSOLE 텍스트 수: **1개** ✅
+
+### [T018] Gemini 손상 복구 — `_head.html` tailwind.config 전체 복원 ✅ (2026-06-24)
+- **원인:** Gemini(VSCode)가 `_head.html`에서 `tailwind.config` 스크립트 블록 전체를 삭제하여 전 페이지의 커스텀 색상·여백·폰트 크기가 모두 미적용 상태로 방치
+  - 영향을 받은 커스텀 속성: `bg-primary`, `text-on-surface`, `bg-surface-container-lowest`, `font-headline-lg`, `max-w-max-width` 등 모든 Material Design 3 토큰
+  - 현상: 버튼 색상 없음, 제목 크기 붕괴, 배지 스타일 누락, 로고 파란색 없음 — 전 페이지 영향
+- **수정 파일:** `a4u-webapp/_head.html`
+  - `tailwind.config` 스크립트 블록 복원 (colors 51개, spacing 5개, fontSize 9개, fontFamily 9개, maxWidth, borderRadius)
+  - `.tonal-elevation` CSS 클래스 `<style>` 블록 복원
+  - 참고: 팀원 Replit 사이트(`pike.replit.dev`) 원본과 대조 검증 완료
+- **검증:** 복원 후 main.html 스크린샷으로 참고 사이트와 시각적 일치 확인 ✅
+
+### [T019] Replit 마이그레이션 및 3개 사용자 경로 검증 ✅ (2026-06-24)
+- **워크플로우 커맨드 수정:** 하드코딩 Python 경로 → `python3 main.py`
+- **Flask 렌더링 수정:** `send_from_directory` → `render_template` (Jinja2 `{% include %}` 처리를 위해)
+- **3개 사용자 경로 서버사이드 검증 완료:**
+  - 관리자(admin@a4u.com): 로그인 성공, is_admin=True, /admin 200 ✅
+  - 데모(demo@a4u.com): 로그인 성공, is_admin=False, /dashboard.html 리다이렉트 ✅
+  - 비인증 사용자: /admin 접근 시 302 차단 ✅
+  - 데모 사용자: /admin 직접 접근 시 302 → /dashboard.html 차단 ✅
+
 ## 미구현 / 업데이트 예정
 - Google, 네이버, 카카오 간편로그인 (현재: 이메일/비밀번호 세션 방식)
 - 이력서 PDF 다운로드 (현재: 팝업 안내)

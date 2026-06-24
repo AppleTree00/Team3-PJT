@@ -123,6 +123,22 @@ for sql in migrations:
 - **원인:** `is_sample=True`인 경우 `user_id` 불일치 403만 반환 → 사용자에게 원인 불명확
 - **수정:** `is_sample` 체크를 `user_id` 체크 앞에 추가. `{"error": "샘플 이력서는 편집할 수 없습니다"}` 403 명확히 반환
 
+## **9. Gemini 손상 복구 내역 (2026-06-24)**
+
+### BUG-004: admin.html 사이드바·헤더 중복 렌더링 ✅
+- **원인:** Gemini(VSCode)가 `_admin_sidebar.html`, `_admin_header.html`로 공통 컴포넌트를 분리하면서 `admin.html` 내 원본 HTML을 삭제하지 않아 중복 발생
+- **수정 파일:** `a4u-webapp/admin.html`
+  - `{% include '_admin_sidebar.html' %}` 직후 중복 하드코딩 사이드바(`<aside>`) 블록 삭제
+  - `{% include '_admin_header.html' %}` 직후 중복 하드코딩 헤더(`<header>`) 블록 삭제
+- **검증:** Python test_client로 렌더링 후 태그 수 카운트 — `<aside>` 1개, `<header>` 1개 확인
+
+### BUG-005: _head.html tailwind.config 삭제로 전 페이지 CSS 붕괴 ✅
+- **원인:** Gemini(VSCode)가 `_head.html` 편집 중 `tailwind.config` 스크립트 블록 전체 삭제
+- **영향:** `_head.html`은 `{% include '_head.html' %}`로 전 페이지에 공유되므로 모든 HTML 페이지의 커스텀 Tailwind 클래스가 기본값으로 fallback
+  - `bg-primary` (#3525cd), `text-on-surface`, `font-headline-lg`, `max-w-max-width` 등 Material Design 3 토큰 전체 무효화
+- **복원 방법:** 팀원 Replit 원본 사이트(`pike.replit.dev`)에서 `tailwind.config` 블록 curl로 추출 → `_head.html`에 복원
+- **주의:** `_head.html`은 공유 파티얼이므로 수정 시 전 페이지에 즉시 영향. 반드시 복원 후 스크린샷 검증 필수
+
 ## **8. Replit 배포 환경 (2026-06-24)**
 
 ### 진입점 구조
