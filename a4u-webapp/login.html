@@ -431,38 +431,9 @@ function closeResetModal() {
 }
 
 async function requestReset() {
-    const btn    = document.getElementById('reset-btn');
-    const errEl  = document.getElementById('reset-error');
-    const email  = document.getElementById('reset-email').value.trim();
-    errEl.classList.add('hidden');
-
-    if (!email) {
-        document.getElementById('reset-error-msg').textContent = '이메일을 입력해주세요.';
-        errEl.classList.remove('hidden'); return;
-    }
-
-    btn.disabled = true; btn.textContent = '처리 중...';
-    try {
-        const r = await fetch('/api/auth/reset-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        const data = await r.json();
-        if (data.success) {
-            document.getElementById('reset-temp-pw').textContent = data.temp_password;
-            document.getElementById('reset-step-1').classList.add('hidden');
-            document.getElementById('reset-step-2').classList.remove('hidden');
-        } else {
-            document.getElementById('reset-error-msg').textContent = data.message || '처리 중 오류가 발생했습니다.';
-            errEl.classList.remove('hidden');
-        }
-    } catch (_) {
-        document.getElementById('reset-error-msg').textContent = '네트워크 오류가 발생했습니다.';
-        errEl.classList.remove('hidden');
-    } finally {
-        btn.disabled = false; btn.textContent = '발급';
-    }
+    // 실제 메일 발송 기능이 없으므로, 미구현 기능으로 처리
+    closeResetModal();
+    showToast('준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다.', 'warning');
 }
 
 function copyTempPw() {
