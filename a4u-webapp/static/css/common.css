@@ -1,0 +1,11 @@
+#mobile-menu {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.28s ease, opacity 0.22s ease;
+}
+
+#mobile-menu.open {
+    max-height: 320px;
+    opacity: 1;
+}

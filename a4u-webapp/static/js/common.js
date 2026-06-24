@@ -37,16 +37,18 @@ document.addEventListener('DOMContentLoaded', function () {
     var mobileMenuButton = document.getElementById('mobile-menu-button');
     var mobileMenu = document.getElementById('mobile-menu');
     if (mobileMenuButton && mobileMenu) {
+        mobileMenu.classList.remove('hidden');
+
         mobileMenuButton.addEventListener('click', function (e) {
             e.stopPropagation();
-            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('open');
         });
 
         document.addEventListener('click', function (e) {
-            if (!mobileMenu.classList.contains('hidden') &&
+            if (mobileMenu.classList.contains('open') &&
                 !mobileMenu.contains(e.target) &&
                 !mobileMenuButton.contains(e.target)) {
-                mobileMenu.classList.add('hidden');
+                mobileMenu.classList.remove('open');
             }
         });
     }
