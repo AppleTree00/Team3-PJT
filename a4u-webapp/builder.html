@@ -567,6 +567,7 @@
     setActiveLink(mobileNavLinks);
 
     let _currentUser = null;
+    let _rawCoachingContent = '';
 
     // ── 네비게이션 인증 상태 동적 표시 ────────────────────────────────
     (async function updateNavAuth() {
@@ -704,6 +705,7 @@
 
     // ── AI 코칭 모달 ───────────────────────────────────────────────────
     function openCoachingModal(content) {
+        _rawCoachingContent = content; // Store raw content
         const modal = document.getElementById('coaching-modal');
         const contentEl = document.getElementById('coaching-modal-content');
         if (modal && contentEl) {
@@ -724,6 +726,42 @@
         const modal = document.getElementById('coaching-modal');
         if (modal) {
             modal.classList.add('hidden');
+        }
+    }
+
+    function applyCoaching() {
+        if (!_rawCoachingContent) return;
+
+        const afterPrefix = '▶ 개선 후:';
+        const tipPrefix = '💡 팁:';
+        
+        let startIndex = _rawCoachingContent.indexOf(afterPrefix);
+        if (startIndex === -1) {
+            showToast('개선 후 내용을 찾을 수 없습니다.', 'error');
+            return;
+        }
+        
+        startIndex += afterPrefix.length;
+
+        let endIndex = _rawCoachingContent.indexOf(tipPrefix, startIndex);
+        if (endIndex === -1) {
+            endIndex = _rawCoachingContent.length;
+        }
+
+        let extractedText = _rawCoachingContent.substring(startIndex, endIndex).trim();
+
+        // 따옴표가 있다면 제거
+        if ((extractedText.startsWith('"') && extractedText.endsWith('"')) || (extractedText.startsWith("'") && extractedText.endsWith("'"))) {
+            extractedText = extractedText.substring(1, extractedText.length - 1);
+        }
+
+        const summaryEl = document.getElementById('personalSummary');
+        if (summaryEl) {
+            summaryEl.value = extractedText;
+            showToast('AI 코칭 내용을 반영했습니다.', 'success');
+            closeCoachingModal();
+            updateProgress(); // 진행률 및 미리보기 업데이트
+            saveBuilderState();
         }
     }
 
