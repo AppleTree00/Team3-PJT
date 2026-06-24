@@ -3,7 +3,7 @@ import re
 import json
 import time
 from datetime import datetime, timezone, timedelta
-from flask import Flask, request, jsonify, redirect, send_from_directory, session
+from flask import Flask, request, jsonify, redirect, send_from_directory, session, render_template
 from flask_cors import CORS
 from werkzeug.exceptions import RequestEntityTooLarge, HTTPException
 from models import db, User, UploadedFile, Resume, ResumeTemplate, JobApplication
@@ -22,7 +22,7 @@ def load_env():
 
 load_env()
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+app = Flask(__name__, static_folder='.', static_url_path='', template_folder='.')
 app.secret_key = os.environ.get('SECRET_KEY', 'a4u-dev-secret-key-change-in-production')
 app.permanent_session_lifetime = timedelta(hours=8)
 
@@ -47,7 +47,7 @@ app.register_blueprint(coaching_bp)
 @app.route('/admin')
 @app.route('/admin.html')
 def admin_page():
-    return send_from_directory(BASE_DIR, 'admin.html')
+    return render_template('admin.html')
 
 # ── 템플릿 미리보기 ────────────────────────────────────────────────────
 @app.route('/api/admin/templates/<int:template_id>/preview')
@@ -109,10 +109,41 @@ def index():
 @app.route('/login')
 @app.route('/login.html')
 def login_page():
-    # 이미 로그인된 경우 대시보드로
     if session.get('user_id'):
         return redirect('/dashboard.html')
-    return send_from_directory(BASE_DIR, 'login.html')
+    return render_template('login.html')
+
+@app.route('/main.html')
+def main_page():
+    return render_template('main.html')
+
+@app.route('/dashboard.html')
+def dashboard_page():
+    return render_template('dashboard.html')
+
+@app.route('/builder.html')
+def builder_page():
+    return render_template('builder.html')
+
+@app.route('/resume.html')
+def resume_page():
+    return render_template('resume.html')
+
+@app.route('/timeline.html')
+def timeline_page():
+    return render_template('timeline.html')
+
+@app.route('/profile-menu.html')
+def profile_menu_page():
+    return render_template('profile-menu.html')
+
+@app.route('/select.html')
+def select_page():
+    return render_template('select.html')
+
+@app.route('/demo_dashboard.html')
+def demo_dashboard_page():
+    return render_template('demo_dashboard.html')
 
 @app.route('/favicon.ico')
 def favicon():
