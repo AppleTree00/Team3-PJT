@@ -230,11 +230,15 @@ def list_resumes():
     user = current_user()
     uid = user.id if user else None
 
-    # 샘플은 항상 포함, 본인 이력서 포함
+    # 기본: 사용자 본인 이력서만, ?include_samples=true 시 샘플도 포함
+    include_samples = request.args.get('include_samples', 'false').lower() == 'true'
     if uid:
-        resumes = Resume.query.filter(
-            (Resume.user_id == uid) | (Resume.is_sample == True)
-        ).order_by(Resume.created_at.desc()).all()
+        if include_samples:
+            resumes = Resume.query.filter(
+                (Resume.user_id == uid) | (Resume.is_sample == True)
+            ).order_by(Resume.created_at.desc()).all()
+        else:
+            resumes = Resume.query.filter_by(user_id=uid).order_by(Resume.created_at.desc()).all()
     else:
         resumes = Resume.query.filter_by(is_sample=True).all()
 
@@ -285,6 +289,8 @@ def get_resume(resume_id):
 def update_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
     user = current_user()
+    if resume.is_sample:
+        return jsonify(success=False, message='샘플 이력서는 편집할 수 없습니다. 새 이력서를 작성하거나 샘플을 복사해 사용하세요.'), 403
     if resume.user_id != user.id:
         return jsonify(success=False, message='접근 권한이 없습니다.'), 403
 
@@ -351,6 +357,7 @@ def create_application():
         position=data.get('position', ''),
         status=data.get('status', 'draft'),
         notes=data.get('notes', ''),
+        applied_date=data.get('applied_date') or data.get('applied_at'),
     )
     db.session.add(app_obj)
     db.session.commit()
@@ -366,7 +373,7 @@ def update_application(app_id):
     if app_obj.user_id != user.id:
         return jsonify(success=False, message='접근 권한이 없습니다.'), 403
     data = request.get_json(silent=True) or {}
-    for field in ('company', 'position', 'status', 'notes', 'template_id', 'resume_id'):
+    for field in ('company', 'position', 'status', 'notes', 'template_id', 'resume_id', 'applied_date'):
         if field in data:
             setattr(app_obj, field, data[field])
     if data.get('status') == 'submitted' and not app_obj.submitted_at:
