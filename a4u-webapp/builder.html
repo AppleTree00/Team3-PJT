@@ -269,44 +269,11 @@
 <div class="form-section" id="Experience">
 <div class="flex justify-between items-center mb-8">
 <h1 class="font-headline-lg text-headline-lg">경력 사항</h1>
-<button class="text-primary font-label-md text-label-md flex items-center gap-1">
 <button type="button" id="add-experience-btn" class="text-primary font-label-md text-label-md flex items-center gap-1">
 <span class="material-symbols-outlined text-[20px]">add_circle</span> 항목 추가
                     </button>
 </div>
-<div class="bg-white rounded-xl p-6 shadow-sm border border-border-subtle mb-6 relative">
-<button class="absolute top-4 right-4 text-outline hover:text-error transition-colors">
-<span class="material-symbols-outlined">delete</span>
-</button>
-<div class="space-y-4">
-<div class="grid grid-cols-2 gap-4">
-<div>
-<label class="block font-label-md text-label-md text-on-surface mb-2">직책</label>
-<input id="exp1-title" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="수석 개발자 / PM">
 <div id="experience-entries"></div>
-</div>
-<div>
-<label class="block font-label-md text-label-md text-on-surface mb-2">회사명</label>
-<input id="exp1-company" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="(주)미래정보시스템">
-</div>
-</div>
-<div class="grid grid-cols-2 gap-4">
-<div>
-<label class="block font-label-md text-label-md text-on-surface mb-2">시작일</label>
-<input id="exp1-start" class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month" value="2010-03">
-</div>
-<div>
-<label class="block font-label-md text-label-md text-on-surface mb-2">종료일</label>
-<input id="exp1-end" class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month" value="">
-</div>
-</div>
-<div>
-<label class="block font-label-md text-label-md text-on-surface mb-2">주요 성과</label>
-<textarea id="exp1-desc" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" rows="3">• 공공기관 차세대 시스템 구축 프로젝트 PM 및 아키텍처 설계 주도
-• Java/Spring 기반 레거시 시스템 고도화 및 유지보수 총괄</textarea>
-</div>
-</div>
-</div>
 </div>
 <div class="form-section" id="Skills">
 <h1 class="font-headline-lg text-headline-lg mb-8">보유 기술 및 전문성</h1>
@@ -387,7 +354,6 @@
 </section>
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">경력</h3>
-<div id="preview-experience" class="space-y-6"><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">수석 개발자 / PM</h4><span class="text-[11px] font-bold text-outline">2010-03 — 현재</span></div><p class="text-label-sm font-label-sm text-primary mb-2">(주)미래정보시스템</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li>공공기관 차세대 시스템 구축 프로젝트 PM 및 아키텍처 설계 주도</li><li>Java/Spring 기반 레거시 시스템 고도화 및 유지보수 총괄</li></ul></div><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">선임 개발자</h4><span class="text-[11px] font-bold text-outline">2000 — 2010</span></div><p class="text-label-sm font-label-sm text-primary mb-2">미래정보기술</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li>공공기관 행정망 통합 시스템 개발 참여.</li><li>Spring Framework 기반 웹 서비스 아키텍처 설계.</li></ul></div></div>
 <div id="preview-experience" class="space-y-6"></div>
 </section>
 </div>
@@ -682,7 +648,6 @@
             full_name: document.getElementById('personalFullName').value,
             email: document.getElementById('personalEmail').value,
             phone: document.getElementById('personalPhone').value,
-            location: '미기재',
             location: '미기재', // Assuming location is not dynamic for now
             job_title: document.getElementById('exp1-title').value,
             summary: document.getElementById('personalSummary').value,
