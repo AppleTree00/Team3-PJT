@@ -44,3 +44,7 @@ run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 [userenv.shared]
 SECRET_KEY = "a4u-replit-secret-key-2024-secure"
 ADMIN_PASSWORD = "admin1234"
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 60000
