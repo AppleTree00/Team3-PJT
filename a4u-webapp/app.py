@@ -80,9 +80,25 @@ PROTECTED_PAGES = {
     'timeline.html', 'profile-menu.html', 'select.html'
 }
 
+# 어드민 데모 세션이 접근할 경우 자동 로그아웃되는 경로 (사용자 페이지 + 홈)
+ADMIN_DEMO_LOGOUT_PATHS = {
+    '', 'main.html',
+    'dashboard.html', 'builder.html', 'resume.html',
+    'timeline.html', 'profile-menu.html', 'select.html'
+}
+
 @app.before_request
 def require_login():
     path = request.path.lstrip('/')
+
+    # 어드민 데모 세션 격리: is_admin=True AND mode='DEMO'인 경우
+    # 사용자 페이지나 홈 접근 시 세션을 clear하고 해당 페이지로 이동
+    if session.get('is_admin') and session.get('mode') == 'DEMO':
+        if path in ADMIN_DEMO_LOGOUT_PATHS:
+            session.clear()
+            dest = f'/{path}' if path else '/main.html'
+            return redirect(dest)
+
     # 어드민 페이지 보호: 로그인 필요 + 어드민 권한 필요
     if path in ('admin', 'admin.html'):
         if not session.get('user_id'):

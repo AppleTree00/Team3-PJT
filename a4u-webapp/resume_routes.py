@@ -184,6 +184,24 @@ def me():
     return jsonify(success=True, user=user.to_dict())
 
 
+@resume_bp.route('/auth/admin-demo-login', methods=['POST'])
+def admin_demo_login():
+    """관리자 데모 전용 로그인 — mode='DEMO'로 세션을 설정해 어드민 페이지에만 격리된다."""
+    user = User.query.filter_by(email='admin@a4u.com').first()
+    if not user or not user.check_password('admin1234'):
+        return jsonify(success=False, message='관리자 데모 계정을 찾을 수 없습니다.'), 401
+    if user.status != 'active':
+        return jsonify(success=False, message='정지된 계정입니다.'), 403
+
+    session.permanent = True
+    session['user_id'] = user.id
+    session['user_name'] = user.name
+    session['is_admin'] = True
+    session['mode'] = 'DEMO'
+
+    return jsonify(success=True, user=user.to_dict())
+
+
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 def _allowed_image(filename):
