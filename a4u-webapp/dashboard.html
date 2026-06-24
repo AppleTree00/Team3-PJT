@@ -159,7 +159,7 @@
 <main class="pt-24 pb-12 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
 <!-- Welcome Section -->
 <section class="mb-8">
-<h1 class="font-headline-lg text-headline-lg text-on-background mb-2">다시 오신 것을 환영합니다, <span id="dashboard-user-name">님</span></h1>
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-2"><span id="dashboard-greeting">다시 오신 것을 환영합니다, </span><span id="dashboard-user-name">님</span></h1>
 <p class="font-body-md text-body-md text-on-surface-variant" id="dashboard-subtitle">오늘도 커리어 목표를 향해 나아가세요!</p>
 </section>
 <!-- Stats Grid -->
@@ -379,8 +379,12 @@
 
         async function loadDashboard() {
             try {
-                // 통계
-                const sRes = await fetch('/api/stats', { credentials: 'same-origin' });
+                // 통계 + 사용자 이력서 수 병렬 조회
+                const [sRes, rRes] = await Promise.all([
+                    fetch('/api/stats', { credentials: 'same-origin' }),
+                    fetch('/api/resumes', { credentials: 'same-origin' })
+                ]);
+
                 if (sRes.ok) {
                     const sData = await sRes.json();
                     if (sData.success) {
@@ -389,6 +393,18 @@
                         const appCountEl = document.getElementById('stat-app-count');
                         if (resumeCountEl) resumeCountEl.textContent = s.total_resumes ?? '-';
                         if (appCountEl) appCountEl.textContent = s.total_applications ?? '-';
+                    }
+                }
+
+                // 첫 방문자 여부에 따라 인사말 변경
+                if (rRes.ok) {
+                    const rData = await rRes.json();
+                    const isFirstVisit = !rData.success || !rData.resumes || rData.resumes.length === 0;
+                    const greetingEl = document.getElementById('dashboard-greeting');
+                    const subtitleEl = document.getElementById('dashboard-subtitle');
+                    if (isFirstVisit) {
+                        if (greetingEl) greetingEl.textContent = '반갑습니다, ';
+                        if (subtitleEl) subtitleEl.textContent = '이력서를 작성하고 커리어 여정을 시작해보세요!';
                     }
                 }
 
