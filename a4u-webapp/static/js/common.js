@@ -32,3 +32,27 @@ function showToast(message, type) {
 function handleUnavailableFeature() {
     showToast('준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다.', 'warning');
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    var mobileMenuButton = document.getElementById('mobile-menu-button');
+    var mobileMenu = document.getElementById('mobile-menu');
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', function () {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+
+    var currentPath = window.location.pathname.split('/').pop() || 'main.html';
+    var navLinks = document.querySelectorAll('.nav-link');
+    var mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    function setActiveLink(links) {
+        links.forEach(function (link) {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('text-primary', 'font-bold');
+                link.classList.remove('text-on-surface-variant');
+            }
+        });
+    }
+    setActiveLink(navLinks);
+    setActiveLink(mobileNavLinks);
+});
