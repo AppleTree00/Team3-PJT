@@ -22,7 +22,7 @@ def load_env():
 
 load_env()
 
-app = Flask(__name__, static_folder='.', static_url_path='')
+app = Flask(__name__, static_folder='.', static_url_path='', template_folder='.')
 app.secret_key = os.environ.get('SECRET_KEY', 'a4u-dev-secret-key-change-in-production')
 app.permanent_session_lifetime = timedelta(hours=8)
 
@@ -35,25 +35,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # ── 블루프린트 등록 ───────────────────────────────────────────────────
+from main_routes import main_bp
 from admin_routes import admin_bp
 from resume_routes import resume_bp
 from coaching_routes import coaching_bp
 
+app.register_blueprint(main_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(resume_bp)
 app.register_blueprint(coaching_bp)
-
-# ── 어드민 HTML 라우트 ────────────────────────────────────────────────
-@app.route('/admin')
-@app.route('/admin.html')
-def admin_page():
-    return send_from_directory(BASE_DIR, 'admin.html')
-
-# ── 템플릿 미리보기 ────────────────────────────────────────────────────
-@app.route('/api/admin/templates/<int:template_id>/preview')
-def preview_template(template_id):
-    t = ResumeTemplate.query.get_or_404(template_id)
-    return t.html_content, 200, {'Content-Type': 'text/html; charset=utf-8'}
 
 # ── 서버 설정 ─────────────────────────────────────────────────────────
 PORT = os.environ.get('PORT', 5000)
@@ -93,69 +83,6 @@ def require_login():
         if not session.get('user_id'):
             return redirect(f'/login.html?next={path}&reason=auth')
 
-# ── 기본 라우트 ───────────────────────────────────────────────────────
-@app.route('/')
-def index():
-    return redirect('/main.html')
-
-@app.route('/login')
-@app.route('/login.html')
-def login_page():
-    # 이미 로그인된 경우 대시보드로
-    if session.get('user_id'):
-        return redirect('/dashboard.html')
-    return send_from_directory(BASE_DIR, 'login.html')
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(BASE_DIR, 'favicon.svg', mimetype='image/svg+xml')
-
-# ── 이력서 템플릿 공개 API ──────────────────────────────────────────
-@app.route('/api/templates', methods=['GET'])
-def public_templates():
-    templates = ResumeTemplate.query.filter_by(is_active=True).all()
-    return jsonify(templates=[t.to_dict() for t in templates])
-
-# ── 파일 업로드 API ───────────────────────────────────────────────────
-@app.route('/upload-resume', methods=['POST'])
-def upload_resume():
-    if 'resumeFile' not in request.files:
-        return jsonify(success=False, message='파일이 필요합니다.'), 400
-
-    file = request.files['resumeFile']
-    if file.filename == '':
-        return jsonify(success=False, message='파일이 선택되지 않았습니다.'), 400
-
-    if file and is_allowed_mimetype(file.mimetype):
-        sanitized_original = re.sub(r'[^a-zA-Z0-9._-]', '-', file.filename)
-        timestamp = int(time.time() * 1000)
-        filename = f"{timestamp}-{sanitized_original}"
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-        file_size = os.path.getsize(file_path)
-
-        uploaded = UploadedFile(
-            original_name=file.filename,
-            saved_name=filename,
-            size=file_size,
-            mime_type=file.mimetype
-        )
-        db.session.add(uploaded)
-        db.session.commit()
-
-        return jsonify({
-            "success": True,
-            "originalName": file.filename,
-            "savedName": filename,
-            "size": file_size,
-            "mimeType": file.mimetype,
-            "uploadedAt": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
-        })
-    else:
-        return jsonify(
-            success=False,
-            message='지원하지 않는 파일 형식입니다. PDF, DOC, DOCX 파일만 업로드할 수 있습니다.'
-        ), 400
 
 # ── 오류 핸들러 ───────────────────────────────────────────────────────
 @app.errorhandler(413)

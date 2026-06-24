@@ -3,7 +3,7 @@ import re
 import time
 from datetime import datetime, timezone
 from flask import Blueprint, request, jsonify, redirect, send_from_directory, render_template, current_app
-from .models import db, UploadedFile, ResumeTemplate
+from models import db, UploadedFile, ResumeTemplate
 
 main_bp = Blueprint('main', __name__)
 
@@ -53,9 +53,14 @@ def select_page():
 def timeline_page():
     return render_template('timeline.html')
 
+@main_bp.route('/login')
+@main_bp.route('/login.html')
+def login_page():
+    return render_template('login.html')
+
 @main_bp.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(current_app.root_path, '..'), 'favicon.svg', mimetype='image/svg+xml')
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'favicon.svg', mimetype='image/svg+xml')
 
 # ── API 라우트 ────────────────────────────────────────────────────
 @main_bp.route('/api/admin/templates/<int:template_id>/preview')
