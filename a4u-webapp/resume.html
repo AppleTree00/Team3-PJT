@@ -152,23 +152,104 @@
 </nav>
 
 <main class="pt-24 pb-12 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
-    <div class="flex items-center justify-between mb-8">
+
+    <!-- ── 페이지 헤더 ─────────────────────────────────────────────── -->
+    <div class="flex items-start sm:items-center justify-between mb-8 gap-4">
         <div>
-            <h1 class="font-headline-md sm:font-headline-lg text-headline-md sm:text-headline-lg text-on-background mb-2">이력서 관리</h1>
-            <p class="font-body-md text-body-md text-on-surface-variant">이곳에서 생성된 이력서를 관리하고, 버전을 확인하거나 새로 만들 수 있습니다.</p>
+            <h1 class="font-headline-md sm:font-headline-lg text-headline-md sm:text-headline-lg text-on-background mb-1">이력서 관리</h1>
+            <p class="font-body-md text-body-md text-on-surface-variant" id="resume-subtitle">내 이력서를 관리하고 AI 코칭을 받아보세요.</p>
         </div>
-        <a href="select.html?new=true" class="px-6 py-3 bg-primary text-white rounded-xl font-label-md hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
-            <span class="material-symbols-outlined">add</span>
+        <a id="new-resume-btn" href="select.html?new=true"
+           class="hidden shrink-0 px-5 py-2.5 bg-primary text-white rounded-xl font-label-md hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">add</span>
             새 이력서 만들기
         </a>
     </div>
-    
-    <div id="resume-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- JS로 동적 렌더링 -->
-        <div id="resume-loading" class="col-span-full flex items-center justify-center py-16 text-on-surface-variant">
-            <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span> 불러오는 중...
-        </div>
+
+    <!-- ── 로딩 상태 ──────────────────────────────────────────────── -->
+    <div id="resume-loading" class="flex items-center justify-center py-24 text-on-surface-variant">
+        <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span> 불러오는 중...
     </div>
+
+    <!-- ── 빈 상태 온보딩 (0개) ──────────────────────────────────── -->
+    <section id="onboarding-section" class="hidden">
+        <!-- 그라디언트 배너 -->
+        <div class="bg-gradient-to-br from-primary to-[#6c5ce7] rounded-2xl p-8 mb-8 text-on-primary">
+            <p class="font-label-md mb-4 opacity-80">첫 이력서를 만들어 보세요 — 단 3단계</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 font-bold text-sm">1</div>
+                    <div>
+                        <p class="font-label-md">템플릿 선택</p>
+                        <p class="text-body-sm opacity-70 mt-0.5">IT · 경영 · 일반 중 선택</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 font-bold text-sm">2</div>
+                    <div>
+                        <p class="font-label-md">내용 입력</p>
+                        <p class="text-body-sm opacity-70 mt-0.5">경력·학력·기술을 채워보세요</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 font-bold text-sm">3</div>
+                    <div>
+                        <p class="font-label-md">AI 코칭 받기</p>
+                        <p class="text-body-sm opacity-70 mt-0.5">수치 기반 개선안을 즉시 확인</p>
+                    </div>
+                </div>
+            </div>
+            <a href="select.html?new=true"
+               class="inline-flex items-center gap-2 px-8 py-3 bg-white text-primary rounded-xl font-label-md hover:bg-surface-container-low transition-all shadow-md">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                첫 이력서 작성하기
+            </a>
+        </div>
+
+        <!-- 템플릿 미리보기 카드 -->
+        <h2 class="font-headline-md text-on-background mb-4">어떤 이력서가 필요하신가요?</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter">
+            <a href="builder.html?template=it"
+               class="group bg-surface-container-lowest rounded-xl p-6 border border-border-subtle hover:shadow-md hover:border-primary/40 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-primary text-2xl">code</span>
+                </div>
+                <h3 class="font-label-md text-on-background mb-1">IT 개발자</h3>
+                <p class="text-body-sm text-on-surface-variant">기술 스택·프로젝트 경험 중심의 구조</p>
+                <span class="mt-4 inline-flex items-center gap-1 text-label-sm text-primary group-hover:underline">
+                    이 템플릿으로 시작 <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </span>
+            </a>
+            <a href="builder.html?template=management"
+               class="group bg-surface-container-lowest rounded-xl p-6 border border-border-subtle hover:shadow-md hover:border-secondary/40 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-success-mint flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-secondary text-2xl">business_center</span>
+                </div>
+                <h3 class="font-label-md text-on-background mb-1">경영 · 관리</h3>
+                <p class="text-body-sm text-on-surface-variant">성과·리더십·전략 역량을 부각하는 구조</p>
+                <span class="mt-4 inline-flex items-center gap-1 text-label-sm text-secondary group-hover:underline">
+                    이 템플릿으로 시작 <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </span>
+            </a>
+            <a href="builder.html?template=general"
+               class="group bg-surface-container-lowest rounded-xl p-6 border border-border-subtle hover:shadow-md hover:border-tertiary/40 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-tertiary-fixed flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-tertiary text-2xl">person</span>
+                </div>
+                <h3 class="font-label-md text-on-background mb-1">일반 범용</h3>
+                <p class="text-body-sm text-on-surface-variant">모든 직군에 적합한 깔끔한 기본 구조</p>
+                <span class="mt-4 inline-flex items-center gap-1 text-label-sm text-tertiary group-hover:underline">
+                    이 템플릿으로 시작 <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </span>
+            </a>
+        </div>
+    </section>
+
+    <!-- ── 이력서 그리드 (1개 이상) ──────────────────────────────── -->
+    <div id="resume-list" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- JS로 동적 렌더링 -->
+    </div>
+
 </main>
 {% include '_footer.html' %}
 <script src="/static/js/common.js"></script><script>
@@ -265,36 +346,49 @@
     }
 
     async function loadResumes() {
-        const list = document.getElementById('resume-list');
-        const loading = document.getElementById('resume-loading');
-        if (loading) loading.style.display = 'flex';
+        const loadingEl  = document.getElementById('resume-loading');
+        const onboardEl  = document.getElementById('onboarding-section');
+        const listEl     = document.getElementById('resume-list');
+        const newBtn     = document.getElementById('new-resume-btn');
+        const subtitleEl = document.getElementById('resume-subtitle');
 
         try {
             const r = await fetch('/api/resumes', { credentials: 'same-origin' });
             if (r.status === 401) { window.location.href = 'login.html?next=resume.html'; return; }
             const data = await r.json();
-            list.innerHTML = '';
+            const resumes = (data.success && data.resumes) || [];
 
-            if (!data.success || data.resumes.length === 0) {
-                list.innerHTML = `
-                    <div class="col-span-full text-center py-16 text-on-surface-variant">
-                        <span class="material-symbols-outlined text-5xl mb-4 block">description</span>
-                        <p class="font-semibold mb-2">아직 작성한 이력서가 없습니다.</p>
-                        <p class="text-sm">새 이력서를 만들어 취업 준비를 시작해보세요!</p>
-                    </div>`;
+            // 로딩 숨김
+            if (loadingEl) loadingEl.classList.add('hidden');
+
+            if (resumes.length === 0) {
+                // ── 빈 상태: 온보딩 UI ─────────────────────────────────
+                if (onboardEl) onboardEl.classList.remove('hidden');
             } else {
-                data.resumes.forEach(r => list.appendChild(buildResumeCard(r)));
+                // ── 이력서 있음: 그리드 ────────────────────────────────
+                if (subtitleEl) subtitleEl.textContent = `총 ${resumes.length}개의 이력서 · AI 코칭으로 완성도를 높여보세요.`;
+                if (newBtn) { newBtn.classList.remove('hidden'); newBtn.classList.add('flex'); }
+                if (listEl) {
+                    listEl.classList.remove('hidden');
+                    listEl.classList.add('grid');
+                    resumes.forEach(r => listEl.appendChild(buildResumeCard(r)));
+
+                    // 마지막에 "새 이력서 만들기" 점선 카드
+                    const addCard = document.createElement('a');
+                    addCard.href = 'select.html?new=true';
+                    addCard.className = 'border-2 border-dashed border-border-subtle rounded-xl flex flex-col items-center justify-center gap-2 text-on-surface-variant hover:border-primary hover:text-primary hover:bg-surface-container-low transition-all min-h-[240px]';
+                    addCard.innerHTML = `<span class="material-symbols-outlined text-4xl">add_circle</span><span class="font-label-md">새 이력서 만들기</span>`;
+                    listEl.appendChild(addCard);
+                }
             }
         } catch (e) {
-            list.innerHTML = `<div class="col-span-full text-center py-16 text-rose-500">이력서를 불러오는 중 오류가 발생했습니다.</div>`;
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (listEl) {
+                listEl.classList.remove('hidden');
+                listEl.classList.add('grid');
+                listEl.innerHTML = `<div class="col-span-full text-center py-16 text-rose-500">이력서를 불러오는 중 오류가 발생했습니다.</div>`;
+            }
         }
-
-        // 항상 마지막에 "새 이력서 만들기" 카드 추가
-        const addCard = document.createElement('a');
-        addCard.href = 'select.html?new=true';
-        addCard.className = 'border-2 border-dashed border-border-subtle rounded-xl flex flex-col items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary hover:bg-surface-container-low transition-all min-h-[240px]';
-        addCard.innerHTML = `<span class="material-symbols-outlined text-4xl">add_circle</span><span class="font-semibold mt-2">새 이력서 만들기</span>`;
-        list.appendChild(addCard);
     }
 
     loadResumes();
