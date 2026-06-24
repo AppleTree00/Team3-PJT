@@ -369,7 +369,16 @@
             tab.classList.toggle('bg-surface-container', i !== currentSectionIndex);
         });
 
-        document.getElementById('prev-section-btn').style.visibility = currentSectionIndex > 0 ? 'visible' : 'hidden';
+        const prevBtn = document.getElementById('prev-section-btn');
+        if (currentSectionIndex > 0) {
+            prevBtn.innerHTML = '<span class="material-symbols-outlined">arrow_back</span> 이전';
+            prevBtn.onclick = () => switchSection(currentSectionIndex - 1);
+        } else {
+            prevBtn.innerHTML = '<span class="material-symbols-outlined">arrow_back</span> 이력서 목록으로';
+            prevBtn.onclick = () => { window.location.href = 'resume.html'; };
+        }
+        prevBtn.style.visibility = 'visible';
+
         const nextBtn = document.getElementById('next-section-btn');
         if (currentSectionIndex === SECTIONS.length - 1) {
             nextBtn.innerHTML = '저장하기 <span class="material-symbols-outlined">save</span>';
