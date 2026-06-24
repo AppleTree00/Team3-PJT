@@ -221,8 +221,7 @@
                 <p class="font-body-md text-body-md text-on-surface-variant mb-8 flex-grow">
                     빈 양식에서부터 직접 텍스트를 입력하며 나만의 이력서를 완성합니다. 단계별 가이드를 제공합니다.
                 </p>
-                <div class="flex-grow"></div>
-                <button onclick="document.getElementById('start-selection-overlay').remove()" class="w-full py-3 border border-outline text-on-surface rounded-xl font-label-md hover:bg-surface-container transition-all">
+                <div class="flex-grow"></div><button onclick="startBlank()" class="w-full py-3 border border-outline text-on-surface rounded-xl font-label-md hover:bg-surface-container transition-all">
                     빈 양식으로 시작
                 </button>
             </div>
@@ -640,6 +639,32 @@
     }
 
     persistFormChanges();
-    loadResumeState();
+
+    function startBlank() {
+        localStorage.removeItem('a4uResumeState');
+        // 폼 필드 초기화
+        personalFullName.value = '';
+        personalSummary.value = '';
+        personalEmail.value = '';
+        personalPhone.value = '';
+        // 미리보기 초기화
+        parsedNamePreview.textContent = '이름';
+        parsedTitlePreview.textContent = '직무';
+        parsedEmailPreview.textContent = '';
+        parsedPhonePreview.textContent = '';
+        parsedLocationPreview.textContent = '지역';
+        document.querySelector('div.col-span-2.space-y-8 > section:nth-of-type(1) > p').textContent = '';
+        document.querySelector('div.col-span-2.space-y-8 > section:nth-of-type(2) > div').innerHTML = '';
+        document.querySelector('div.space-y-8.border-l > section:nth-of-type(1) > div').innerHTML = '';
+
+        document.getElementById('start-selection-overlay').remove();
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('new') === 'true') {
+        startBlank();
+    } else {
+        loadResumeState();
+    }
 </script>
 </body></html>
