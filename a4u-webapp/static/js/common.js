@@ -37,8 +37,17 @@ document.addEventListener('DOMContentLoaded', function () {
     var mobileMenuButton = document.getElementById('mobile-menu-button');
     var mobileMenu = document.getElementById('mobile-menu');
     if (mobileMenuButton && mobileMenu) {
-        mobileMenuButton.addEventListener('click', function () {
+        mobileMenuButton.addEventListener('click', function (e) {
+            e.stopPropagation();
             mobileMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!mobileMenu.classList.contains('hidden') &&
+                !mobileMenu.contains(e.target) &&
+                !mobileMenuButton.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+            }
         });
     }
 
