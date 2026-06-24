@@ -379,7 +379,7 @@
 </div>
 </main>
 {% include '_footer.html' %}
-<script>
+<script src="/static/js/common.js"></script><script>
     const SECTIONS = [
         { id: 'Personal Info', label: '인적 사항', fields: ['personalFullName', 'personalSummary', 'personalEmail', 'personalPhone'] },
         { id: 'Experience', label: '경력 사항', fields: ['exp1-title', 'exp1-company', 'exp1-start', 'exp1-desc'] },
@@ -488,36 +488,6 @@
             if (el) el.value = state[fieldId];
         });
     }
-
-    // Mobile menu toggle
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileMenuButton) {
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-    }
-
-    // Set active navigation link
-    const currentPath = window.location.pathname.split('/').pop();
-    const navLinks = document.querySelectorAll('.nav-link');
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-
-    const setActiveLink = (links) => {
-        links.forEach(link => {
-            const linkPath = link.getAttribute('href');
-            if (linkPath === currentPath || (currentPath === '' && linkPath === 'main.html')) {
-                link.classList.add('text-primary', 'font-bold');
-                link.classList.remove('text-on-surface-variant');
-            } else {
-                link.classList.remove('text-primary', 'font-bold');
-                link.classList.add('text-on-surface-variant');
-            }
-        });
-    };
-
-    setActiveLink(navLinks);
-    setActiveLink(mobileNavLinks);
 
     let _currentUser = null;
     let _rawCoachingContent = '';

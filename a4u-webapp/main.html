@@ -385,37 +385,7 @@
 </section>
 </main>
 {% include '_footer.html' %}
-<script>
-    // Mobile menu toggle
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileMenuButton) {
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-    }
-
-    // Set active navigation link
-    const currentPath = window.location.pathname.split('/').pop();
-    const navLinks = document.querySelectorAll('.nav-link');
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-
-    const setActiveLink = (links) => {
-        links.forEach(link => {
-            const linkPath = link.getAttribute('href');
-            if (linkPath === currentPath || (currentPath === '' && linkPath === 'main.html')) {
-                link.classList.add('text-primary', 'font-bold');
-                link.classList.remove('text-on-surface-variant');
-            } else {
-                link.classList.remove('text-primary', 'font-bold');
-                link.classList.add('text-on-surface-variant');
-            }
-        });
-    };
-
-    setActiveLink(navLinks);
-    setActiveLink(mobileNavLinks);
-
+<script src="/static/js/common.js"></script><script>
     // ── 네비게이션 인증 상태 동적 표시 ────────────────────────────────
     (async function updateNavAuth() {
         try {
@@ -469,54 +439,6 @@
             btn.textContent = original;
             btn.disabled = false;
         }
-    }
-
-    // ── 미구현 기능 안내 팝업 ──────────────────────────────────────────
-    function handleUnavailableFeature() {
-        showToast('준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다.', 'warning');
-    }
-
-    // ── 토스트 알림 (Toast) ──────────────────────────────────────────
-    function showToast(message, type = 'info') {
-        let container = document.getElementById('toast-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'toast-container';
-            container.className = 'fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none';
-            document.body.appendChild(container);
-        }
-
-        const toast = document.createElement('div');
-        toast.className = `p-4 rounded-xl shadow-lg text-white font-medium text-sm transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center gap-3`;
-        
-        if (type === 'success') {
-            toast.classList.add('bg-emerald-600');
-        } else if (type === 'error') {
-            toast.classList.add('bg-rose-600');
-        } else if (type === 'warning') {
-            toast.classList.add('bg-amber-500');
-        } else {
-            toast.classList.add('bg-slate-800');
-        }
-
-        let iconName = 'info';
-        if (type === 'success') iconName = 'check_circle';
-        if (type === 'error') iconName = 'error';
-        if (type === 'warning') iconName = 'warning';
-
-        toast.innerHTML = `
-            <span class="material-symbols-outlined text-[20px] shrink-0">${iconName}</span>
-            <span class="flex-1">${message}</span>
-        `;
-
-        container.appendChild(toast);
-
-        setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-
-        setTimeout(() => {
-            toast.classList.add('translate-y-2', 'opacity-0');
-            setTimeout(() => { toast.remove(); if (container.children.length === 0) container.remove(); }, 300);
-        }, 3000);
     }
 
     // ── 알림 버튼 ──────────────────────────────────────────────────────

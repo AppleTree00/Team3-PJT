@@ -458,75 +458,13 @@
 </div>
 </main>
 {% include '_footer.html' %}
-<script>
-    function switchTab(tabId) {
-        // Update Navigation UI
-        const tabs = document.querySelectorAll('.nav-tab');
-        const tabMappings = {
-            'Personal Info': '인적 사항',
-            'Experience': '경력 사항',
-            'Education': '학력 사항',
-            'Skills': '보유 기술',
-            'Certifications': '자격증'
-        };
-
-        tabs.forEach(tab => {
-            const label = tab.getAttribute('data-tab');
-            if (label === tabId) {
-                tab.classList.add('bg-primary-container', 'text-on-primary-container');
-                tab.classList.remove('text-on-surface-variant');
-            } else {
-                tab.classList.remove('bg-primary-container', 'text-on-primary-container');
-                tab.classList.add('text-on-surface-variant');
-            }
-        });
-
-        // Update Form Visibility
-        const sections = document.querySelectorAll('.form-section');
-        sections.forEach(section => {
-            section.classList.remove('active');
-            if (section.id === tabId) {
-                section.classList.add('active');
-            }
-        });
-    }
-
+<script src="/static/js/common.js"></script><script>
     // Add some subtle interaction to the preview
     document.querySelectorAll('input, textarea').forEach(el => {
         el.addEventListener('focus', () => {
             // Focus ring handled by Tailwind, but could trigger preview highlights here
         });
     });
-
-        // Mobile menu toggle
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        if (mobileMenuButton) {
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
-        }
-
-        // Set active navigation link
-        const currentPath = window.location.pathname.split('/').pop();
-        const navLinks = document.querySelectorAll('.nav-link');
-        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-
-        const setActiveLink = (links) => {
-            links.forEach(link => {
-                const linkPath = link.getAttribute('href');
-                if (linkPath === currentPath || (currentPath === '' && linkPath === 'main.html')) {
-                    link.classList.add('text-primary', 'font-bold');
-                    link.classList.remove('text-on-surface-variant');
-                } else {
-                    link.classList.remove('text-primary', 'font-bold');
-                    link.classList.add('text-on-surface-variant');
-                }
-            });
-        };
-
-        setActiveLink(navLinks);
-        setActiveLink(mobileNavLinks);
 
         // ── 네비게이션 인증 상태 동적 표시 ────────────────────────────
         (async function updateNavAuth() {
