@@ -202,34 +202,23 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
                 <!-- Column: Applied -->
                 <div class="bg-surface-container-low rounded-xl p-4 space-y-4">
-                    <h3 class="font-label-md text-on-surface-variant px-2">지원 완료 (1)</h3>
-                    <div class="kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle">
-                        <h4 class="font-label-md text-on-background">프로덕트 디자이너</h4>
-                        <p class="text-body-sm text-on-surface-variant">Naver</p>
-                        <div class="mt-3 pt-3 border-t border-border-subtle text-xs text-on-surface-variant">5일 전 지원</div>
+                    <h3 id="col-applied-hd" class="font-label-md text-on-surface-variant px-2">지원 완료 (0)</h3>
+                    <div id="col-applied" class="space-y-3">
+                        <p class="text-sm text-on-surface-variant px-2">불러오는 중...</p>
                     </div>
                 </div>
                 <!-- Column: Interview -->
                 <div class="bg-surface-container-low rounded-xl p-4 space-y-4">
-                    <h3 class="font-label-md text-on-surface-variant px-2">면접 (2)</h3>
-                    <div class="kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle">
-                        <h4 class="font-label-md text-on-background">UX/UI 디자이너</h4>
-                        <p class="text-body-sm text-on-surface-variant">Kakao</p>
-                        <div class="mt-3 pt-3 border-t border-border-subtle text-xs text-secondary font-bold">내일, 14:00 (온라인)</div>
-                    </div>
-                    <div class="kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle">
-                        <h4 class="font-label-md text-on-background">시니어 프로덕트 디자이너</h4>
-                        <p class="text-body-sm text-on-surface-variant">Toss</p>
-                        <div class="mt-3 pt-3 border-t border-border-subtle text-xs text-on-surface-variant">2차 면접 대기</div>
+                    <h3 id="col-interview-hd" class="font-label-md text-on-surface-variant px-2">면접 (0)</h3>
+                    <div id="col-interview" class="space-y-3">
+                        <p class="text-sm text-on-surface-variant px-2">불러오는 중...</p>
                     </div>
                 </div>
-                <!-- Column: Offer -->
+                <!-- Column: Offer / Result -->
                 <div class="bg-surface-container-low rounded-xl p-4 space-y-4">
-                    <h3 class="font-label-md text-on-surface-variant px-2">오퍼 (1)</h3>
-                    <div class="kanban-card bg-success-mint rounded-lg p-4 shadow-sm border border-secondary-container">
-                        <h4 class="font-label-md text-on-background">리드 프로덕트 디자이너</h4>
-                        <p class="text-body-sm text-secondary">Coupang</p>
-                        <button onclick="acceptOffer(event)" class="mt-3 w-full py-2 bg-primary text-on-primary rounded-lg text-sm font-semibold hover:opacity-90">오퍼 수락</button>
+                    <h3 id="col-offer-hd" class="font-label-md text-on-surface-variant px-2">오퍼 / 결과 (0)</h3>
+                    <div id="col-offer" class="space-y-3">
+                        <p class="text-sm text-on-surface-variant px-2">불러오는 중...</p>
                     </div>
                 </div>
             </div>
@@ -360,17 +349,77 @@
             a.addEventListener('click', e => { e.preventDefault(); handleUnavailableFeature(); });
         });
 
-        // ── 대시보드 통계 API 연동 ─────────────────────────────────────
-        fetch('/api/stats')
-            .then(r => r.json())
-            .then(data => {
-                if (!data.success) return;
-                const s = data.stats;
-                // 이력서 경쟁력 카드 아래 요약 업데이트
-                const summaryEl = document.querySelector('.kanban-card ~ *') ;
-                // 상단 통계 요약 (있는 경우)
-                console.log('[a4u stats]', s);
-            })
-            .catch(() => {});
+        // ── 대시보드 통계 + 지원 현황 실제 API 연동 ─────────────────
+        const STATUS_LABELS = {
+            draft: '초안', applied: '지원 완료', reviewing: '검토 중',
+            interview: '면접', accepted: '합격', rejected: '불합격', submitted: '제출 완료'
+        };
+        const STATUS_COLS = {
+            applied: 'col-applied', submitted: 'col-applied',
+            reviewing: 'col-applied',
+            interview: 'col-interview',
+            accepted: 'col-offer', rejected: 'col-offer', draft: 'col-applied'
+        };
+
+        function buildKanbanCard(app) {
+            const label = STATUS_LABELS[app.status] || app.status;
+            const isAccepted = app.status === 'accepted';
+            const cardClass = isAccepted
+                ? 'kanban-card bg-success-mint rounded-lg p-4 shadow-sm border border-secondary-container'
+                : 'kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle';
+            const timeStr = app.applied_date || (app.created_at ? app.created_at.slice(0, 10) : '');
+            return `<div class="${cardClass}">
+                <h4 class="font-label-md text-on-background">${app.position || '(직위 없음)'}</h4>
+                <p class="text-body-sm ${isAccepted ? 'text-secondary' : 'text-on-surface-variant'}">${app.company || ''}</p>
+                <div class="mt-3 pt-3 border-t border-border-subtle text-xs ${isAccepted ? 'text-secondary font-bold' : 'text-on-surface-variant'}">
+                    ${timeStr ? '지원일: ' + timeStr : label}
+                </div>
+            </div>`;
+        }
+
+        async function loadDashboard() {
+            try {
+                // 통계
+                const sRes = await fetch('/api/stats', { credentials: 'same-origin' });
+                if (sRes.ok) {
+                    const sData = await sRes.json();
+                    if (sData.success) {
+                        const s = sData.stats;
+                        const resumeCountEl = document.getElementById('stat-resume-count');
+                        const appCountEl = document.getElementById('stat-app-count');
+                        if (resumeCountEl) resumeCountEl.textContent = s.total_resumes ?? '-';
+                        if (appCountEl) appCountEl.textContent = s.total_applications ?? '-';
+                    }
+                }
+
+                // 지원 현황 칸반
+                const aRes = await fetch('/api/applications', { credentials: 'same-origin' });
+                if (aRes.ok) {
+                    const aData = await aRes.json();
+                    if (aData.success && aData.applications.length > 0) {
+                        const apps = aData.applications;
+                        const applied = apps.filter(a => ['applied','submitted','reviewing','draft'].includes(a.status));
+                        const interview = apps.filter(a => a.status === 'interview');
+                        const offer = apps.filter(a => ['accepted','rejected'].includes(a.status));
+
+                        const colA = document.getElementById('col-applied');
+                        const colI = document.getElementById('col-interview');
+                        const colO = document.getElementById('col-offer');
+                        const hA = document.getElementById('col-applied-hd');
+                        const hI = document.getElementById('col-interview-hd');
+                        const hO = document.getElementById('col-offer-hd');
+
+                        if (colA) { colA.innerHTML = applied.map(buildKanbanCard).join('') || '<p class="text-sm text-on-surface-variant px-2">없음</p>'; }
+                        if (colI) { colI.innerHTML = interview.map(buildKanbanCard).join('') || '<p class="text-sm text-on-surface-variant px-2">없음</p>'; }
+                        if (colO) { colO.innerHTML = offer.map(buildKanbanCard).join('') || '<p class="text-sm text-on-surface-variant px-2">없음</p>'; }
+                        if (hA) hA.textContent = `지원 완료 (${applied.length})`;
+                        if (hI) hI.textContent = `면접 (${interview.length})`;
+                        if (hO) hO.textContent = `오퍼 / 결과 (${offer.length})`;
+                    }
+                }
+            } catch (e) { console.warn('[a4u] 대시보드 로드 오류', e); }
+        }
+
+        loadDashboard();
     </script>
 </body></html>

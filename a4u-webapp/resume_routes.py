@@ -78,6 +78,23 @@ def logout():
     return jsonify(success=True, message='로그아웃 되었습니다.')
 
 
+@resume_bp.route('/auth/switch_mode', methods=['GET', 'POST'])
+@login_required
+def switch_mode():
+    """DEMO ↔ GENERAL 모드 전환 (GET: 현재 모드 조회, POST: 전환)"""
+    if request.method == 'GET':
+        return jsonify(success=True, mode=session.get('mode', 'GENERAL'))
+    data = request.get_json(silent=True) or {}
+    new_mode = (data.get('mode') or '').upper()
+    user = current_user()
+    if user.email == 'demo@a4u.com' and new_mode == 'GENERAL':
+        return jsonify(success=False, message='데모 계정은 GENERAL 모드로 전환할 수 없습니다.'), 403
+    if new_mode not in ('DEMO', 'GENERAL'):
+        return jsonify(success=False, message='유효하지 않은 모드입니다. DEMO 또는 GENERAL 중 하나를 입력하세요.'), 400
+    session['mode'] = new_mode
+    return jsonify(success=True, mode=new_mode, message=f'{"데모" if new_mode == "DEMO" else "일반"} 모드로 전환되었습니다.')
+
+
 @resume_bp.route('/auth/profile', methods=['PUT'])
 @login_required
 @demo_mode_blocked
