@@ -426,30 +426,24 @@ def update_application(app_id):
 # ─────────────────────────────────────────────
 @resume_bp.route('/stats', methods=['GET'])
 def stats():
-    total_users = User.query.filter_by(is_admin=False).count()
-    total_resumes = Resume.query.filter_by(is_sample=False).count()
-    total_uploads = UploadedFile.query.count()
-    total_applications = JobApplication.query.count()
-    submitted = JobApplication.query.filter_by(status='submitted').count()
-    accepted = JobApplication.query.filter_by(status='accepted').count()
+    user = current_user()
+    if not user:
+        return jsonify(success=False, message='로그인이 필요합니다.'), 401
 
-    sample_it = Resume.query.filter_by(is_sample=True, sample_type='it').count()
-    sample_mgmt = Resume.query.filter_by(is_sample=True, sample_type='management').count()
-    sample_general = Resume.query.filter_by(is_sample=True, sample_type='general').count()
+    uid = user.id
+    user_resumes = Resume.query.filter_by(user_id=uid, is_sample=False).count()
+    user_uploads = UploadedFile.query.filter_by(user_id=uid).count()
+    user_applications = JobApplication.query.filter_by(user_id=uid).count()
+    submitted = JobApplication.query.filter_by(user_id=uid, status='submitted').count()
+    accepted = JobApplication.query.filter_by(user_id=uid, status='accepted').count()
 
     return jsonify(
         success=True,
         stats={
-            'total_users': total_users,
-            'total_resumes': total_resumes,
-            'total_uploads': total_uploads,
-            'total_applications': total_applications,
+            'total_resumes': user_resumes,
+            'total_uploads': user_uploads,
+            'total_applications': user_applications,
             'submitted_applications': submitted,
             'accepted_applications': accepted,
-            'samples': {
-                'it': sample_it,
-                'management': sample_mgmt,
-                'general': sample_general,
-            }
         }
     )
