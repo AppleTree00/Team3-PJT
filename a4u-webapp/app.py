@@ -76,7 +76,7 @@ def is_allowed_mimetype(mimetype):
 # 로그인 없이 접근 시 login.html으로 리디렉션하는 보호 페이지 목록
 PROTECTED_PAGES = {
     'main.html', # 관리자는 메인 페이지 접근 시 로그아웃
-    'dashboard.html', 'builder.html', 'resume.html', 
+    'dashboard.html', 'builder.html', 'resume.html',
     'timeline.html', 'profile-menu.html', 'select.html'
 }
 
@@ -89,6 +89,12 @@ def require_login():
             return redirect('/login.html?next=admin&reason=auth')
         if not session.get('is_admin'):
             return redirect('/dashboard.html')
+    # 데모 대시보드 보호: 로그인 필요 + 데모 모드만 접근
+    if path == 'demo_dashboard.html':
+        if not session.get('user_id'):
+            return redirect('/login.html?reason=auth')
+        if session.get('mode') != 'DEMO':
+            return redirect('/dashboard.html')
     # 일반 보호 페이지: 로그인만 필요
     if path in PROTECTED_PAGES:
         if not session.get('user_id'):
@@ -99,6 +105,9 @@ def require_login():
         # 관리자가 사용자 페이지에 접근 시도 시 → 세션 유지하고 /admin으로 리다이렉트
         if session.get('is_admin'):
             return redirect('/admin')
+        # 데모 사용자가 일반 dashboard에 접근 시 → demo_dashboard로 리다이렉트
+        if path == 'dashboard.html' and session.get('mode') == 'DEMO':
+            return redirect('/demo_dashboard.html')
 
 # ── 기본 라우트 ───────────────────────────────────────────────────────
 @app.route('/')

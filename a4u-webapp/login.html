@@ -328,12 +328,14 @@ async function handleLogin(e) {
         });
         const data = await r.json();
         if (data.success) {
-            // 로그인 성공 → 관리자면 어드민, 일반 사용자면 대시보드
+            // 로그인 성공 → 관리자면 어드민, 데모면 demo_dashboard, 일반이면 대시보드
             const next = new URLSearchParams(window.location.search).get('next');
             if (next) {
                 window.location.href = next;
             } else if (data.user && data.user.is_admin) {
                 window.location.href = '/admin';
+            } else if (data.mode === 'DEMO') {
+                window.location.href = 'demo_dashboard.html';
             } else {
                 window.location.href = 'dashboard.html';
             }
@@ -461,6 +463,8 @@ fetch('/api/auth/me', { credentials: 'same-origin' })
         if (data.success) {
             if (data.user && data.user.is_admin) {
                 window.location.href = '/admin';
+            } else if (data.user && data.user.email === 'demo@a4u.com') {
+                window.location.href = 'demo_dashboard.html';
             } else {
                 window.location.href = 'dashboard.html';
             }

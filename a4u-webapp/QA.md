@@ -117,3 +117,22 @@
 *   **결과:** **PASS**
 *   **비고:** `summary-coaching-btn`, `cover-letter-coaching-btn` 등 명확한 ID를 사용하고, 코칭 대상을 `coachingTargetId` 변수로 관리하는 리팩토링 덕분에 기능이 명확하고 안정적으로 동작함을 확인했습니다. 확장성 높은 좋은 구조입니다.
 
+
+## 7. 데모 사용자 체험 모드 QA 결과 (2026-06-24) ✅ 전건 PASS
+
+### 7.1 라우팅 격리 시나리오
+| 시나리오 | 기대 결과 | 실제 결과 |
+|---|---|---|
+| 데모 로그인 → mode 반환 | `DEMO` | `DEMO` ✅ |
+| 데모 로그인 → 리다이렉트 | `demo_dashboard.html` | `demo_dashboard.html` ✅ |
+| 데모 세션 → `/dashboard.html` 직접 접근 | 302 `/demo_dashboard.html` | 302 ✅ |
+| 데모 세션 → `/demo_dashboard.html` 접근 | 200 OK | 200 OK ✅ |
+| 비로그인 → `/demo_dashboard.html` 접근 | 302 `/login.html` | 302 ✅ |
+| 어드민 세션 → `/demo_dashboard.html` 접근 | 302 `/dashboard.html` | 302 ✅ |
+| 이미 로그인된 데모 → `/login.html` 접근 | `demo_dashboard.html`로 이동 | ✅ |
+
+### 7.2 핵심 구현 사항
+- `resume_routes.py`: login() 응답에 `mode` 필드 포함 → 프론트엔드 분기 판별 가능
+- `app.py` require_login: demo_dashboard.html 보호 + 데모/일반 크로스 접근 차단
+- `login.html`: 3개 리다이렉트 포인트 모두 DEMO 모드 분기 처리
+- `demo_dashboard.html`: API 실사용자 이름 동적 로드

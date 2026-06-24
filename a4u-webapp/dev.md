@@ -149,3 +149,17 @@ for sql in migrations:
 - Nix 모듈: `python-3.11` (3.12는 Replit Free Tier에서 미지원)
 - 워크플로우: `python main.py`
 - Secrets 등록 완료: `SESSION_SECRET`, `GEMINI_API_KEY`
+## [T021] 데모 사용자 체험 모드 구현 (2026-06-24)
+
+### 변경 파일
+- `resume_routes.py` — login() 응답에 `mode` 필드 추가
+- `app.py` — require_login 미들웨어에 demo_dashboard.html 보호 로직 추가
+- `login.html` — handleLogin, fillDemoUser, auth/me 자동이동 3곳 DEMO 분기 처리
+- `demo_dashboard.html` — loadDemoUser() 비동기 함수로 실제 사용자 이름 API 로드
+
+### 데모 라우팅 규칙 (확정)
+```
+demo@a4u.com 로그인 → mode=DEMO → demo_dashboard.html
+demo 세션 + dashboard.html 직접 접근 → 302 /demo_dashboard.html
+비데모/미로그인 + demo_dashboard.html 접근 → 302 /login.html or /dashboard.html
+```

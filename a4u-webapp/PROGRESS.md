@@ -230,3 +230,20 @@
 | coaching_routes.py | AI 코칭 API (Few-shot 3종) |
 | admin_routes.py | 어드민 대시보드 API |
 | admin.html | 어드민 대시보드 UI |
+
+### [T021] 데모 사용자 체험 모드 구현 ✅
+- **날짜:** 2026-06-24
+- **파일:** `resume_routes.py`, `app.py`, `login.html`, `demo_dashboard.html`
+- **변경 내용:**
+  - `resume_routes.py` login() → 응답에 `mode` 필드 추가
+  - `login.html` → 로그인 성공 시 DEMO 모드이면 `demo_dashboard.html`로 리다이렉트 (handleLogin 2곳 + auth/me 자동이동 1곳)
+  - `app.py` require_login → demo_dashboard.html 보호, 데모↔일반 크로스 접근 차단
+  - `demo_dashboard.html` → 실제 사용자 이름을 API에서 동적 로드, 미인증 자동 리다이렉트
+- **검증 결과 (서버사이드):**
+  | 시나리오 | 기대 | 실제 |
+  |---|---|---|
+  | 데모 로그인 응답 mode | DEMO | DEMO ✅ |
+  | demo_dashboard.html (데모 세션) | 200 | 200 ✅ |
+  | dashboard.html (데모 세션) | 302→demo_dashboard | 302 ✅ |
+  | demo_dashboard.html (비로그인) | 302→login | 302 ✅ |
+  | demo_dashboard.html (어드민) | 302→dashboard | 302 ✅ |

@@ -71,7 +71,7 @@ def login():
     else:
         session['mode'] = 'GENERAL'
 
-    return jsonify(success=True, user=user.to_dict())
+    return jsonify(success=True, user=user.to_dict(), mode=session.get('mode'))
 
 
 @resume_bp.route('/auth/logout', methods=['POST'])

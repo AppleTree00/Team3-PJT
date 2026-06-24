@@ -28,7 +28,7 @@
 <div class="pt-8 pb-12 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
 <!-- Welcome Section -->
 <section class="mb-8">
-<h1 class="font-headline-lg text-headline-lg text-on-background mb-2">데모 사용자님, 환영합니다!</h1>
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-2" id="demo-welcome-title">데모 사용자님, 환영합니다!</h1>
 <p class="font-body-md text-body-md text-on-surface-variant" id="dashboard-subtitle">a4u의 핵심 기능을 둘러보세요.</p>
 </section>
 <!-- Stats Grid (Copied from dashboard.html, data is static) -->
@@ -159,19 +159,35 @@
     setActiveLink(navLinks);
     setActiveLink(mobileNavLinks);
 
-    // ── 네비게이션 데모 상태 표시 ───────────────────────────────────
-    (function updateNavForDemo() {
-        const profileLink = document.querySelector('a[href="profile-menu.html"]');
-        if (profileLink) {
-            const nameEl = document.createElement('span');
-            nameEl.className = 'hidden sm:block text-sm font-semibold text-on-surface truncate max-w-[80px]';
-            nameEl.textContent = '데모 사용자';
-            profileLink.parentNode.insertBefore(nameEl, profileLink);
-        }
-        const img  = document.getElementById('nav-avatar-img');
-        const icon = document.getElementById('nav-avatar-icon');
-        if (img)  { img.src = '/static/avatars/demo_avatar.png'; img.classList.remove('hidden'); }
-        if (icon) icon.classList.add('hidden');
+    // ── 사용자 정보 로드 (API에서 실제 데이터) ──────────────────────
+    (async function loadDemoUser() {
+        try {
+            const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
+            if (r.status === 401) { window.location.href = '/login.html?reason=auth'; return; }
+            const data = await r.json();
+            if (data.success && data.user) {
+                const u = data.user;
+                // 환영 제목 업데이트
+                const titleEl = document.getElementById('demo-welcome-title');
+                if (titleEl) titleEl.textContent = `${u.name}님, 환영합니다!`;
+                // 네비게이션 이름 표시
+                const profileLink = document.querySelector('a[href="profile-menu.html"]');
+                if (profileLink) {
+                    const nameEl = document.createElement('span');
+                    nameEl.className = 'hidden sm:block text-sm font-semibold text-on-surface truncate max-w-[80px]';
+                    nameEl.textContent = u.name || '데모 사용자';
+                    profileLink.parentNode.insertBefore(nameEl, profileLink);
+                }
+                // 아바타 표시
+                const img  = document.getElementById('nav-avatar-img');
+                const icon = document.getElementById('nav-avatar-icon');
+                if (u.avatar_url && img) {
+                    img.src = u.avatar_url;
+                    img.classList.remove('hidden');
+                    if (icon) icon.classList.add('hidden');
+                }
+            }
+        } catch (_) {}
     })();
 
     // ── 미구현 버튼 연결 ──────────────────────────────────────────
