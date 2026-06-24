@@ -53,6 +53,17 @@ function handleUnavailableFeature() {
     showToast('준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다.', 'warning');
 }
 
+// ── 데모 모드 전역 플래그 및 차단 헬퍼 ─────────────────────────────
+window._demoMode = false;
+
+function blockIfDemo() {
+    if (window._demoMode) {
+        showToast('데모 계정은 조회만 가능합니다.', 'warning');
+        return true;
+    }
+    return false;
+}
+
 // ── 데모 모드 배너 주입 ──────────────────────────────────────────────
 function injectDemoBanner() {
     if (document.getElementById('demo-mode-banner')) return;
@@ -142,7 +153,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
             if (r.ok) {
                 const data = await r.json();
-                if (data.success && data.user && data.user.email === 'demo@a4u.com') {
+                if (data.success && data.user && (data.user.email === 'demo@a4u.com' || data.mode === 'DEMO')) {
+                    window._demoMode = true;
                     injectDemoBanner();
                 }
             }

@@ -396,6 +396,7 @@
         // ── 아바타 미리보기 (파일 선택 시 즉시 업로드) ────────────────
         async function previewAvatar(input) {
             if (!input.files || !input.files[0]) return;
+            if (blockIfDemo()) { input.value = ''; return; }
             const file = input.files[0];
 
             // 미리보기 표시
@@ -430,6 +431,7 @@
         }
 
         function openProfileModal() {
+            if (blockIfDemo()) return;
             document.getElementById('pm-error').classList.add('hidden');
             document.getElementById('pm-success').classList.add('hidden');
             document.getElementById('pm-current-pw').value = '';
@@ -509,6 +511,7 @@
         // 보안 설정 모달 (비밀번호 변경)
         // ══════════════════════════════════════════════════════════════
         function openSecurityModal() {
+            if (blockIfDemo()) return;
             ['sc-current-pw','sc-new-pw','sc-confirm-pw'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('sc-error').classList.add('hidden');
             document.getElementById('sc-success').classList.add('hidden');

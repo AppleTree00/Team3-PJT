@@ -184,6 +184,8 @@ def public_templates():
 # ── 파일 업로드 API ───────────────────────────────────────────────────
 @app.route('/upload-resume', methods=['POST'])
 def upload_resume():
+    if session.get('mode') == 'DEMO':
+        return jsonify(success=False, status="blocked", message="데모 체험 중에는 이 기능을 사용할 수 없습니다. 일반 계정으로 이용해주세요."), 403
     if 'resumeFile' not in request.files:
         return jsonify(success=False, message='파일이 필요합니다.'), 400
 

@@ -276,6 +276,7 @@
 
     // ── 이력서 저장 (API 연동) ─────────────────────────────────────────
     async function saveResume() {
+        if (blockIfDemo()) return;
         const fields = {};
         document.querySelectorAll('input[id], textarea[id]').forEach(el => {
             fields[el.id] = el.value;

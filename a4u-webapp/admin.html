@@ -446,6 +446,17 @@
 const API = '/api/admin';
 let usersPage = 1, filesPage = 1, resumesPage = 1;
 
+// ── 어드민 데모 모드 차단 헬퍼 ──────────────────────────────────────────
+let _adminDemoMode = false;
+
+function blockIfAdminDemo() {
+    if (_adminDemoMode) {
+        toast('데모 계정은 조회만 가능합니다.', 'error');
+        return true;
+    }
+    return false;
+}
+
 // ── 초기화 ──────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
     // 어드민 사용자 정보 표시 (미들웨어가 이미 보호하지만 이름 표시를 위해 조회)
@@ -454,6 +465,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         const d = await r.json();
         if (d.success && d.user) {
             document.getElementById('admin-name').textContent = d.user.name;
+            if (d.mode === 'DEMO') {
+                _adminDemoMode = true;
+            }
         }
     } catch (_) {}
     loadDashboard();
@@ -621,6 +635,7 @@ async function loadUsers() {
 }
 
 function openUserModal(user = null) {
+    if (blockIfAdminDemo()) return;
     document.getElementById('user-modal-title').textContent = user ? '회원 수정' : '회원 추가';
     document.getElementById('user-modal-id').value = user ? user.id : '';
     document.getElementById('user-modal-name').value = user ? user.name : '';
@@ -632,6 +647,7 @@ function openUserModal(user = null) {
 }
 
 async function saveUser() {
+    if (blockIfAdminDemo()) return;
     const id = document.getElementById('user-modal-id').value;
     const payload = {
         name: document.getElementById('user-modal-name').value,
@@ -649,6 +665,7 @@ async function saveUser() {
 }
 
 async function deleteUser(id, name) {
+    if (blockIfAdminDemo()) return;
     if (!confirm(`'${name}' 회원을 삭제하시겠습니까?`)) return;
     const r = await fetch(`${API}/users/${id}`, { method: 'DELETE', credentials: 'same-origin' });
     if (r.ok) { loadUsers(); toast('삭제되었습니다.'); }
@@ -724,6 +741,7 @@ function showResumeDetail(rv) {
 }
 
 async function deleteResume(id, title) {
+    if (blockIfAdminDemo()) return;
     if (!confirm(`'${title}' 이력서를 삭제하시겠습니까?`)) return;
     const r = await fetch(`${API}/resumes/${id}`, { method: 'DELETE', credentials: 'same-origin' });
     const d = await r.json();
@@ -772,6 +790,7 @@ async function loadTemplates() {
 }
 
 function openTemplateModal(t = null) {
+    if (blockIfAdminDemo()) return;
     document.getElementById('template-modal-title').textContent = t ? '템플릿 수정' : '템플릿 추가';
     document.getElementById('template-modal-id').value = t ? t.id : '';
     document.getElementById('template-modal-name').value = t ? t.name : '';
@@ -801,6 +820,7 @@ function handleTemplateFileSelect(event) {
 }
 
 async function saveTemplate() {
+    if (blockIfAdminDemo()) return;
     const id = document.getElementById('template-modal-id').value;
     const name = document.getElementById('template-modal-name').value.trim();
     const desc = document.getElementById('template-modal-desc').value.trim();
@@ -887,6 +907,7 @@ function printTemplate(templateId, fileType) {
 }
 
 async function deleteTemplate(id) {
+    if (blockIfAdminDemo()) return;
     if (!confirm('이 템플릿을 삭제하시겠습니까?')) return;
     const r = await fetch(`${API}/templates/${id}`, { method: 'DELETE', credentials: 'same-origin' });
     if (r.ok) { loadTemplates(); toast('삭제되었습니다.'); }
@@ -930,6 +951,7 @@ async function loadFiles() {
 }
 
 async function deleteFile(id, name) {
+    if (blockIfAdminDemo()) return;
     if (!confirm(`'${name}' 파일을 삭제하시겠습니까?`)) return;
     const r = await fetch(`${API}/files/${id}`, { method: 'DELETE', credentials: 'same-origin' });
     if (r.ok) { loadFiles(); toast('파일이 삭제되었습니다.'); }
@@ -982,6 +1004,7 @@ async function generateSQL() {
 }
 
 async function applyMigration() {
+    if (blockIfAdminDemo()) return;
     const sql = document.getElementById('generated-sql').value.trim();
     const desc = document.getElementById('migration-desc').value || document.getElementById('schema-description').value;
     const nat = document.getElementById('schema-description').value;
@@ -1000,6 +1023,7 @@ async function applyMigration() {
 }
 
 async function applyDirectSQL() {
+    if (blockIfAdminDemo()) return;
     const sql = document.getElementById('direct-sql').value.trim();
     const desc = document.getElementById('direct-desc').value || 'Direct SQL';
     if (!sql) { toast('SQL을 입력하세요.', 'error'); return; }

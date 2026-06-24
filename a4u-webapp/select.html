@@ -441,6 +441,7 @@
     });
 
     uploadButton.addEventListener('click', () => {
+        if (typeof blockIfDemo === 'function' && blockIfDemo()) return;
         if (!selectedResumeFile) {
             uploadStatusText.textContent = '업로드할 파일을 선택해주세요.';
             return;

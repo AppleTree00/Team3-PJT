@@ -187,7 +187,10 @@
             if (!label) return;
             const text = label.textContent.trim();
             if (text === '새 이력서 작성') {
-                btn.addEventListener('click', () => { window.location.href = 'builder.html'; });
+                btn.addEventListener('click', () => {
+                    if (blockIfDemo()) return;
+                    window.location.href = 'builder.html';
+                });
             } else if (text === '프로필 정보 업데이트') {
                 btn.addEventListener('click', handleUnavailableFeature);
             }

@@ -181,7 +181,7 @@ def me():
     user = current_user()
     if not user:
         return jsonify(success=False, message='로그인이 필요합니다.'), 401
-    return jsonify(success=True, user=user.to_dict())
+    return jsonify(success=True, user=user.to_dict(), mode=session.get('mode', 'GENERAL'))
 
 
 @resume_bp.route('/auth/admin-demo-login', methods=['POST'])
