@@ -32,3 +32,52 @@ function showToast(message, type) {
 function handleUnavailableFeature() {
     showToast('준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다.', 'warning');
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    var mobileMenuButton = document.getElementById('mobile-menu-button');
+    var mobileMenu = document.getElementById('mobile-menu');
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenu.classList.remove('hidden');
+
+        var menuIcon = mobileMenuButton.querySelector('.material-symbols-outlined');
+
+        function openMenu() {
+            mobileMenu.classList.add('open');
+            mobileMenuButton.classList.add('open');
+            if (menuIcon) menuIcon.textContent = 'close';
+        }
+
+        function closeMenu() {
+            mobileMenu.classList.remove('open');
+            mobileMenuButton.classList.remove('open');
+            if (menuIcon) menuIcon.textContent = 'menu';
+        }
+
+        mobileMenuButton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            mobileMenu.classList.contains('open') ? closeMenu() : openMenu();
+        });
+
+        document.addEventListener('click', function (e) {
+            if (mobileMenu.classList.contains('open') &&
+                !mobileMenu.contains(e.target) &&
+                !mobileMenuButton.contains(e.target)) {
+                closeMenu();
+            }
+        });
+    }
+
+    var currentPath = window.location.pathname.split('/').pop() || 'main.html';
+    var navLinks = document.querySelectorAll('.nav-link');
+    var mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+    function setActiveLink(links) {
+        links.forEach(function (link) {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('text-primary', 'font-bold');
+                link.classList.remove('text-on-surface-variant');
+            }
+        });
+    }
+    setActiveLink(navLinks);
+    setActiveLink(mobileNavLinks);
+});
