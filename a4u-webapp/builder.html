@@ -302,6 +302,7 @@
             if (data.success) {
                 showToast('이력서가 저장되었습니다!', 'success');
             } else {
+                if (handleDemoBlock(data)) return;
                 showToast('저장 중 오류가 발생했습니다: ' + (data.message || ''), 'error');
             }
         } catch (err) {

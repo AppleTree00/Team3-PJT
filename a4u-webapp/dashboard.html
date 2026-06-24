@@ -20,16 +20,6 @@
 <p class="font-body-md text-body-md text-on-surface-variant" id="dashboard-subtitle">오늘도 커리어 목표를 향해 나아가세요!</p>
 </section>
 
-<!-- Demo User Alert Banner -->
-<div id="demo-alert-banner" class="hidden mb-6 bg-amber-100 border-l-4 border-amber-500 text-amber-800 p-4 rounded-r-lg" role="alert">
-    <div class="flex items-center">
-        <div class="py-1"><span class="material-symbols-outlined mr-3">info</span></div>
-        <div>
-            <p class="font-bold">데모 사용자 모드</p>
-            <p class="text-sm">현재 '데모 사용자'로 로그인되어 있습니다. 일부 기능은 제한될 수 있으며, 생성된 데이터는 저장되지 않을 수 있습니다.</p>
-        </div>
-    </div>
-</div>
 <!-- Stats Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
     <!-- Left Column -->
@@ -161,11 +151,6 @@
                     const welcomeNameEl = document.getElementById('dashboard-user-name');
                     if (welcomeNameEl) welcomeNameEl.textContent = u.name + '님';
                     // 네비게이션 프로필 이름 삽입
-                    // 데모 사용자일 경우 배너 표시
-                    if (u.email === 'demo@a4u.com') {
-                        const banner = document.getElementById('demo-alert-banner');
-                        if (banner) banner.classList.remove('hidden');
-                    }
                     const profileLink = document.querySelector('a[href="profile-menu.html"]');
                     if (profileLink) {
                         const nameEl = document.createElement('span');

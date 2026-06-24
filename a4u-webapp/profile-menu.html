@@ -418,6 +418,7 @@
                     _currentUser = data.user;
                     applyAvatar(data.avatar_url);
                 } else {
+                    if (handleDemoBlock(data)) return;
                     showToast(data.message || '이미지 업로드에 실패했습니다.', 'error');
                 }
             } catch (_) {
@@ -491,6 +492,7 @@
                     succEl.classList.remove('hidden');
                     setTimeout(() => closeProfileModal(), 1500);
                 } else {
+                    if (handleDemoBlock(data)) { btn.disabled = false; btn.textContent = '저장'; return; }
                     document.getElementById('pm-error-msg').textContent = data.message || '저장에 실패했습니다.';
                     errEl.classList.remove('hidden');
                 }
@@ -549,6 +551,7 @@
                     succEl.classList.remove('hidden');
                     setTimeout(() => closeSecurityModal(), 1800);
                 } else {
+                    if (handleDemoBlock(data)) { btn.disabled = false; btn.textContent = '변경'; return; }
                     document.getElementById('sc-error-msg').textContent = data.message || '변경에 실패했습니다.';
                     errEl.classList.remove('hidden');
                 }

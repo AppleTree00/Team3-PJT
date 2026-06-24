@@ -336,6 +336,7 @@
             showToast('이력서가 삭제되었습니다.', 'success');
             loadResumes();
         } else {
+            if (handleDemoBlock(data)) { btn.disabled = false; return; }
             showToast(data.message || '삭제 실패', 'error');
             btn.disabled = false;
         }
