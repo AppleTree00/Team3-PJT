@@ -127,16 +127,30 @@ def _call_openai(system_prompt: str, user_msg: str) -> str:
     return response.choices[0].message.content
 
 
-def _call_anthropic(system_prompt: str, user_msg: str) -> str:
-    import anthropic
-    client = anthropic.Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
-    message = client.messages.create(
-        model='claude-3-haiku-20240307',
-        max_tokens=1500,
-        system=system_prompt,
-        messages=[{'role': 'user', 'content': user_msg}]
-    )
-    return message.content[0].text
+def _call_gemini(system_prompt: str, user_msg: str) -> str:
+    from google import genai
+    from google.genai import types
+    client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
+    # 모델 우선순위: flash → flash-lite (쿼터 초과 시 다음 모델 시도)
+    models_to_try = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-flash-latest']
+    last_error = None
+    for model_name in models_to_try:
+        try:
+            response = client.models.generate_content(
+                model=model_name,
+                contents=user_msg,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                    max_output_tokens=1500,
+                    temperature=0.7
+                )
+            )
+            return response.text
+        except Exception as e:
+            last_error = e
+            print(f"Gemini model {model_name} failed: {e}")
+            continue
+    raise last_error
 
 
 def _mock_coaching(sample_type: str, resume_text: str) -> str:
@@ -166,7 +180,7 @@ def _mock_coaching(sample_type: str, resume_text: str) -> str:
 
 ---
 ⚠️ 이 결과는 데모 목적의 Mock 응답입니다.
-실제 AI 코칭을 사용하려면 OPENAI_API_KEY 또는 ANTHROPIC_API_KEY를 설정하세요.
+실제 AI 코칭을 사용하려면 OPENAI_API_KEY 또는 GEMINI_API_KEY를 설정하세요.
 """
 
 
@@ -194,7 +208,7 @@ def coaching():
     system_prompt, user_msg = _build_prompt(sample_type, resume_text, focus)
 
     openai_key = os.environ.get('OPENAI_API_KEY', '')
-    anthropic_key = os.environ.get('ANTHROPIC_API_KEY', '')
+    gemini_key = os.environ.get('GEMINI_API_KEY', '')
 
     coaching_result = None
     provider = 'mock'
@@ -206,12 +220,12 @@ def coaching():
         except Exception as e:
             print(f"OpenAI error: {e}")
 
-    if coaching_result is None and anthropic_key:
+    if coaching_result is None and gemini_key:
         try:
-            coaching_result = _call_anthropic(system_prompt, user_msg)
-            provider = 'anthropic'
+            coaching_result = _call_gemini(system_prompt, user_msg)
+            provider = 'gemini'
         except Exception as e:
-            print(f"Anthropic error: {e}")
+            print(f"Gemini error: {e}")
 
     if coaching_result is None:
         coaching_result = _mock_coaching(sample_type, resume_text)
@@ -230,7 +244,7 @@ def coaching():
 def coaching_samples():
     """지원 가능한 샘플 타입 목록"""
     import os
-    ai_available = bool(os.environ.get('OPENAI_API_KEY') or os.environ.get('ANTHROPIC_API_KEY'))
+    ai_available = bool(os.environ.get('OPENAI_API_KEY') or os.environ.get('GEMINI_API_KEY'))
     return jsonify(
         success=True,
         ai_available=ai_available,

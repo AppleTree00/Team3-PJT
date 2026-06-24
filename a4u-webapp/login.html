@@ -1,16 +1,9 @@
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="ko">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta property="og:title" content="로그인 - a4u">
-<meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
-<meta property="og:image" content="/og-image.png">
-<meta property="og:type" content="website">
 <title>a4u - 로그인</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+{% include '_head.html' %}
 <script id="tailwind-config">
 tailwind.config = {
   theme: {
@@ -52,14 +45,6 @@ tailwind.config = {
 }
 </script>
 <style>
-  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  .btn-raise { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-  .btn-raise:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(53,37,205,0.25); }
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
   .input-field {
     width: 100%;
     padding: 12px 16px;
@@ -138,10 +123,6 @@ tailwind.config = {
 <nav class="bg-surface-container-lowest shadow-sm fixed top-0 w-full z-50">
   <div class="max-w-max-width mx-auto px-margin-desktop flex justify-between items-center h-16">
     <a href="main.html" class="text-2xl font-bold text-primary tracking-tight">a4u</a>
-    <a href="main.html" class="text-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
-      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-      메인으로
-    </a>
   </div>
 </nav>
 
@@ -294,11 +275,10 @@ tailwind.config = {
       </div>
     </div>
 
-    <p class="text-center text-xs md:text-sm text-on-surface-variant mt-4 md:mt-6 break-words px-2">© 2026 a4u 커리어 매니지먼트</p>
   </div>
 </main>
-
-<script>
+{% include '_footer.html' %}
+<script src="/static/js/common.js"></script><script>
 // ── 탭 전환 ──────────────────────────────────────────────────────────
 function switchTab(tab) {
     const isLogin = tab === 'login';
@@ -429,11 +409,6 @@ function fillDemoAdmin() {
     document.getElementById('login-password').value = 'admin1234';
     document.getElementById('login-email').classList.remove('error');
     document.getElementById('login-password').classList.remove('error');
-}
-
-// ── 미구현 기능 팝업 ──────────────────────────────────────────────────
-function handleUnavailableFeature() {
-    alert('현재 이 기능은 고도화 단계에 있습니다. 업데이트 이후 사용 가능하니 잠시만 기다려주세요.');
 }
 
 // ── 비밀번호 찾기 모달 ────────────────────────────────────────────────

@@ -46,8 +46,9 @@
     ```
 
 2.  **의존성 패키지 설치:**
+        `requirements.txt` 파일을 사용하여 필요한 모든 패키지를 한 번에 설치합니다.
     ```bash
-    pip install Flask Flask-SQLAlchemy Flask-Cors
+        pip install -r requirements.txt
     ```
 
 3.  **애플리케이션 실행:**

@@ -30,6 +30,16 @@ def login_required(fn):
         return fn(*args, **kwargs)
     return wrapper
 
+def demo_mode_blocked(fn):
+    """데모 모드일 경우 쓰기 작업을 차단하는 데코레이터"""
+    from functools import wraps
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if session.get('mode') == 'DEMO':
+            return jsonify(success=False, status="blocked", message="데모 체험 중에는 이 기능을 사용할 수 없습니다. 일반 계정으로 이용해주세요."), 403
+        return fn(*args, **kwargs)
+    return wrapper
+
 # ─────────────────────────────────────────────
 # 인증 API
 # ─────────────────────────────────────────────
@@ -53,6 +63,12 @@ def login():
     session['user_id'] = user.id
     session['user_name'] = user.name
     session['is_admin'] = user.is_admin
+
+    if user.email == 'demo@a4u.com':
+        session['mode'] = 'DEMO'
+    else:
+        session['mode'] = 'GENERAL'
+
     return jsonify(success=True, user=user.to_dict())
 
 
@@ -62,8 +78,26 @@ def logout():
     return jsonify(success=True, message='로그아웃 되었습니다.')
 
 
+@resume_bp.route('/auth/switch_mode', methods=['GET', 'POST'])
+@login_required
+def switch_mode():
+    """DEMO ↔ GENERAL 모드 전환 (GET: 현재 모드 조회, POST: 전환)"""
+    if request.method == 'GET':
+        return jsonify(success=True, mode=session.get('mode', 'GENERAL'))
+    data = request.get_json(silent=True) or {}
+    new_mode = (data.get('mode') or '').upper()
+    user = current_user()
+    if user.email == 'demo@a4u.com' and new_mode == 'GENERAL':
+        return jsonify(success=False, message='데모 계정은 GENERAL 모드로 전환할 수 없습니다.'), 403
+    if new_mode not in ('DEMO', 'GENERAL'):
+        return jsonify(success=False, message='유효하지 않은 모드입니다. DEMO 또는 GENERAL 중 하나를 입력하세요.'), 400
+    session['mode'] = new_mode
+    return jsonify(success=True, mode=new_mode, message=f'{"데모" if new_mode == "DEMO" else "일반"} 모드로 전환되었습니다.')
+
+
 @resume_bp.route('/auth/profile', methods=['PUT'])
 @login_required
+@demo_mode_blocked
 def update_profile():
     """이름·이메일 변경 (현재 비밀번호 확인 필수)"""
     data = request.get_json(silent=True) or {}
@@ -93,6 +127,7 @@ def update_profile():
 
 @resume_bp.route('/auth/change-password', methods=['PUT'])
 @login_required
+@demo_mode_blocked
 def change_password():
     """비밀번호 변경 (현재 비밀번호 + 새 비밀번호)"""
     data = request.get_json(silent=True) or {}
@@ -154,6 +189,7 @@ def _allowed_image(filename):
 
 @resume_bp.route('/auth/avatar', methods=['POST'])
 @login_required
+@demo_mode_blocked
 def upload_avatar():
     """프로필 이미지 업로드"""
     if 'avatar' not in request.files:
@@ -199,6 +235,7 @@ def register():
     session['user_id'] = user.id
     session['user_name'] = user.name
     session['is_admin'] = user.is_admin
+    session['mode'] = 'GENERAL'
     return jsonify(success=True, user=user.to_dict()), 201
 
 
@@ -210,11 +247,15 @@ def list_resumes():
     user = current_user()
     uid = user.id if user else None
 
-    # 샘플은 항상 포함, 본인 이력서 포함
+    # 기본: 사용자 본인 이력서만, ?include_samples=true 시 샘플도 포함
+    include_samples = request.args.get('include_samples', 'false').lower() == 'true'
     if uid:
-        resumes = Resume.query.filter(
-            (Resume.user_id == uid) | (Resume.is_sample == True)
-        ).order_by(Resume.created_at.desc()).all()
+        if include_samples:
+            resumes = Resume.query.filter(
+                (Resume.user_id == uid) | (Resume.is_sample == True)
+            ).order_by(Resume.created_at.desc()).all()
+        else:
+            resumes = Resume.query.filter_by(user_id=uid).order_by(Resume.created_at.desc()).all()
     else:
         resumes = Resume.query.filter_by(is_sample=True).all()
 
@@ -222,6 +263,8 @@ def list_resumes():
 
 
 @resume_bp.route('/resumes', methods=['POST'])
+@login_required
+@demo_mode_blocked
 def create_resume():
     data = request.get_json(silent=True) or {}
     user = current_user()
@@ -264,7 +307,7 @@ def update_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
     user = current_user()
     if resume.is_sample:
-        return jsonify(success=False, message='샘플 이력서는 수정할 수 없습니다.'), 403
+        return jsonify(success=False, message='샘플 이력서는 편집할 수 없습니다. 새 이력서를 작성하거나 샘플을 복사해 사용하세요.'), 403
     if resume.user_id != user.id:
         return jsonify(success=False, message='접근 권한이 없습니다.'), 403
 
@@ -290,6 +333,7 @@ def update_resume(resume_id):
 
 @resume_bp.route('/resumes/<int:resume_id>', methods=['DELETE'])
 @login_required
+@demo_mode_blocked
 def delete_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
     user = current_user()
@@ -317,6 +361,8 @@ def list_applications():
 
 
 @resume_bp.route('/applications', methods=['POST'])
+@login_required
+@demo_mode_blocked
 def create_application():
     data = request.get_json(silent=True) or {}
     user = current_user()
@@ -328,6 +374,7 @@ def create_application():
         position=data.get('position', ''),
         status=data.get('status', 'draft'),
         notes=data.get('notes', ''),
+        applied_date=data.get('applied_date') or data.get('applied_at'),
     )
     db.session.add(app_obj)
     db.session.commit()
@@ -336,13 +383,14 @@ def create_application():
 
 @resume_bp.route('/applications/<int:app_id>', methods=['PUT'])
 @login_required
+@demo_mode_blocked
 def update_application(app_id):
     app_obj = JobApplication.query.get_or_404(app_id)
     user = current_user()
     if app_obj.user_id != user.id:
         return jsonify(success=False, message='접근 권한이 없습니다.'), 403
     data = request.get_json(silent=True) or {}
-    for field in ('company', 'position', 'status', 'notes', 'template_id', 'resume_id'):
+    for field in ('company', 'position', 'status', 'notes', 'template_id', 'resume_id', 'applied_date'):
         if field in data:
             setattr(app_obj, field, data[field])
     if data.get('status') == 'submitted' and not app_obj.submitted_at:

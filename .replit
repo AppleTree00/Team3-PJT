@@ -1,11 +1,10 @@
-modules = ["web", "nodejs-20", "python-3.11"]
+modules = ["web", "python-3.12", "nodejs-20"]
 [agent]
 expertMode = true
-stack = "FLASK_VANILLA_JS"
+stack = "BEST_EFFORT_FALLBACK"
 
 [nix]
 channel = "stable-25_05"
-packages = ["openssl", "postgresql"]
 
 [workflows]
 runButton = "Project"
@@ -23,13 +22,13 @@ args = "Start application"
 name = "Start application"
 author = "agent"
 
-[workflows.workflow.metadata]
-outputType = "webview"
-
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python main.py"
+args = "cd a4u-webapp && python app.py"
 waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [[ports]]
 localPort = 5000
@@ -37,9 +36,4 @@ externalPort = 80
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
-
-[userenv]
-
-[userenv.shared]
-SECRET_KEY = "a4u-replit-secret-key-1s1xqi6pxih"
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "--chdir", "a4u-webapp", "app:app"]

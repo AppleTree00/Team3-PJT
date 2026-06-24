@@ -1,6 +1,6 @@
 # 작업 진행 현황 (자동 관리 파일)
 
-> 최종 업데이트: 2026-06-20
+> 최종 업데이트: 2026-06-22
 
 ## 완료된 작업
 
@@ -29,7 +29,7 @@
 - `coaching_routes.py` 신규 생성
   - POST /api/coaching — Few-shot 3종 프롬프트 기반 코칭
   - GET  /api/coaching/samples — 지원 가능한 샘플 타입 목록
-  - OpenAI(gpt-4o-mini) → Anthropic(claude-3-haiku) → Mock 순서로 Fallback
+  - OpenAI(gpt-4o-mini) → Gemini → Mock 순서로 Fallback
   - 미지원 타입: 422 + "고도화 단계" 안내 메시지
 
 ### [T004] 프론트엔드 팝업 + API 연동 ✅
@@ -86,6 +86,53 @@
 - `.gitignore`에 `.env` 및 `.env.local` 배제 룰 등록
 - AI API 키 및 포트, 시크릿 키 등을 정의한 `.env.example` 템플릿 제공
 - 로컬 개발을 위한 `.env` 기본 구조 제공 및 `app.py` 구동 시 별도 라이브러리 의존성 없이 자동으로 이를 로드하도록 `load_env()` 로직 통합
+
+### [T010] 프로필 관리 기능 구현 ✅ (2026-06-20)
+- **프로필 편집 모달** (`profile-menu.html`): 이름·이메일 수정 + 현재 비밀번호 확인 연동
+- **보안 모달** (`profile-menu.html`): 비밀번호 변경 기능
+- **비밀번호 재설정 모달** (`login.html`): 2단계 흐름 (이메일 입력 → 임시 비밀번호 표시)
+- **아바타 업로드** (`POST /api/auth/avatar`): PNG/JPG/GIF/WebP 허용, UUID 기반 파일명
+- **신규 API 엔드포인트** (`resume_routes.py`):
+  - `PUT /api/auth/profile` — 이름/이메일 수정
+  - `PUT /api/auth/change-password` — 비밀번호 변경
+  - `POST /api/auth/reset-password` — 비밀번호 재설정
+  - `POST /api/auth/avatar` — 프로필 이미지 업로드
+- **DB 마이그레이션 패턴 개선** (`app.py`): `init_db()` 내 `migrations` 리스트로 `ALTER TABLE` 관리, try/except로 중복 실행 방지
+- **데모 계정 아바타 자동 설정**: `demo@a4u.com` 로그인 시 `/static/avatars/demo_avatar.png` 자동 반영
+- **전체 7개 페이지 아바타 동기화**: main, dashboard, resume, timeline, select, builder, profile-menu — person-icon fallback 포함
+
+### [T010-1] 메인화면 버튼 연결 수정 ✅ (2026-06-22)
+- "무료로 시작하기" 버튼 `href`: `select.html` → `login.html`
+- 하단 CTA "지금 이력서 만들기" 버튼 `href`: `select.html` → `login.html`
+- 하단 CTA "도입 문의하기" 버튼: `<button>` → `<a href="https://tally.so/r/pb5v6b" target="_blank">` (새 창 오픈)
+- "데모 보기" 버튼: `href="dashboard.html"` → `demoLogin()` JS 함수 호출로 교체
+  - `POST /api/auth/login` (demo@a4u.com / demo1234) 후 `dashboard.html` 리다이렉트
+  - 클릭 시 버튼 "로그인 중..." 텍스트 + `disabled` 처리 (중복 클릭 방지)
+  - 실패 시 원래 상태로 복구
+
+### [T011] 이름 입력 필드 통합 ✅ (2026-06-22)
+- **변경 전** (`select.html`, `builder.html`): `성(lastName)` + `이름(firstName)` 2컬럼 grid
+- **변경 후**: `이름` 단일 전체너비 입력 (`id="personalFullName"`, 기본값 `홍길동`)
+- **JS 전면 업데이트** (`select.html`):
+  - 변수: `personalFirstName` + `personalLastName` → `personalFullName`
+  - `saveResumeState()`: `firstName`/`lastName` 키 → `fullName`
+  - `loadResumeState()`: `state.firstName`/`state.lastName` → `state.fullName`
+  - `applyParsedResumeData()`: 두 필드 분리 설정 → `personalFullName.value = '홍길동'`
+  - `persistFormChanges()`: 리스너 배열에서 두 필드 제거 → 단일 필드
+
+### [T012] Gemini AI 연동 완성 ✅ (2026-06-22)
+- **패키지 교체**: `google-generativeai`(deprecated) → `google-genai` (`google.genai`)
+- **`_call_anthropic()` 제거** → **`_call_gemini()` 추가** (`coaching_routes.py`)
+- **모델 fallback 순서** (쿼터 초과 방어):
+  1. `gemini-2.0-flash`
+  2. `gemini-2.0-flash-lite`
+  3. `gemini-flash-latest`
+- **API 호출 흐름 변경**:
+  - 기존: OpenAI → Anthropic(Claude) → Mock
+  - 변경: OpenAI → Gemini → Mock
+- **환경변수**: `ANTHROPIC_API_KEY` 제거 → `GEMINI_API_KEY` (Replit Secrets 등록 완료)
+- **`/api/coaching/samples`** ai_available 체크 조건 동기화: `ANTHROPIC_API_KEY` → `GEMINI_API_KEY`
+- **참고**: Free Tier 키는 일별 쿼터 제한 있음. 유료 플랜 키 또는 OpenAI 키 추가 시 즉시 실제 AI 응답
 
 ## 미구현 / 업데이트 예정
 - Google, 네이버, 카카오 간편로그인 (현재: 이메일/비밀번호 세션 방식)

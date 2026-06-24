@@ -1,76 +1,18 @@
 <!DOCTYPE html>
 
 <html class="light" lang="ko"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta property="og:title" content="이력서 선택 - a4u">
-<meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
-<meta property="og:image" content="/og-image.png">
-<meta property="og:type" content="website"><title>이력서 빌더 - a4u</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<meta property="og:title" content="이력서 선택 - a4u">
+<title>이력서 빌더 - a4u</title>
+{% include '_head.html' %}
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
         .resume-preview-container {
             height: calc(100vh - 128px);
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
         }
         .form-section {
             display: none;
         }
         .form-section.active {
             display: block;
-        }
-        .fade-in {
-            opacity: 0;
-            animation: fadeIn 0.8s ease-out forwards;
-        }
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(24px);
-            animation: fadeInUp 0.9s ease-out forwards;
-        }
-        .feature-card {
-            opacity: 0;
-            transform: translateY(16px);
-            animation: fadeInUp 0.9s ease-out forwards;
-        }
-        .btn-raise {
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-        .btn-raise:hover {
-            transform: translateY(-4px);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .fade-in,
-            .fade-in-up,
-            .feature-card,
-            .btn-raise {
-                animation: none !important;
-                transition: none !important;
-            }
         }
     </style>
 <script id="tailwind-config">
@@ -179,7 +121,6 @@
                 <a href="main.html" class="font-headline-md text-headline-md font-bold text-primary">a4u</a>
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center gap-6">
-                    <a href="main.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">메인</a>
                     <a href="dashboard.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">대시보드</a>
                     <a href="resume.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">이력서 관리</a>
                     <a href="timeline.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">커리어 관리</a>
@@ -210,7 +151,6 @@
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-surface-container-lowest border-t border-border-subtle">
         <div class="px-4 pt-2 pb-4 space-y-1">
-            <a href="main.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">메인</a>
             <a href="dashboard.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">대시보드</a>
             <a href="resume.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">이력서 관리</a>
             <a href="timeline.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">커리어 관리</a>
@@ -279,8 +219,7 @@
                 <p class="font-body-md text-body-md text-on-surface-variant mb-8 flex-grow">
                     빈 양식에서부터 직접 텍스트를 입력하며 나만의 이력서를 완성합니다. 단계별 가이드를 제공합니다.
                 </p>
-                <div class="flex-grow"></div>
-                <button onclick="document.getElementById('start-selection-overlay').remove()" class="w-full py-3 border border-outline text-on-surface rounded-xl font-label-md hover:bg-surface-container transition-all">
+                <div class="flex-grow"></div><button onclick="startBlank()" class="w-full py-3 border border-outline text-on-surface rounded-xl font-label-md hover:bg-surface-container transition-all">
                     빈 양식으로 시작
                 </button>
             </div>
@@ -462,87 +401,14 @@
 </div>
 </div>
 </main>
-<!-- Footer -->
-<footer class="w-full mt-auto bg-surface-container-low border-t border-border-subtle">
-<div class="flex flex-col md:flex-row justify-between items-center px-2 md:px-margin-desktop py-4 md:py-gutter max-w-max-width mx-auto gap-3 md:gap-6">
-<span class="font-body-sm text-body-sm text-on-surface-variant text-xs md:text-sm break-words text-center md:text-left">© 2026 a4u 커리어 관리</span>
-<div class="flex gap-2 md:gap-6 mt-2 md:mt-0 flex-wrap justify-center md:justify-end">
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">소개</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">개인정보처리방침</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">이용약관</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">고객센터</a>
-</div>
-</div>
-</footer>
-<script>
-    function switchTab(tabId) {
-        // Update Navigation UI
-        const tabs = document.querySelectorAll('.nav-tab');
-        const tabMappings = {
-            'Personal Info': '인적 사항',
-            'Experience': '경력 사항',
-            'Education': '학력 사항',
-            'Skills': '보유 기술',
-            'Certifications': '자격증'
-        };
-
-        tabs.forEach(tab => {
-            const label = tab.getAttribute('data-tab');
-            if (label === tabId) {
-                tab.classList.add('bg-primary-container', 'text-on-primary-container');
-                tab.classList.remove('text-on-surface-variant');
-            } else {
-                tab.classList.remove('bg-primary-container', 'text-on-primary-container');
-                tab.classList.add('text-on-surface-variant');
-            }
-        });
-
-        // Update Form Visibility
-        const sections = document.querySelectorAll('.form-section');
-        sections.forEach(section => {
-            section.classList.remove('active');
-            if (section.id === tabId) {
-                section.classList.add('active');
-            }
-        });
-    }
-
+{% include '_footer.html' %}
+<script src="/static/js/common.js"></script><script>
     // Add some subtle interaction to the preview
     document.querySelectorAll('input, textarea').forEach(el => {
         el.addEventListener('focus', () => {
             // Focus ring handled by Tailwind, but could trigger preview highlights here
         });
     });
-
-        // Mobile menu toggle
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        if (mobileMenuButton) {
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-            });
-        }
-
-        // Set active navigation link
-        const currentPath = window.location.pathname.split('/').pop();
-        const navLinks = document.querySelectorAll('.nav-link');
-        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-
-        const setActiveLink = (links) => {
-            links.forEach(link => {
-                const linkPath = link.getAttribute('href');
-                if (linkPath === currentPath || (currentPath === '' && linkPath === 'main.html')) {
-                    link.classList.add('text-primary', 'font-bold');
-                    link.classList.remove('text-on-surface-variant');
-                } else {
-                    link.classList.remove('text-primary', 'font-bold');
-                    link.classList.add('text-on-surface-variant');
-                }
-            });
-        };
-
-        setActiveLink(navLinks);
-        setActiveLink(mobileNavLinks);
 
         // ── 네비게이션 인증 상태 동적 표시 ────────────────────────────
         (async function updateNavAuth() {
@@ -771,6 +637,32 @@
     }
 
     persistFormChanges();
-    loadResumeState();
+
+    function startBlank() {
+        localStorage.removeItem('a4uResumeState');
+        // 폼 필드 초기화
+        personalFullName.value = '';
+        personalSummary.value = '';
+        personalEmail.value = '';
+        personalPhone.value = '';
+        // 미리보기 초기화
+        parsedNamePreview.textContent = '이름';
+        parsedTitlePreview.textContent = '직무';
+        parsedEmailPreview.textContent = '';
+        parsedPhonePreview.textContent = '';
+        parsedLocationPreview.textContent = '지역';
+        document.querySelector('div.col-span-2.space-y-8 > section:nth-of-type(1) > p').textContent = '';
+        document.querySelector('div.col-span-2.space-y-8 > section:nth-of-type(2) > div').innerHTML = '';
+        document.querySelector('div.space-y-8.border-l > section:nth-of-type(1) > div').innerHTML = '';
+
+        document.getElementById('start-selection-overlay').remove();
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('new') === 'true') {
+        startBlank();
+    } else {
+        loadResumeState();
+    }
 </script>
 </body></html>

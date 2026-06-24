@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "wbTro4ZkL2hSM56FkYIXG"
+uri = "file://a4u-webapp/pitch_deck.md"
+type = "text"
+title = "a4u 피치덱 마크다운"

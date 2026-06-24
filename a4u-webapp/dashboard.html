@@ -1,61 +1,10 @@
 <!DOCTYPE html>
 
 <html class="scroll-smooth" lang="ko"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta property="og:title" content="대시보드 - a4u">
-<meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
-<meta property="og:image" content="/og-image.png">
-<meta property="og:type" content="website">
 <title>a4u - 관리자 대시보드</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+{% include '_head.html' %}
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-        }
-        .fade-in {
-            opacity: 0;
-            animation: fadeIn 0.8s ease-out forwards;
-        }
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(24px);
-            animation: fadeInUp 0.9s ease-out forwards;
-        }
-        .feature-card {
-            opacity: 0;
-            transform: translateY(16px);
-            animation: fadeInUp 0.9s ease-out forwards;
-        }
-        .btn-raise {
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-        .btn-raise:hover {
-            transform: translateY(-4px);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .fade-in,
-            .fade-in-up,
-            .feature-card,
-            .btn-raise {
-                animation: none !important;
-                transition: none !important;
-            }
-        }
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -170,7 +119,6 @@
                 <a href="main.html" class="font-headline-md text-headline-md font-bold text-primary">a4u</a>
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center gap-6">
-                    <a href="main.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">메인</a>
                     <a href="dashboard.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">대시보드</a>
                     <a href="resume.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">이력서 관리</a>
                     <a href="timeline.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">커리어 관리</a>
@@ -201,7 +149,6 @@
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-surface-container-lowest border-t border-border-subtle">
         <div class="px-4 pt-2 pb-4 space-y-1">
-            <a href="main.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">메인</a>
             <a href="dashboard.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">대시보드</a>
             <a href="resume.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">이력서 관리</a>
             <a href="timeline.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">커리어 관리</a>
@@ -255,34 +202,23 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
                 <!-- Column: Applied -->
                 <div class="bg-surface-container-low rounded-xl p-4 space-y-4">
-                    <h3 class="font-label-md text-on-surface-variant px-2">지원 완료 (1)</h3>
-                    <div class="kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle">
-                        <h4 class="font-label-md text-on-background">프로덕트 디자이너</h4>
-                        <p class="text-body-sm text-on-surface-variant">Naver</p>
-                        <div class="mt-3 pt-3 border-t border-border-subtle text-xs text-on-surface-variant">5일 전 지원</div>
+                    <h3 id="col-applied-hd" class="font-label-md text-on-surface-variant px-2">지원 완료 (0)</h3>
+                    <div id="col-applied" class="space-y-3">
+                        <p class="text-sm text-on-surface-variant px-2">불러오는 중...</p>
                     </div>
                 </div>
                 <!-- Column: Interview -->
                 <div class="bg-surface-container-low rounded-xl p-4 space-y-4">
-                    <h3 class="font-label-md text-on-surface-variant px-2">면접 (2)</h3>
-                    <div class="kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle">
-                        <h4 class="font-label-md text-on-background">UX/UI 디자이너</h4>
-                        <p class="text-body-sm text-on-surface-variant">Kakao</p>
-                        <div class="mt-3 pt-3 border-t border-border-subtle text-xs text-secondary font-bold">내일, 14:00 (온라인)</div>
-                    </div>
-                    <div class="kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle">
-                        <h4 class="font-label-md text-on-background">시니어 프로덕트 디자이너</h4>
-                        <p class="text-body-sm text-on-surface-variant">Toss</p>
-                        <div class="mt-3 pt-3 border-t border-border-subtle text-xs text-on-surface-variant">2차 면접 대기</div>
+                    <h3 id="col-interview-hd" class="font-label-md text-on-surface-variant px-2">면접 (0)</h3>
+                    <div id="col-interview" class="space-y-3">
+                        <p class="text-sm text-on-surface-variant px-2">불러오는 중...</p>
                     </div>
                 </div>
-                <!-- Column: Offer -->
+                <!-- Column: Offer / Result -->
                 <div class="bg-surface-container-low rounded-xl p-4 space-y-4">
-                    <h3 class="font-label-md text-on-surface-variant px-2">오퍼 (1)</h3>
-                    <div class="kanban-card bg-success-mint rounded-lg p-4 shadow-sm border border-secondary-container">
-                        <h4 class="font-label-md text-on-background">리드 프로덕트 디자이너</h4>
-                        <p class="text-body-sm text-secondary">Coupang</p>
-                        <button onclick="acceptOffer(event)" class="mt-3 w-full py-2 bg-primary text-on-primary rounded-lg text-sm font-semibold hover:opacity-90">오퍼 수락</button>
+                    <h3 id="col-offer-hd" class="font-label-md text-on-surface-variant px-2">오퍼 / 결과 (0)</h3>
+                    <div id="col-offer" class="space-y-3">
+                        <p class="text-sm text-on-surface-variant px-2">불러오는 중...</p>
                     </div>
                 </div>
             </div>
@@ -320,34 +256,8 @@
     </div>
 </section>
 </main>
-<!-- Footer -->
-<footer class="w-full mt-auto bg-surface-container-low border-t border-border-subtle">
-<div class="flex flex-col md:flex-row justify-between items-center px-2 md:px-margin-desktop py-4 md:py-gutter max-w-max-width mx-auto gap-3 md:gap-8">
-<span class="font-headline-md text-headline-md text-primary mb-2 md:mb-0 text-center md:text-left">a4u</span>
-<div class="flex gap-2 md:gap-8 mb-2 md:mb-0 flex-wrap justify-center md:justify-start">
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">소개</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">개인정보 처리방침</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">이용약관</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">고객 센터</a>
-</div>
-<p class="font-body-sm text-body-sm text-on-surface-variant text-xs md:text-sm break-words">© 2026 a4u 커리어 매니지먼트</p>
-</div>
-</footer>
-<script>
-    // Mobile menu toggle
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileMenuButton) {
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-    }
-
-        // ── 미구현 기능 안내 팝업 ──────────────────────────────────────────
-        function handleUnavailableFeature() {
-            alert('현재 이 기능은 고도화 단계에 있습니다. 업데이트 이후 사용 가능하니 잠시만 기다려주세요.');
-        }
-
+{% include '_footer.html' %}
+<script src="/static/js/common.js"></script><script>
         // Simple mock for "Accept Offer" interaction
         function acceptOffer(e) {
             const btn = e.target;
@@ -355,25 +265,6 @@
             btn.classList.add('bg-secondary');
             btn.disabled = true;
         }
-
-    const currentPath = window.location.pathname.split('/').pop();
-    const navLinks = document.querySelectorAll('.nav-link');
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-    const setActiveLink = (links) => {
-        links.forEach(link => {
-            const linkPath = link.getAttribute('href');
-            if (linkPath === currentPath || (currentPath === '' && linkPath === 'main.html')) {
-                link.classList.add('text-primary', 'font-bold');
-                link.classList.remove('text-on-surface-variant');
-            } else {
-                link.classList.remove('text-primary', 'font-bold');
-                link.classList.add('text-on-surface-variant');
-            }
-        });
-    };
-
-    setActiveLink(navLinks);
-    setActiveLink(mobileNavLinks);
 
         // ── 네비게이션 인증 상태 + 웰컴 이름 동적 표시 ───────────────
         (async function updateNavAuth() {
@@ -425,7 +316,7 @@
             if (!label) return;
             const text = label.textContent.trim();
             if (text === '새 이력서 작성') {
-                btn.addEventListener('click', () => { window.location.href = 'builder.html'; });
+                btn.addEventListener('click', () => { window.location.href = 'builder.html?new=true'; });
             } else if (text === '프로필 정보 업데이트') {
                 btn.addEventListener('click', handleUnavailableFeature);
             }
@@ -458,17 +349,77 @@
             a.addEventListener('click', e => { e.preventDefault(); handleUnavailableFeature(); });
         });
 
-        // ── 대시보드 통계 API 연동 ─────────────────────────────────────
-        fetch('/api/stats')
-            .then(r => r.json())
-            .then(data => {
-                if (!data.success) return;
-                const s = data.stats;
-                // 이력서 경쟁력 카드 아래 요약 업데이트
-                const summaryEl = document.querySelector('.kanban-card ~ *') ;
-                // 상단 통계 요약 (있는 경우)
-                console.log('[a4u stats]', s);
-            })
-            .catch(() => {});
+        // ── 대시보드 통계 + 지원 현황 실제 API 연동 ─────────────────
+        const STATUS_LABELS = {
+            draft: '초안', applied: '지원 완료', reviewing: '검토 중',
+            interview: '면접', accepted: '합격', rejected: '불합격', submitted: '제출 완료'
+        };
+        const STATUS_COLS = {
+            applied: 'col-applied', submitted: 'col-applied',
+            reviewing: 'col-applied',
+            interview: 'col-interview',
+            accepted: 'col-offer', rejected: 'col-offer', draft: 'col-applied'
+        };
+
+        function buildKanbanCard(app) {
+            const label = STATUS_LABELS[app.status] || app.status;
+            const isAccepted = app.status === 'accepted';
+            const cardClass = isAccepted
+                ? 'kanban-card bg-success-mint rounded-lg p-4 shadow-sm border border-secondary-container'
+                : 'kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle';
+            const timeStr = app.applied_date || (app.created_at ? app.created_at.slice(0, 10) : '');
+            return `<div class="${cardClass}">
+                <h4 class="font-label-md text-on-background">${app.position || '(직위 없음)'}</h4>
+                <p class="text-body-sm ${isAccepted ? 'text-secondary' : 'text-on-surface-variant'}">${app.company || ''}</p>
+                <div class="mt-3 pt-3 border-t border-border-subtle text-xs ${isAccepted ? 'text-secondary font-bold' : 'text-on-surface-variant'}">
+                    ${timeStr ? '지원일: ' + timeStr : label}
+                </div>
+            </div>`;
+        }
+
+        async function loadDashboard() {
+            try {
+                // 통계
+                const sRes = await fetch('/api/stats', { credentials: 'same-origin' });
+                if (sRes.ok) {
+                    const sData = await sRes.json();
+                    if (sData.success) {
+                        const s = sData.stats;
+                        const resumeCountEl = document.getElementById('stat-resume-count');
+                        const appCountEl = document.getElementById('stat-app-count');
+                        if (resumeCountEl) resumeCountEl.textContent = s.total_resumes ?? '-';
+                        if (appCountEl) appCountEl.textContent = s.total_applications ?? '-';
+                    }
+                }
+
+                // 지원 현황 칸반
+                const aRes = await fetch('/api/applications', { credentials: 'same-origin' });
+                if (aRes.ok) {
+                    const aData = await aRes.json();
+                    if (aData.success && aData.applications.length > 0) {
+                        const apps = aData.applications;
+                        const applied = apps.filter(a => ['applied','submitted','reviewing','draft'].includes(a.status));
+                        const interview = apps.filter(a => a.status === 'interview');
+                        const offer = apps.filter(a => ['accepted','rejected'].includes(a.status));
+
+                        const colA = document.getElementById('col-applied');
+                        const colI = document.getElementById('col-interview');
+                        const colO = document.getElementById('col-offer');
+                        const hA = document.getElementById('col-applied-hd');
+                        const hI = document.getElementById('col-interview-hd');
+                        const hO = document.getElementById('col-offer-hd');
+
+                        if (colA) { colA.innerHTML = applied.map(buildKanbanCard).join('') || '<p class="text-sm text-on-surface-variant px-2">없음</p>'; }
+                        if (colI) { colI.innerHTML = interview.map(buildKanbanCard).join('') || '<p class="text-sm text-on-surface-variant px-2">없음</p>'; }
+                        if (colO) { colO.innerHTML = offer.map(buildKanbanCard).join('') || '<p class="text-sm text-on-surface-variant px-2">없음</p>'; }
+                        if (hA) hA.textContent = `지원 완료 (${applied.length})`;
+                        if (hI) hI.textContent = `면접 (${interview.length})`;
+                        if (hO) hO.textContent = `오퍼 / 결과 (${offer.length})`;
+                    }
+                }
+            } catch (e) { console.warn('[a4u] 대시보드 로드 오류', e); }
+        }
+
+        loadDashboard();
     </script>
 </body></html>

@@ -1,60 +1,10 @@
 <!DOCTYPE html><html class="light" lang="ko"><head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
 <meta property="og:title" content="타임라인 - a4u">
-<meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
-<meta property="og:image" content="/og-image.png">
-<meta property="og:type" content="website">
 <title>경력 타임라인 | a4u</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+{% include '_head.html' %}
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
         .timeline-line {
             background: linear-gradient(180deg, #3525cd 0%, #006a61 50%, #004598 100%);
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-        }
-        .fade-in {
-            opacity: 0;
-            animation: fadeIn 0.8s ease-out forwards;
-        }
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(24px);
-            animation: fadeInUp 0.9s ease-out forwards;
-        }
-        .feature-card {
-            opacity: 0;
-            transform: translateY(16px);
-            animation: fadeInUp 0.9s ease-out forwards;
-        }
-        .btn-raise {
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-        .btn-raise:hover {
-            transform: translateY(-4px);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .fade-in,
-            .fade-in-up,
-            .feature-card,
-            .btn-raise {
-                animation: none !important;
-                transition: none !important;
-            }
         }
     </style>
 <!-- Tailwind Configuration -->
@@ -164,7 +114,6 @@
                 <a href="main.html" class="font-headline-md text-headline-md font-bold text-primary">a4u</a>
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center gap-6">
-                    <a href="main.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">메인</a>
                     <a href="dashboard.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">대시보드</a>
                     <a href="resume.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">이력서 관리</a>
                     <a href="timeline.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">커리어 관리</a>
@@ -195,7 +144,6 @@
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-surface-container-lowest border-t border-border-subtle">
         <div class="px-4 pt-2 pb-4 space-y-1">
-            <a href="main.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">메인</a>
             <a href="dashboard.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">대시보드</a>
             <a href="resume.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">이력서 관리</a>
             <a href="timeline.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">커리어 관리</a>
@@ -242,21 +190,7 @@
         </button>
 </div>
 </main>
-<!-- Footer -->
-<footer class="bg-surface-container-low border-t border-border-subtle mt-12 w-full">
-<div class="flex flex-col md:flex-row justify-between items-center px-2 md:px-margin-desktop py-4 md:py-gutter max-w-max-width mx-auto gap-3 md:gap-6">
-<div class="flex flex-col gap-2 text-center md:text-left">
-<div class="font-headline-md text-headline-md text-primary font-bold">a4u</div>
-<p class="text-body-sm font-body-sm text-on-surface-variant text-xs md:text-sm break-words">© 2026 a4u 커리어 매니지먼트</p>
-</div>
-<div class="flex gap-3 md:gap-8 flex-wrap justify-center md:justify-end">
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all text-xs md:text-sm" href="#">정보</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all text-xs md:text-sm" href="#">개인정보 처리방침</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all text-xs md:text-sm" href="#">이용약관</a>
-<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary hover:underline transition-all text-xs md:text-sm" href="#">고객센터</a>
-</div>
-</div>
-</footer>
+{% include '_footer.html' %}
 <!-- Interactive Layer: Tooltip / Hover Effect Script -->
 <script>
     // Simple micro-interaction for entry cards
@@ -323,7 +257,45 @@
 
     // ── 미구현 기능 안내 팝업 ──────────────────────────────────────────
     function handleUnavailableFeature() {
-        alert('현재 이 기능은 고도화 단계에 있습니다. 업데이트 이후 사용 가능하니 잠시만 기다려주세요.');
+        showToast('준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다.', 'warning');
+    }
+
+    // ── 토스트 알림 (Toast) ──────────────────────────────────────────
+    function showToast(message, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `p-4 rounded-xl shadow-lg text-white font-medium text-sm transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center gap-3`;
+        
+        if (type === 'success') {
+            toast.classList.add('bg-emerald-600');
+        } else if (type === 'error') {
+            toast.classList.add('bg-rose-600');
+        } else if (type === 'warning') {
+            toast.classList.add('bg-amber-500');
+        } else {
+            toast.classList.add('bg-slate-800');
+        }
+
+        let iconName = 'info';
+        if (type === 'success') iconName = 'check_circle';
+        if (type === 'error') iconName = 'error';
+        if (type === 'warning') iconName = 'warning';
+
+        toast.innerHTML = `
+            <span class="material-symbols-outlined text-[20px] shrink-0">${iconName}</span>
+            <span class="flex-1">${message}</span>
+        `;
+
+        container.appendChild(toast);
+        setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+        setTimeout(() => { toast.classList.add('translate-y-2', 'opacity-0'); setTimeout(() => { toast.remove(); if (container.children.length === 0) container.remove(); }, 300); }, 3000);
     }
 
     // ── 알림 버튼 ──────────────────────────────────────────────────────
