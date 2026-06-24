@@ -305,6 +305,7 @@ def get_resume(resume_id):
 
 @resume_bp.route('/resumes/<int:resume_id>', methods=['PUT'])
 @login_required
+@demo_mode_blocked
 def update_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
     user = current_user()

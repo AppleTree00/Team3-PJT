@@ -247,3 +247,20 @@
   | dashboard.html (데모 세션) | 302→demo_dashboard | 302 ✅ |
   | demo_dashboard.html (비로그인) | 302→login | 302 ✅ |
   | demo_dashboard.html (어드민) | 302→dashboard | 302 ✅ |
+
+### [T021-b] 데모 모드 UX 완성 (배너·차단 모달·백엔드 보완) ✅
+- **날짜:** 2026-06-24
+- **파일:** `common.js`, `resume_routes.py`, `demo_dashboard.html`
+- **변경 내용:**
+  - `common.js`: `injectDemoBanner()` — DOMContentLoaded 시 auth/me 호출, DEMO 이면 모든 보호 페이지에 배너 자동 주입
+  - `common.js`: `showDemoBlockModal()` / `closeDemoBlockModal()` / `handleDemoBlock()` — 403 차단 응답 시 회원가입 유도 모달
+  - `resume_routes.py`: `update_resume` (PUT)에 `@demo_mode_blocked` 추가 (누락분 보완)
+  - `demo_dashboard.html`: 기존 배너에 `id="demo-mode-banner"` 추가 (중복 주입 방지)
+- **검증:** 서버사이드 7개 시나리오 전건 PASS / common.js 4개 함수 존재 확인 ✅
+  | 항목 | 결과 |
+  |---|---|
+  | PUT /api/resumes/<id> (데모) | 403 status=blocked ✅ |
+  | POST /api/resumes (데모) | 403 status=blocked ✅ |
+  | common.js injectDemoBanner | found ✅ |
+  | common.js showDemoBlockModal | found ✅ |
+  | common.js handleDemoBlock | found ✅ |

@@ -53,8 +53,68 @@ function handleUnavailableFeature() {
     showToast('준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다.', 'warning');
 }
 
+// ── 데모 모드 배너 주입 ──────────────────────────────────────────────
+function injectDemoBanner() {
+    if (document.getElementById('demo-mode-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'demo-mode-banner';
+    banner.className = 'bg-amber-50 border-b-2 border-amber-300 text-amber-800 px-4 py-3 text-center text-sm font-semibold w-full';
+    banner.innerHTML = `
+        <div class="max-w-screen-xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+            <span class="material-symbols-outlined text-[18px] shrink-0">experiment</span>
+            <span>데모 버전으로 체험 중입니다. 저장·수정 등 일부 기능이 제한됩니다.</span>
+            <a href="/login.html" class="ml-2 px-3 py-1 bg-primary text-white rounded-full text-xs hover:opacity-90 whitespace-nowrap font-semibold">지금 가입하면 모든 기능 무료!</a>
+        </div>
+    `;
+    const main = document.querySelector('main');
+    if (main) {
+        main.insertBefore(banner, main.firstChild);
+    } else {
+        document.body.insertBefore(banner, document.body.firstChild);
+    }
+}
+
+// ── 데모 차단 모달 ──────────────────────────────────────────────────
+function showDemoBlockModal() {
+    let modal = document.getElementById('demo-block-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'demo-block-modal';
+        modal.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeDemoBlockModal()"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 z-10 text-center">
+                <span class="material-symbols-outlined text-5xl text-amber-500 mb-3 block">experiment</span>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">데모 모드 제한</h2>
+                <p class="text-gray-600 text-sm mb-6">이 기능은 데모 버전에서 사용할 수 없습니다.<br>지금 가입하면 모든 기능을 무료로 이용하실 수 있어요!</p>
+                <div class="flex gap-3">
+                    <button onclick="closeDemoBlockModal()" class="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">계속 둘러보기</button>
+                    <a href="/login.html" class="flex-1 py-3 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 flex items-center justify-center">무료 가입하기</a>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    modal.classList.remove('hidden');
+}
+
+function closeDemoBlockModal() {
+    const modal = document.getElementById('demo-block-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+// 데모 차단 응답(403 + status="blocked") 처리 헬퍼
+// 사용법: const data = await r.json(); if (handleDemoBlock(data)) return;
+function handleDemoBlock(data) {
+    if (data && data.status === 'blocked') {
+        showDemoBlockModal();
+        return true;
+    }
+    return false;
+}
+
 // ── 네비게이션 및 공통 UI 초기화 ───────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Mobile menu toggle
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
@@ -73,4 +133,19 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.remove('text-on-surface-variant');
         }
     });
+
+    // ── 데모 모드 배너 자동 주입 ──────────────────────────────────
+    // 보호 페이지에서만 실행 (login.html, main.html, admin.html 제외)
+    const skipPages = ['login.html', 'main.html', 'admin.html', ''];
+    if (!skipPages.includes(currentPath)) {
+        try {
+            const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
+            if (r.ok) {
+                const data = await r.json();
+                if (data.success && data.user && data.user.email === 'demo@a4u.com') {
+                    injectDemoBanner();
+                }
+            }
+        } catch (_) {}
+    }
 });
