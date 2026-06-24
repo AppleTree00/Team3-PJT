@@ -395,20 +395,26 @@ async function handleRegister(e) {
 }
 
 // ── 데모 계정 자동 입력 ───────────────────────────────────────────────
-function fillDemoUser() {
+async function fillDemoUser() {
     switchTab('login');
     document.getElementById('login-email').value = 'demo@a4u.com';
     document.getElementById('login-password').value = 'demo1234';
     document.getElementById('login-email').classList.remove('error');
     document.getElementById('login-password').classList.remove('error');
+    // Simulate a form event to trigger handleLogin
+    const mockEvent = { preventDefault: () => {} };
+    await handleLogin(mockEvent);
 }
 
-function fillDemoAdmin() {
+async function fillDemoAdmin() {
     switchTab('login');
     document.getElementById('login-email').value = 'admin@a4u.com';
     document.getElementById('login-password').value = 'admin1234';
     document.getElementById('login-email').classList.remove('error');
     document.getElementById('login-password').classList.remove('error');
+    // Simulate a form event to trigger handleLogin
+    const mockEvent = { preventDefault: () => {} };
+    await handleLogin(mockEvent);
 }
 
 // ── 비밀번호 찾기 모달 ────────────────────────────────────────────────

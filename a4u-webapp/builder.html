@@ -606,6 +606,35 @@
             btn.addEventListener('click', handleUnavailableFeature);
         }
     });
+
+    // ── 빌더 ↔ 미리보기 실시간 동기화 ──────────────────────────────
+    function syncPreview() {
+        const mappings = {
+            'personalFullName': '.preview-name',
+            'personalSummary': '.preview-summary',
+            'personalEmail': '.preview-email',
+            'personalPhone': '.preview-phone',
+            'personalLocation': '.preview-location',
+            'jobTitle': '.preview-job-title'
+        };
+
+        for (const [inputId, previewSelector] of Object.entries(mappings)) {
+            const inputEl = document.getElementById(inputId);
+            const previewEl = document.querySelector(previewSelector);
+
+            if (inputEl && previewEl) {
+                // 초기 값 설정
+                previewEl.textContent = inputEl.value;
+                // 이벤트 리스너 추가
+                inputEl.addEventListener('input', (e) => {
+                    previewEl.textContent = e.target.value;
+                });
+            }
+        }
+    }
+
+    // 페이지 로드 시 동기화 시작
+    syncPreview();
 </script>
 
 
