@@ -1,6 +1,6 @@
 # 작업 진행 현황 (자동 관리 파일)
 
-> 최종 업데이트: 2026-06-22
+> 최종 업데이트: 2026-06-24
 
 ## 완료된 작업
 
@@ -133,6 +133,27 @@
 - **환경변수**: `ANTHROPIC_API_KEY` 제거 → `GEMINI_API_KEY` (Replit Secrets 등록 완료)
 - **`/api/coaching/samples`** ai_available 체크 조건 동기화: `ANTHROPIC_API_KEY` → `GEMINI_API_KEY`
 - **참고**: Free Tier 키는 일별 쿼터 제한 있음. 유료 플랜 키 또는 OpenAI 키 추가 시 즉시 실제 AI 응답
+
+### [T013] BUG-001 이력서 목록 샘플 혼재 수정 ✅ (2026-06-24)
+- `resume_routes.py` `list_resumes()`: 기본은 로그인 사용자 이력서만 반환
+- `?include_samples=true` 파라미터 추가 시 샘플 3종 함께 포함 (select.html 등 필요 페이지에서 사용)
+- 기존 동작: 항상 샘플+사용자 이력서 혼합 반환 → 사용자 본인 이력서 구분 불가
+
+### [T014] BUG-002 제출처 applied_date 컬럼 누락 수정 ✅ (2026-06-24)
+- `models.py` `JobApplication` 모델에 `applied_date = Column(String(20))` 추가
+- `app.py` `init_db()` migrations 리스트에 `ALTER TABLE job_application ADD COLUMN applied_date VARCHAR(20)` 추가
+- `resume_routes.py` create/update 라우트에서 `applied_date` 필드 읽기/저장 반영
+
+### [T015] BUG-003 샘플 이력서 편집 차단 메시지 개선 ✅ (2026-06-24)
+- `resume_routes.py` `update_resume()`: `is_sample=True` 체크 로직 추가
+- 기존: `user_id` 불일치 → 403 (메시지 불명확)
+- 변경: `is_sample=True`이면 `"샘플 이력서는 편집할 수 없습니다"` 명확한 403 먼저 반환
+
+### [T016] Replit 배포 환경 구성 ✅ (2026-06-24)
+- `main.py` 루트 진입점 정비: `sys.path` 설정 → `a4u-webapp` 폴더 인식, `init_db()` 호출 후 Flask 기동
+- Nix 모듈: `python-3.12` → `python-3.11` (`.replit` 수정)
+- 워크플로우 커맨드: `cd a4u-webapp && python app.py` → `python main.py`
+- `replit.md` 신규 작성 (프로젝트 개요, 실행 방법, 기본 계정, AI 연동 안내)
 
 ## 미구현 / 업데이트 예정
 - Google, 네이버, 카카오 간편로그인 (현재: 이메일/비밀번호 세션 방식)

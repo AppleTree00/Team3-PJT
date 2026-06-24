@@ -50,3 +50,31 @@
 - **파일 업로드:** FormData를 통한 multipart/form-data 전송
 - **미리보기:** `window.open()`을 이용한 새 창 열기
 - **인쇄:** JavaScript `window.print()` API
+
+---
+
+## **5. 3일차 UI 구현 완료 항목 (2026-06-22~24)**
+
+### 5.1 이력서 빌더 UX 개선
+- **진행 바 (Progress Bar):** 빌더 상단에 전체 작성률을 시각적으로 표시
+- **브레드크럼 (Breadcrumbs):** '인적사항 > 경력사항 > 보유기술 > 자기소개서' 단계 이동 UI
+- **작성률 로직:** 각 섹션 필드 입력 여부 감지 → 진행 바 실시간 업데이트
+- **임시 저장:** `localStorage` 활용, 페이지 이탈 후 복원
+- **새 이력서 빈 폼:** `?new=true` 파라미터 감지 시 localStorage 초기화 + 폼 공백 상태
+
+### 5.2 이름 필드 단일화
+- `성` + `이름` 2칸 → `이름` 단일 입력 (`id="personalFullName"`)
+- localStorage 키: `firstName`/`lastName` → `fullName`
+
+### 5.3 Toast 알림으로 alert() 교체 (Task 2 완료)
+- 기존 `window.alert()` 전체 제거
+- 화면 우측 상단 커스텀 토스트 알림 구현
+- 통일 문구: "준비 중인 기능입니다. 데모 버전에서는 지원하지 않습니다."
+
+### 5.4 AI 코칭 로딩 UX (Task 3 완료)
+- AI 코칭 버튼 클릭 시 "AI 코칭 분석 중..." 스피너 표시 + 버튼 `disabled`
+- 응답 완료/에러 시 로딩 상태 해제
+
+### 5.5 파일 업로드 예외 처리 (Task 1 완료)
+- `select.html` `<input accept=".pdf,.docx,.doc">` 명시적 추가
+- Try-Catch 기반 예외 처리: UI 멈춤 없이 에러 메시지 노출

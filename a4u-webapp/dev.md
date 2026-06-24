@@ -102,3 +102,34 @@ for sql in migrations:
 - Free Tier Gemini 키는 `generate_content_free_tier_requests` 일별 한도 있음 (초과 시 429 에러)
 - 429 발생 시 다음 모델로 자동 fallback, 모두 실패 시 Mock 응답 반환
 - `GEMINI_API_KEY`는 Replit Secrets에 등록 완료 (2026-06-22)
+
+## **7. 버그 수정 내역 (2026-06-24)**
+
+### BUG-001: 이력서 목록 샘플 혼재 (HIGH) ✅
+- **파일:** `resume_routes.py` — `list_resumes()`
+- **원인:** 항상 샘플 3종 + 사용자 이력서를 합산 반환하여 사용자가 본인 이력서 구분 불가
+- **수정:** 기본은 `user_id=현재사용자`인 이력서만 반환. 샘플이 필요한 페이지(예: select.html)는 `?include_samples=true` 파라미터 추가 사용
+
+### BUG-002: 제출처 applied_date 저장 안됨 (MEDIUM) ✅
+- **파일:** `models.py`, `resume_routes.py`, `app.py`
+- **원인:** `JobApplication` 모델에 `applied_date` 컬럼 없어 POST/PUT 시 완전히 무시됨
+- **수정:**
+  - `models.py`: `applied_date = Column(String(20))` 추가
+  - `app.py` `init_db()`: `ALTER TABLE job_application ADD COLUMN applied_date VARCHAR(20)` 마이그레이션 등록
+  - `resume_routes.py`: create/update 라우트에서 `applied_date` 읽기·저장 반영
+
+### BUG-003: 샘플 이력서 편집 에러 메시지 불명확 (LOW) ✅
+- **파일:** `resume_routes.py` — `update_resume()`
+- **원인:** `is_sample=True`인 경우 `user_id` 불일치 403만 반환 → 사용자에게 원인 불명확
+- **수정:** `is_sample` 체크를 `user_id` 체크 앞에 추가. `{"error": "샘플 이력서는 편집할 수 없습니다"}` 403 명확히 반환
+
+## **8. Replit 배포 환경 (2026-06-24)**
+
+### 진입점 구조
+- `main.py` (루트): `sys.path`에 `a4u-webapp` 추가 → `from app import app, init_db` → `init_db()` → `app.run(host='0.0.0.0', port=5000)`
+- `a4u-webapp/app.py`: Flask 팩토리, Blueprint 등록, DB 초기화 함수 포함
+
+### Replit 환경 설정
+- Nix 모듈: `python-3.11` (3.12는 Replit Free Tier에서 미지원)
+- 워크플로우: `python main.py`
+- Secrets 등록 완료: `SESSION_SECRET`, `GEMINI_API_KEY`
