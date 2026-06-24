@@ -9,109 +9,10 @@
 <meta property="og:type" content="website">
 <title>a4u - 인공지능으로 커리어의 가치를 높이세요</title>
 {% include '_head.html' %}
-<style>
-    .tonal-elevation {
-        box-shadow: 0px 4px 12px rgba(30, 41, 59, 0.05);
-    }
-    .glass-card {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(8px);
-    }
-    .fade-in {
-        opacity: 0;
-        animation: fadeIn 0.8s ease-out forwards;
-    }
-    .fade-in-up {
-        opacity: 0;
-        transform: translateY(24px);
-        animation: fadeInUp 0.9s ease-out forwards;
-    }
-    .animate-bounce-slow {
-        animation: floatCard 6s ease-in-out infinite;
-    }
-    .feature-card {
-        opacity: 0;
-        transform: translateY(16px);
-        animation: fadeInUp 0.9s ease-out forwards;
-    }
-    .btn-raise {
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .btn-raise:hover {
-        transform: translateY(-4px);
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(24px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes floatCard {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .fade-in,
-        .fade-in-up,
-        .animate-bounce-slow,
-        .feature-card,
-        .btn-raise {
-            animation: none !important;
-            transition: none !important;
-        }
-    }
-</style>
 </head>
 <body class="bg-surface-gray text-on-surface font-body-md overflow-x-hidden">
 <!-- Top Navigation Bar -->
-<nav class="bg-surface-container-lowest shadow-sm fixed top-0 w-full z-50">
-    <div class="max-w-max-width mx-auto px-margin-desktop">
-        <div class="flex justify-between items-center h-16">
-            <div class="flex items-center gap-8">
-                <a href="main.html" class="font-headline-md text-headline-md font-bold text-primary">a4u</a>
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center gap-6">
-                    <a href="main.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">메인</a>
-                    <a href="dashboard.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">대시보드</a>
-                    <a href="resume.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">이력서 관리</a>
-                    <a href="timeline.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">커리어 관리</a>
-                    <a href="select.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">제출 관리</a>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-4">
-                <button class="p-2 text-on-surface-variant hover:text-primary transition-colors hidden sm:block">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
-                <a href="profile-menu.html">
-                    <div id="nav-avatar-wrap" class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle bg-primary flex items-center justify-center">
-                        <span id="nav-avatar-icon" class="material-symbols-outlined text-white text-[18px]">person</span>
-                        <img id="nav-avatar-img" class="hidden w-full h-full object-cover" alt="프로필"/>
-                    </div>
-                </a>
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" class="p-2 text-on-surface-variant hover:text-primary transition-colors">
-                        <span class="material-symbols-outlined">menu</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden bg-surface-container-lowest border-t border-border-subtle">
-        <div class="px-4 pt-2 pb-4 space-y-1">
-            <a href="main.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">메인</a>
-            <a href="dashboard.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">대시보드</a>
-            <a href="resume.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">이력서 관리</a>
-            <a href="timeline.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">커리어 관리</a>
-            <a href="select.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">제출 관리</a>
-        </div>
-    </div>
-</nav>
+{% include '_navbar.html' %}
 <main class="pt-16">
 <!-- Hero Section -->
 <section class="relative min-h-[870px] flex items-center overflow-hidden">
@@ -291,51 +192,8 @@
 </section>
 </main>
 <!-- Footer -->
-<footer class="bg-surface-container-low border-t border-border-subtle mt-auto w-full">
-<div class="flex flex-col md:flex-row justify-between items-center px-2 md:px-margin-desktop py-4 md:py-gutter max-w-max-width mx-auto gap-4 md:gap-8">
-<div class="mb-3 md:mb-0 space-y-2 text-center md:text-left">
-<span class="font-headline-md text-headline-md text-primary font-bold">a4u</span>
-<p class="font-body-sm text-on-surface-variant text-xs md:text-sm break-words">© 2026 a4u 커리어 매니지먼트. All rights reserved.</p>
-</div>
-<div class="flex gap-3 md:gap-8 flex-wrap justify-center md:justify-start text-center md:text-left">
-<a class="font-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">소개</a>
-<a class="font-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">개인정보 처리방침</a>
-<a class="font-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">이용약관</a>
-<a class="font-body-sm text-on-surface-variant hover:text-primary underline transition-all text-xs md:text-sm" href="#">고객 센터</a>
-</div>
-</div>
-</footer>
+{% include '_footer.html' %}
 <script>
-    // Mobile menu toggle
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if (mobileMenuButton) {
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-    }
-
-    // Set active navigation link
-    const currentPath = window.location.pathname.split('/').pop();
-    const navLinks = document.querySelectorAll('.nav-link');
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-
-    const setActiveLink = (links) => {
-        links.forEach(link => {
-            const linkPath = link.getAttribute('href');
-            if (linkPath === currentPath || (currentPath === '' && linkPath === 'main.html')) {
-                link.classList.add('text-primary', 'font-bold');
-                link.classList.remove('text-on-surface-variant');
-            } else {
-                link.classList.remove('text-primary', 'font-bold');
-                link.classList.add('text-on-surface-variant');
-            }
-        });
-    };
-
-    setActiveLink(navLinks);
-    setActiveLink(mobileNavLinks);
-
     // ── 네비게이션 인증 상태 동적 표시 ────────────────────────────────
     (async function updateNavAuth() {
         try {
@@ -391,14 +249,6 @@
         }
     }
 
-    // ── 알림 버튼 ──────────────────────────────────────────────────────
-    document.querySelectorAll('button').forEach(btn => {
-        const icon = btn.querySelector('.material-symbols-outlined');
-        if (icon && icon.textContent.trim() === 'notifications') {
-            btn.addEventListener('click', handleUnavailableFeature);
-        }
-    });
-
     // ── 풋터 링크 ──────────────────────────────────────────────────────
     document.querySelectorAll('footer a[href="#"]').forEach(a => {
         a.addEventListener('click', e => { e.preventDefault(); handleUnavailableFeature(); });
@@ -411,5 +261,5 @@
             el.addEventListener('click', e => { e.preventDefault(); handleUnavailableFeature(); });
         }
     });
-</script>
+</script><script src="common.js"></script>
 </body></html>

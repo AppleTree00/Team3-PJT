@@ -1,20 +1,59 @@
-#mobile-menu {
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition: max-height 0.28s ease, opacity 0.22s ease;
+/* ─── Global Styles ────────────────────────────────────────────────────────── */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-#mobile-menu.open {
-    max-height: 320px;
-    opacity: 1;
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-#mobile-menu-button .material-symbols-outlined {
-    display: inline-block;
-    transition: transform 0.25s ease, opacity 0.15s ease;
+/* ─── Animations ───────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
-#mobile-menu-button.open .material-symbols-outlined {
-    transform: rotate(90deg);
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatCard {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.fade-in { animation: fadeIn 0.8s ease-out forwards; }
+.fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+.animate-bounce-slow { animation: floatCard 6s ease-in-out infinite; }
+
+/* ─── Components ───────────────────────────────────────────────────────────── */
+.btn-raise {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.btn-raise:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* ─── Reduced Motion ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .fade-in,
+    .fade-in-up,
+    .animate-bounce-slow,
+    .btn-raise {
+        animation: none !important;
+        transition: none !important;
+    }
 }
