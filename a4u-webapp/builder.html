@@ -203,11 +203,16 @@
 </div>
 <div class="space-y-6">
 <div>
-<label class="block font-label-md text-label-md text-on-surface mb-2">이름</label>
+<label for="personalFullName" class="block font-label-md text-label-md text-on-surface mb-2">이름</label>
 <input id="personalFullName" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="홍길동">
 </div>
 <div>
-<label class="block font-label-md text-label-md text-on-surface mb-2">전문가 요약</label>
+    <div class="flex justify-between items-center mb-2">
+        <label for="personalSummary" class="block font-label-md text-label-md text-on-surface">전문가 요약</label>
+        <button type="button" id="summary-coaching-btn" class="text-primary font-label-md text-label-md flex items-center gap-1">
+            <span class="material-symbols-outlined text-[20px]">psychology</span> AI 코칭
+        </button>
+    </div>
 <textarea id="personalSummary" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="4">25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있으며, 현재는 은퇴를 앞두고 후배 개발자 양성과 기술 고도화에 전념하고 있습니다.</textarea>
 </div>
 <div class="grid grid-cols-2 gap-4">
@@ -231,6 +236,17 @@
 </div>
 <div id="experience-entries"></div>
 </div>
+<div class="form-section" id="Education">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="font-headline-lg text-headline-lg">학력 사항</h1>
+        <button type="button" id="add-education-btn" class="text-primary font-label-md text-label-md flex items-center gap-1">
+            <span class="material-symbols-outlined text-[20px]">add_circle</span> 항목 추가
+        </button>
+    </div>
+    <div id="education-entries">
+        <!-- Education entries will be dynamically added here -->
+    </div>
+</div>
 <div class="form-section" id="Skills">
 <h1 class="font-headline-lg text-headline-lg mb-8">보유 기술 및 전문성</h1>
 <div class="bg-white rounded-xl p-8 shadow-sm border border-border-subtle">
@@ -247,7 +263,12 @@
     <h1 class="font-headline-lg text-headline-lg mb-8">자기소개서</h1>
     <div class="space-y-6">
         <div>
-            <label class="block font-label-md text-label-md text-on-surface mb-2">자기소개서 내용</label>
+            <div class="flex justify-between items-center mb-2">
+                <label for="coverLetter" class="block font-label-md text-label-md text-on-surface">자기소개서 내용</label>
+                <button type="button" id="cover-letter-coaching-btn" class="text-primary font-label-md text-label-md flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[20px]">psychology</span> AI 코칭
+                </button>
+            </div>
             <textarea id="coverLetter" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="15" placeholder="성장 과정, 지원 동기, 장단점 등을 자유롭게 서술해주세요."></textarea>
         </div>
     </div>
@@ -313,13 +334,10 @@
 </div>
 </section>
 <section>
-<h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">학력</h3>
-<div class="space-y-4">
-<div>
-<p class="font-label-md text-label-md text-on-background">인터랙션 디자인 학사 (BFA)</p>
-<p class="text-label-sm font-label-sm text-outline">School of Visual Arts</p>
-</div>
-</div>
+    <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">학력</h3>
+    <div id="preview-education" class="space-y-4">
+        <!-- Education will be rendered here by JS -->
+    </div>
 </section>
 </div>
 </div>
@@ -332,11 +350,32 @@
 </div>
 </div>
 </main>
+<!-- AI Coaching Modal -->
+<div id="coaching-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeCoachingModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 z-10 flex flex-col max-h-[90vh]">
+        <div class="flex items-center justify-between mb-6 flex-shrink-0">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">psychology</span>AI 코칭 결과
+            </h2>
+            <button onclick="closeCoachingModal()" class="p-1 text-gray-400 hover:text-gray-700">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div id="coaching-modal-content" class="prose max-w-none overflow-y-auto text-sm leading-relaxed">
+        </div>
+        <div class="flex gap-3 mt-6 flex-shrink-0">
+            <button onclick="closeCoachingModal()" class="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">닫기</button>
+            <button id="apply-coaching-btn" onclick="applyCoaching()" class="flex-1 py-3 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary-container">내용 적용하기</button>
+        </div>
+    </div>
+</div>
 {% include '_footer.html' %}
 <script src="/static/js/common.js"></script><script>
     const SECTIONS = [
         { id: 'Personal Info', label: '인적 사항', fields: ['personalFullName', 'personalSummary', 'personalEmail', 'personalPhone'] },
         { id: 'Experience', label: '경력 사항', fields: [] }, // Dynamic fields
+        { id: 'Education', label: '학력 사항', fields: [] }, // Dynamic fields
         { id: 'Skills', label: '보유 기술', fields: [] }, // Dynamic fields
         { id: 'Cover Letter', label: '자기소개서', fields: ['coverLetter'] }
     ];
@@ -488,6 +527,29 @@
             experiencePreviewContainer.innerHTML += expHtml;
         });
 
+        // Education
+        const educationPreviewContainer = document.getElementById('preview-education');
+        educationPreviewContainer.innerHTML = '';
+        const educationFormEntries = document.querySelectorAll('#education-entries .education-entry');
+        educationFormEntries.forEach(entry => {
+            const degree = entry.querySelector('input[data-field="degree"]').value;
+            const school = entry.querySelector('input[data-field="school"]').value;
+            const start = entry.querySelector('input[data-field="start"]').value;
+            const end = entry.querySelector('input[data-field="end"]').value;
+
+            const eduHtml = `
+                <div>
+                    <p class="font-label-md text-label-md text-on-background">${esc(degree) || '학위'}</p>
+                    <p class="text-label-sm font-label-sm text-outline">${esc(school) || '학교명'}</p>
+                    <p class="text-xs text-outline mt-1">${(start ? start.replace('-', '.') : '입학일')} - ${end ? end.replace('-', '.') : '졸업일'}</p>
+                </div>
+            `;
+            educationPreviewContainer.innerHTML += eduHtml;
+        });
+        if (educationFormEntries.length === 0) {
+            educationPreviewContainer.innerHTML = `<div><p class="font-label-md text-label-md text-on-surface-variant">학력 정보를 추가해주세요.</p></div>`;
+        }
+
         // Skills
         const skillsPreviewContainer = document.getElementById('preview-skills');
         const skillsFormContainer = document.getElementById('skills-form-container');
@@ -528,6 +590,12 @@
                 current: entry.querySelector('[data-field="current"]').checked,
                 desc: entry.querySelector('[data-field="desc"]').value,
             })),
+            education: Array.from(document.querySelectorAll('#education-entries .education-entry')).map(entry => ({
+                degree: entry.querySelector('[data-field="degree"]').value,
+                school: entry.querySelector('[data-field="school"]').value,
+                start: entry.querySelector('[data-field="start"]').value,
+                end: entry.querySelector('[data-field="end"]').value,
+            })),
             skills: Array.from(document.querySelectorAll('#skills-form-container .skill-tag')).map(tag => tag.dataset.skill),
             coverLetter: document.getElementById('coverLetter').value,
         };
@@ -550,6 +618,12 @@
         } else {
             addExperienceEntry();
         }
+        if (state.education && state.education.length > 0) {
+            document.getElementById('education-entries').innerHTML = '';
+            state.education.forEach(edu => addEducationEntry(edu));
+        } else {
+            addEducationEntry();
+        }
         if (state.skills && state.skills.length > 0) {
             document.getElementById('skills-form-container').innerHTML = '';
             state.skills.forEach(skill => addSkillToForm(skill));
@@ -561,7 +635,7 @@
 
     function loadBuilderState() {
         const stateJSON = localStorage.getItem('a4uBuilderState');
-        if (!stateJSON) { addExperienceEntry(); return; }
+        if (!stateJSON) { addExperienceEntry(); addEducationEntry(); return; }
         const state = JSON.parse(stateJSON);
         populateForm(state);
     }
@@ -606,8 +680,42 @@
         newEntry.querySelector('input[data-field="current"]').addEventListener('change', (e) => {
             const endDateInput = newEntry.querySelector('input[data-field="end"]');
             endDateInput.disabled = e.target.checked;
-            if (e.target.checked) endDateInput.value = '';
+            if (e.target.checked) {
+                endDateInput.value = '';
+            }
+            updateAndSave();
         });
+        updateAndSave();
+    }
+
+    let educationCount = 0;
+    function addEducationEntry(edu = {}) {
+        educationCount++;
+        const container = document.getElementById('education-entries');
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = `
+            <div class="bg-white rounded-xl p-6 shadow-sm border border-border-subtle mb-6 relative education-entry" id="edu-entry-${educationCount}">
+                <button type="button" class="absolute top-4 right-4 text-outline hover:text-error transition-colors delete-education-btn">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block font-label-md text-label-md text-on-surface mb-2">학위</label><input data-field="degree" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="${esc(edu.degree || '')}" required></div>
+                        <div><label class="block font-label-md text-label-md text-on-surface mb-2">학교명</label><input data-field="school" class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="${esc(edu.school || '')}" required></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block font-label-md text-label-md text-on-surface mb-2">입학일</label><input data-field="start" class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month" value="${esc(edu.start || '')}"></div>
+                        <div><label class="block font-label-md text-label-md text-on-surface mb-2">졸업일</label><input data-field="end" class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month" value="${esc(edu.end || '')}"></div>
+                    </div>
+                </div>
+            </div>
+        `.trim();
+        const newEntry = tempDiv.firstChild;
+        container.appendChild(newEntry);
+        const updateAndSave = () => { updateProgress(); saveBuilderState(); };
+        newEntry.querySelectorAll('input').forEach(el => el.addEventListener('input', updateAndSave));
+        newEntry.querySelector('.delete-education-btn').addEventListener('click', () => { newEntry.remove(); updateAndSave(); });
+        updateAndSave();
     }
 
     function addSkillToForm(skill) {
@@ -618,6 +726,36 @@
             </span>
         `;
         document.getElementById('skills-form-container').insertAdjacentHTML('beforeend', skillTagHtml);
+    }
+
+    function setupSkillManagement() {
+        const addSkillBtn = document.getElementById('add-skill-btn');
+        const skillsInput = document.getElementById('skills-input');
+        const skillsFormContainer = document.getElementById('skills-form-container');
+
+        function handleAddSkill() {
+            const skillValue = skillsInput.value.trim();
+            if (skillValue) {
+                addSkillToForm(skillValue);
+                skillsInput.value = '';
+                updateProgress();
+                saveBuilderState();
+            }
+            skillsInput.focus();
+        }
+
+        addSkillBtn.addEventListener('click', handleAddSkill);
+        skillsInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); handleAddSkill(); }
+        });
+
+        skillsFormContainer.addEventListener('click', e => {
+            if (e.target.closest('.skill-tag')) {
+                e.target.closest('.skill-tag').remove();
+                updateProgress();
+                saveBuilderState();
+            }
+        });
     }
 
     async function saveResume(event) {
@@ -635,6 +773,7 @@
         const state = {
             personal: { fullName: document.getElementById('personalFullName').value, summary: document.getElementById('personalSummary').value, email: document.getElementById('personalEmail').value, phone: document.getElementById('personalPhone').value },
             experience: Array.from(document.querySelectorAll('#experience-entries .experience-entry')).map(entry => ({ title: entry.querySelector('[data-field="title"]').value, company: entry.querySelector('[data-field="company"]').value, start: entry.querySelector('[data-field="start"]').value, end: entry.querySelector('[data-field="end"]').value, current: entry.querySelector('[data-field="current"]').checked, desc: entry.querySelector('[data-field="desc"]').value })),
+            education: Array.from(document.querySelectorAll('#education-entries .education-entry')).map(entry => ({ degree: entry.querySelector('[data-field="degree"]').value, school: entry.querySelector('[data-field="school"]').value, start: entry.querySelector('[data-field="start"]').value, end: entry.querySelector('[data-field="end"]').value })),
             skills: Array.from(document.querySelectorAll('#skills-form-container .skill-tag')).map(tag => tag.dataset.skill),
             coverLetter: document.getElementById('coverLetter').value,
         };
@@ -683,6 +822,8 @@
 
     let _currentUser = null;
     let _rawCoachingContent = '';
+
+    let coachingTargetId = '';
 
     // ── 네비게이션 인증 상태 동적 표시 ────────────────────────────────
     (async function updateNavAuth() {
@@ -818,107 +959,6 @@
         }
     }
 
-    // ── AI 코칭 모달 ───────────────────────────────────────────────────
-    function openCoachingModal(content) {
-        _rawCoachingContent = content; // Store raw content
-        const modal = document.getElementById('coaching-modal');
-        const contentEl = document.getElementById('coaching-modal-content');
-        if (modal && contentEl) {
-            // Simple markdown-to-HTML for better readability
-            let htmlContent = content
-                .replace(/</g, "&lt;").replace(/>/g, "&gt;") // Basic XSS protection
-                .replace(/▶ 개선 전:/g, '<strong class="text-rose-600">▶ 개선 전:</strong>')
-                .replace(/▶ 개선 후:/g, '<strong class="text-emerald-600">▶ 개선 후:</strong>')
-                .replace(/💡 팁:/g, '<strong class="text-blue-600">💡 팁:</strong>')
-                .replace(/\n/g, '<br>');
-
-            contentEl.innerHTML = htmlContent;
-            modal.classList.remove('hidden');
-        }
-    }
-
-    function closeCoachingModal() {
-        const modal = document.getElementById('coaching-modal');
-        if (modal) {
-            modal.classList.add('hidden');
-        }
-    }
-
-    function applyCoaching() {
-        if (!_rawCoachingContent) return;
-
-        const afterPrefix = '▶ 개선 후:';
-        const tipPrefix = '💡 팁:';
-        
-        let startIndex = _rawCoachingContent.indexOf(afterPrefix);
-        if (startIndex === -1) {
-            showToast('개선 후 내용을 찾을 수 없습니다.', 'error');
-            return;
-        }
-        
-        startIndex += afterPrefix.length;
-
-        let endIndex = _rawCoachingContent.indexOf(tipPrefix, startIndex);
-        if (endIndex === -1) {
-            endIndex = _rawCoachingContent.length;
-        }
-
-        let extractedText = _rawCoachingContent.substring(startIndex, endIndex).trim();
-
-        // 따옴표가 있다면 제거
-        if ((extractedText.startsWith('"') && extractedText.endsWith('"')) || (extractedText.startsWith("'") && extractedText.endsWith("'"))) {
-            extractedText = extractedText.substring(1, extractedText.length - 1);
-        }
-
-        const summaryEl = document.getElementById('personalSummary');
-        if (summaryEl) {
-            summaryEl.value = extractedText;
-            showToast('AI 코칭 내용을 반영했습니다.', 'success');
-            closeCoachingModal();
-            updateProgress(); // 진행률 및 미리보기 업데이트
-            saveBuilderState();
-        }
-    }
-
-    // ── AI 코칭 요청 ───────────────────────────────────────────────────
-    async function requestAICoaching() {
-        const summaryEl = document.getElementById('personalSummary');
-        const resumeText = summaryEl ? summaryEl.value : '';
-        if (!resumeText.trim()) {
-            showToast('이력서 내용을 먼저 입력해주세요.', 'warning');
-            return;
-        }
-
-        const coachingBtn = Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.trim().includes('AI 코칭') || btn.querySelector('.material-symbols-outlined')?.textContent.trim() === 'psychology');
-        const originalBtnContent = coachingBtn ? coachingBtn.innerHTML : '';
-        if (coachingBtn) {
-            coachingBtn.disabled = true;
-            coachingBtn.innerHTML = `<span class="material-symbols-outlined animate-spin">progress_activity</span> 분석 중...`;
-        }
-
-        try {
-            const r = await fetch('/api/coaching', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'same-origin',
-                body: JSON.stringify({ resume_text: resumeText, sample_type: 'general' })
-            });
-            const data = await r.json();
-            if (data.success) {
-                openCoachingModal(data.coaching);
-            } else {
-                showToast(data.message || 'AI 코칭 요청에 실패했습니다.', 'error');
-            }
-        } catch (err) {
-            showToast('AI 코칭 요청 중 네트워크 오류가 발생했습니다.', 'error');
-        } finally {
-            if (coachingBtn) {
-                coachingBtn.disabled = false;
-                coachingBtn.innerHTML = originalBtnContent;
-            }
-        }
-    }
-
     // ── 저장 / AI 코칭 / 인쇄 버튼 연결 ──────────────────────────────
     document.querySelectorAll('button').forEach(btn => {
         const text = btn.textContent.trim();
@@ -926,9 +966,7 @@
         const iconText = icon ? icon.textContent.trim() : '';
         if (text.includes('저장') || text.includes('save') || iconText === 'save') {
             btn.addEventListener('click', saveResume);
-        } else if (text.includes('AI') || text.includes('코칭') || iconText === 'psychology') {
-            btn.addEventListener('click', requestAICoaching);
-        } else if (iconText === 'print' || text.includes('인쇄') || text.includes('출력')) {
+        }  else if (iconText === 'print' || text.includes('인쇄') || text.includes('출력')) {
             btn.addEventListener('click', () => window.print());
         } else if (iconText === 'download' || text.includes('다운로드') || text.includes('PDF')) {
             btn.addEventListener('click', handleUnavailableFeature);
@@ -959,7 +997,19 @@
         switchSection(0);
         updateProgress();
 
+        document.getElementById('add-education-btn').addEventListener('click', () => addEducationEntry());
         document.getElementById('add-experience-btn').addEventListener('click', () => addExperienceEntry());
+        setupSkillManagement();
+
+        // Add coaching button listeners
+        const summaryCoachingBtn = document.getElementById('summary-coaching-btn');
+        if (summaryCoachingBtn) {
+            summaryCoachingBtn.addEventListener('click', (e) => requestCoaching('personalSummary', 'general', e.currentTarget));
+        }
+        const coverLetterCoachingBtn = document.getElementById('cover-letter-coaching-btn');
+        if (coverLetterCoachingBtn) {
+            coverLetterCoachingBtn.addEventListener('click', (e) => requestCoaching('coverLetter', 'cover_letter', e.currentTarget));
+        }
 
         // ESC 키로 모달 닫기
         document.addEventListener('keydown', e => {

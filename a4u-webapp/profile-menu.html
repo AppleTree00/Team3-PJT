@@ -18,51 +18,7 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-white to-cyan-50">
-    <!-- 헤더 -->
-    <nav class="bg-surface-container-lowest shadow-sm fixed top-0 w-full z-50">
-        <div class="max-w-max-width mx-auto px-margin-desktop">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-8">
-                    <a href="main.html" class="font-headline-md text-headline-md font-bold text-primary">a4u</a>
-                    <!-- Desktop Menu -->
-                    <div class="hidden md:flex items-center gap-6">
-                        <a href="dashboard.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">대시보드</a>
-                        <a href="resume.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">이력서 관리</a>
-                        <a href="timeline.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">커리어 관리</a>
-                        <a href="select.html" class="nav-link font-body-md text-on-surface-variant hover:text-primary transition-colors">제출 관리</a>
-                    </div>
-                </div>
-    
-                <div class="flex items-center gap-4">
-                    <button class="p-2 text-on-surface-variant hover:text-primary transition-colors hidden sm:block">
-                        <span class="material-symbols-outlined">notifications</span>
-                    </button>
-                    <a href="profile-menu.html">
-                        <div id="nav-avatar-wrap" class="h-8 w-8 rounded-full overflow-hidden border border-border-subtle bg-primary flex items-center justify-center">
-                            <span id="nav-avatar-icon" class="material-symbols-outlined text-white text-[18px]">person</span>
-                            <img id="nav-avatar-img" class="hidden w-full h-full object-cover" alt="프로필"/>
-                        </div>
-                    </a>
-                    <!-- Mobile Menu Button -->
-                    <div class="md:hidden">
-                        <button id="mobile-menu-button" class="p-2 text-on-surface-variant hover:text-primary transition-colors">
-                            <span class="material-symbols-outlined">menu</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-surface-container-lowest border-t border-border-subtle">
-            <div class="px-4 pt-2 pb-4 space-y-1">
-                <a href="dashboard.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">대시보드</a>
-                <a href="resume.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">이력서 관리</a>
-                <a href="timeline.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">커리어 관리</a>
-                <a href="select.html" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-on-surface-variant hover:text-primary hover:bg-surface-container">제출 관리</a>
-            </div>
-        </div>
-    </nav>
+    {% include '_navbar.html' %}
 
     <!-- 메인 콘텐츠 -->
     <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
@@ -347,7 +303,15 @@
 
         // ── 계정 삭제 버튼 ─────────────────────────────────────────────
         document.querySelectorAll('button').forEach(btn => {
-            if (btn.textContent.trim().includes('계정 삭제')) btn.addEventListener('click', handleUnavailableFeature);
+            if (btn.textContent.trim().includes('계정 삭제')) {
+                btn.addEventListener('click', () => {
+                    if (_currentUser && _currentUser.email === 'demo@a4u.com') {
+                        showToast('데모 계정은 삭제할 수 없습니다.', 'error');
+                    } else {
+                        handleUnavailableFeature();
+                    }
+                });
+            }
         });
 
         // ── 아바타 표시 헬퍼 ───────────────────────────────────────────
