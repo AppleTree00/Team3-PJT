@@ -3,52 +3,8 @@
 <title>경력 타임라인 | a4u</title>
 {% include '_head.html' %}
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
         .timeline-line {
             background: linear-gradient(180deg, #3525cd 0%, #006a61 50%, #004598 100%);
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-        }
-        .fade-in {
-            opacity: 0;
-            animation: fadeIn 0.8s ease-out forwards;
-        }
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(24px);
-            animation: fadeInUp 0.9s ease-out forwards;
-        }
-        .feature-card {
-            opacity: 0;
-            transform: translateY(16px);
-            animation: fadeInUp 0.9s ease-out forwards;
-        }
-        .btn-raise {
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-        .btn-raise:hover {
-            transform: translateY(-4px);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .fade-in,
-            .fade-in-up,
-            .feature-card,
-            .btn-raise {
-                animation: none !important;
-                transition: none !important;
-            }
         }
     </style>
 <!-- Tailwind Configuration -->
