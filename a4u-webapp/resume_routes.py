@@ -78,6 +78,23 @@ def logout():
     return jsonify(success=True, message='로그아웃 되었습니다.')
 
 
+@resume_bp.route('/auth/switch_mode', methods=['GET', 'POST'])
+@login_required
+def switch_mode():
+    """DEMO ↔ GENERAL 모드 전환 (GET: 현재 모드 조회, POST: 전환)"""
+    if request.method == 'GET':
+        return jsonify(success=True, mode=session.get('mode', 'GENERAL'))
+    data = request.get_json(silent=True) or {}
+    new_mode = (data.get('mode') or '').upper()
+    user = current_user()
+    if user.email == 'demo@a4u.com' and new_mode == 'GENERAL':
+        return jsonify(success=False, message='데모 계정은 GENERAL 모드로 전환할 수 없습니다.'), 403
+    if new_mode not in ('DEMO', 'GENERAL'):
+        return jsonify(success=False, message='유효하지 않은 모드입니다. DEMO 또는 GENERAL 중 하나를 입력하세요.'), 400
+    session['mode'] = new_mode
+    return jsonify(success=True, mode=new_mode, message=f'{"데모" if new_mode == "DEMO" else "일반"} 모드로 전환되었습니다.')
+
+
 @resume_bp.route('/auth/profile', methods=['PUT'])
 @login_required
 @demo_mode_blocked
@@ -230,11 +247,15 @@ def list_resumes():
     user = current_user()
     uid = user.id if user else None
 
-    # 샘플은 항상 포함, 본인 이력서 포함
+    # 기본: 사용자 본인 이력서만, ?include_samples=true 시 샘플도 포함
+    include_samples = request.args.get('include_samples', 'false').lower() == 'true'
     if uid:
-        resumes = Resume.query.filter(
-            (Resume.user_id == uid) | (Resume.is_sample == True)
-        ).order_by(Resume.created_at.desc()).all()
+        if include_samples:
+            resumes = Resume.query.filter(
+                (Resume.user_id == uid) | (Resume.is_sample == True)
+            ).order_by(Resume.created_at.desc()).all()
+        else:
+            resumes = Resume.query.filter_by(user_id=uid).order_by(Resume.created_at.desc()).all()
     else:
         resumes = Resume.query.filter_by(is_sample=True).all()
 
@@ -285,6 +306,8 @@ def get_resume(resume_id):
 def update_resume(resume_id):
     resume = Resume.query.get_or_404(resume_id)
     user = current_user()
+    if resume.is_sample:
+        return jsonify(success=False, message='샘플 이력서는 편집할 수 없습니다. 새 이력서를 작성하거나 샘플을 복사해 사용하세요.'), 403
     if resume.user_id != user.id:
         return jsonify(success=False, message='접근 권한이 없습니다.'), 403
 
@@ -351,6 +374,7 @@ def create_application():
         position=data.get('position', ''),
         status=data.get('status', 'draft'),
         notes=data.get('notes', ''),
+        applied_date=data.get('applied_date') or data.get('applied_at'),
     )
     db.session.add(app_obj)
     db.session.commit()
@@ -366,7 +390,7 @@ def update_application(app_id):
     if app_obj.user_id != user.id:
         return jsonify(success=False, message='접근 권한이 없습니다.'), 403
     data = request.get_json(silent=True) or {}
-    for field in ('company', 'position', 'status', 'notes', 'template_id', 'resume_id'):
+    for field in ('company', 'position', 'status', 'notes', 'template_id', 'resume_id', 'applied_date'):
         if field in data:
             setattr(app_obj, field, data[field])
     if data.get('status') == 'submitted' and not app_obj.submitted_at:

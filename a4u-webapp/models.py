@@ -173,6 +173,7 @@ class JobApplication(db.Model):
     # 상태: draft / submitted / reviewing / accepted / rejected
     status = db.Column(db.String(50), default='draft')
     notes = db.Column(db.Text, default='')
+    applied_date = db.Column(db.String(20), nullable=True)
     submitted_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
@@ -187,6 +188,7 @@ class JobApplication(db.Model):
             'position': self.position,
             'status': self.status,
             'notes': self.notes,
+            'applied_date': self.applied_date,
             'submitted_at': self.submitted_at.isoformat() if self.submitted_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }

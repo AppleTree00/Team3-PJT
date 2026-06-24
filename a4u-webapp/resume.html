@@ -164,38 +164,10 @@
     </div>
     
     <div id="resume-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Resume cards will be injected here by JS, static example below -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-border-subtle flex flex-col group">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-bold text-on-surface truncate pr-4">IT 전문가 이력서 (샘플)</h3>
-                <span class="badge badge-blue">샘플</span>
-            </div>
-            <p class="text-sm text-on-surface-variant mb-4 flex-grow">IT 개발자 직군을 위한 샘플 이력서입니다.</p>
-            
-            <div class="mb-2">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs font-semibold text-primary">작성률</span>
-                    <span class="text-xs font-bold text-primary">100%</span>
-                </div>
-                <div class="w-full bg-surface-container rounded-full h-1.5">
-                    <div class="bg-primary h-1.5 rounded-full" style="width: 100%"></div>
-                </div>
-            </div>
-
-            <div class="pt-4 border-t border-border-subtle flex items-center justify-between">
-                <span class="text-xs text-on-surface-variant">최근 수정: 3일 전</span>
-                <div class="flex items-center gap-1">
-                    <button class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant"><span class="material-symbols-outlined text-lg">edit</span></button>
-                    <button class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant"><span class="material-symbols-outlined text-lg">print</span></button>
-                    <button class="p-2 rounded-full hover:bg-surface-container-low text-red-500"><span class="material-symbols-outlined text-lg">delete</span></button>
-                </div>
-            </div>
+        <!-- JS로 동적 렌더링 -->
+        <div id="resume-loading" class="col-span-full flex items-center justify-center py-16 text-on-surface-variant">
+            <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span> 불러오는 중...
         </div>
-
-        <a href="select.html?new=true" class="border-2 border-dashed border-border-subtle rounded-xl flex flex-col items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary hover:bg-surface-container-low transition-all min-h-[240px]">
-            <span class="material-symbols-outlined text-4xl">add_circle</span>
-            <span class="font-semibold mt-2">새 이력서 만들기</span>
-        </a>
     </div>
 </main>
 {% include '_footer.html' %}
@@ -217,13 +189,115 @@
     });
 
     // ── 이력서 목록 API 연동 ───────────────────────────────────────────
-    fetch('/api/resumes', { credentials: 'same-origin' })
-        .then(r => r.json())
-        .then(data => {
-            if (!data.success) return;
-            console.log('[a4u] 이력서 목록:', data.resumes.length, '건');
-        })
-        .catch(() => {});
+    function relativeTime(isoStr) {
+        if (!isoStr) return '알 수 없음';
+        const diff = Math.floor((Date.now() - new Date(isoStr)) / 1000);
+        if (diff < 60) return '방금 전';
+        if (diff < 3600) return Math.floor(diff / 60) + '분 전';
+        if (diff < 86400) return Math.floor(diff / 3600) + '시간 전';
+        return Math.floor(diff / 86400) + '일 전';
+    }
+
+    function calcCompletion(r) {
+        const fields = [r.full_name, r.email, r.phone, r.location, r.job_title, r.summary];
+        const filled = fields.filter(f => f && f.trim()).length;
+        const expScore = (r.experience && r.experience.length > 0) ? 1 : 0;
+        const eduScore = (r.education && r.education.length > 0) ? 1 : 0;
+        const skillScore = (r.skills && r.skills.length > 0) ? 1 : 0;
+        return Math.round(((filled + expScore + eduScore + skillScore) / (fields.length + 3)) * 100);
+    }
+
+    function buildResumeCard(r) {
+        const pct = calcCompletion(r);
+        const barColor = pct >= 80 ? 'bg-primary' : pct >= 50 ? 'bg-amber-400' : 'bg-rose-400';
+        const updated = relativeTime(r.updated_at);
+        const div = document.createElement('div');
+        div.className = 'bg-white rounded-xl p-6 shadow-sm border border-border-subtle flex flex-col group';
+        div.innerHTML = `
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-on-surface truncate pr-4">${r.title || '(제목 없음)'}</h3>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-semibold">${r.job_title || '직군 미입력'}</span>
+            </div>
+            <p class="text-sm text-on-surface-variant mb-4 flex-grow">${r.full_name || '(이름 미입력)'} · ${r.email || ''}</p>
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs font-semibold text-primary">작성률</span>
+                    <span class="text-xs font-bold text-primary">${pct}%</span>
+                </div>
+                <div class="w-full bg-surface-container rounded-full h-1.5">
+                    <div class="${barColor} h-1.5 rounded-full transition-all" style="width: ${pct}%"></div>
+                </div>
+            </div>
+            <div class="pt-4 border-t border-border-subtle flex items-center justify-between">
+                <span class="text-xs text-on-surface-variant">수정: ${updated}</span>
+                <div class="flex items-center gap-1">
+                    <a href="builder.html?id=${r.id}" class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant" title="편집">
+                        <span class="material-symbols-outlined text-lg">edit</span>
+                    </a>
+                    <button onclick="printResume(${r.id})" class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant" title="인쇄">
+                        <span class="material-symbols-outlined text-lg">print</span>
+                    </button>
+                    <button onclick="deleteResume(${r.id}, this)" class="p-2 rounded-full hover:bg-surface-container-low text-red-500" title="삭제">
+                        <span class="material-symbols-outlined text-lg">delete</span>
+                    </button>
+                </div>
+            </div>
+        `;
+        return div;
+    }
+
+    async function deleteResume(id, btn) {
+        if (!confirm('이 이력서를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+        btn.disabled = true;
+        const r = await fetch(`/api/resumes/${id}`, { method: 'DELETE', credentials: 'same-origin' });
+        const data = await r.json();
+        if (data.success) {
+            showToast('이력서가 삭제되었습니다.', 'success');
+            loadResumes();
+        } else {
+            showToast(data.message || '삭제 실패', 'error');
+            btn.disabled = false;
+        }
+    }
+
+    function printResume(id) {
+        window.open(`builder.html?id=${id}`, '_blank');
+    }
+
+    async function loadResumes() {
+        const list = document.getElementById('resume-list');
+        const loading = document.getElementById('resume-loading');
+        if (loading) loading.style.display = 'flex';
+
+        try {
+            const r = await fetch('/api/resumes', { credentials: 'same-origin' });
+            if (r.status === 401) { window.location.href = 'login.html?next=resume.html'; return; }
+            const data = await r.json();
+            list.innerHTML = '';
+
+            if (!data.success || data.resumes.length === 0) {
+                list.innerHTML = `
+                    <div class="col-span-full text-center py-16 text-on-surface-variant">
+                        <span class="material-symbols-outlined text-5xl mb-4 block">description</span>
+                        <p class="font-semibold mb-2">아직 작성한 이력서가 없습니다.</p>
+                        <p class="text-sm">새 이력서를 만들어 취업 준비를 시작해보세요!</p>
+                    </div>`;
+            } else {
+                data.resumes.forEach(r => list.appendChild(buildResumeCard(r)));
+            }
+        } catch (e) {
+            list.innerHTML = `<div class="col-span-full text-center py-16 text-rose-500">이력서를 불러오는 중 오류가 발생했습니다.</div>`;
+        }
+
+        // 항상 마지막에 "새 이력서 만들기" 카드 추가
+        const addCard = document.createElement('a');
+        addCard.href = 'select.html?new=true';
+        addCard.className = 'border-2 border-dashed border-border-subtle rounded-xl flex flex-col items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary hover:bg-surface-container-low transition-all min-h-[240px]';
+        addCard.innerHTML = `<span class="material-symbols-outlined text-4xl">add_circle</span><span class="font-semibold mt-2">새 이력서 만들기</span>`;
+        list.appendChild(addCard);
+    }
+
+    loadResumes();
 </script>
 
 </body>
