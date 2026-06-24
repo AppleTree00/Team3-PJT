@@ -1,41 +1,14 @@
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="ko">
 <head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta property="og:title" content="어드민 콘솔 - a4u">
+<meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
+<meta property="og:image" content="/og-image.png">
+<meta property="og:type" content="website">
 <title>a4u 어드민 콘솔</title>
 {% include '_head.html' %}
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        "primary": "#3525cd",
-        "primary-dark": "#2a1ca8",
-        "on-primary": "#ffffff",
-        "primary-container": "#4f46e5",
-        "primary-fixed": "#e2dfff",
-        "surface": "#f9f9ff",
-        "surface-gray": "#F8FAFC",
-        "surface-container-lowest": "#ffffff",
-        "surface-container-low": "#f0f3ff",
-        "surface-container": "#e7eeff",
-        "surface-container-high": "#dee8ff",
-        "on-surface": "#111c2d",
-        "on-surface-variant": "#464555",
-        "border-subtle": "#E2E8F0",
-        "secondary": "#006a61",
-        "error": "#ba1a1a",
-        "error-container": "#ffdad6",
-        "outline": "#777587",
-        "success": "#15803d",
-        "success-bg": "#f0fdf4",
-      },
-      fontFamily: { sans: ["Inter","sans-serif"] }
-    }
-  }
-}
-</script>
-<link href="/static/css/admin.css" rel="stylesheet"/>
 </head>
 <body class="bg-surface-gray min-h-screen" style="font-family:'Inter',sans-serif">
 
@@ -43,11 +16,78 @@ tailwind.config = {
 <div class="flex min-h-screen">
 
   {% include '_admin_sidebar.html' %}
+  <!-- 사이드바 -->
+  <aside class="w-56 bg-surface-container-lowest border-r border-border-subtle flex flex-col fixed top-0 left-0 h-full z-30">
+    <!-- 로고 -->
+    <div class="px-4 py-5 border-b border-border-subtle">
+      <div class="flex items-center gap-2.5">
+        <div class="sidebar-logo-badge">
+          <span class="ms text-white" style="font-size:17px">admin_panel_settings</span>
+        </div>
+        <div>
+          <div class="text-base font-bold text-on-surface leading-none">a4u</div>
+          <div class="text-[10px] text-on-surface-variant mt-0.5 font-medium tracking-wide">ADMIN CONSOLE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 네비게이션 -->
+    <nav class="flex-1 p-2.5 space-y-0.5 overflow-y-auto">
+      <div class="nav-divider">개요</div>
+      <div class="nav-item active" onclick="showSection('dashboard')" id="nav-dashboard">
+        <span class="ms">dashboard</span> 대시보드
+      </div>
+
+      <div class="nav-divider">데이터 관리</div>
+      <div class="nav-item" onclick="showSection('users')" id="nav-users">
+        <span class="ms">group</span> 회원 관리
+      </div>
+      <div class="nav-item" onclick="showSection('resumes')" id="nav-resumes">
+        <span class="ms">description</span> 이력서 관리
+      </div>
+      <div class="nav-item" onclick="showSection('templates')" id="nav-templates">
+        <span class="ms">dashboard_customize</span> 이력서 템플릿
+      </div>
+      <div class="nav-item" onclick="showSection('files')" id="nav-files">
+        <span class="ms">folder_open</span> 파일 관리
+      </div>
+
+      <div class="nav-divider">시스템</div>
+      <div class="nav-item" onclick="showSection('schema')" id="nav-schema">
+        <span class="ms">terminal</span> AI 스키마 콘솔
+      </div>
+    </nav>
+
+    <!-- 하단 -->
+    <div class="p-2.5 border-t border-border-subtle space-y-0.5">
+      <a href="/main.html" target="_blank" class="nav-item no-underline">
+        <span class="ms">open_in_new</span> 사이트 보기
+      </a>
+      <div class="nav-item text-error hover:bg-red-50 hover:text-red-700" onclick="doLogout()">
+        <span class="ms">logout</span> 로그아웃
+      </div>
+    </div>
+  </aside>
 
   <!-- 메인 콘텐츠 영역 -->
   <div class="ml-56 flex-1 flex flex-col min-h-screen">
 
     {% include '_admin_header.html' %}
+    <!-- 상단 헤더 -->
+    <header class="bg-surface-container-lowest border-b border-border-subtle px-8 py-3.5 flex items-center justify-between sticky top-0 z-20">
+      <div>
+        <h1 id="page-title" class="text-base font-bold text-on-surface">대시보드</h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2.5 text-sm text-on-surface-variant">
+          <div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
+            <span class="ms text-white" style="font-size:15px">person</span>
+          </div>
+          <span id="admin-name" class="font-medium text-on-surface">관리자</span>
+          <span class="badge badge-purple">Admin</span>
+        </div>
+      </div>
+    </header>
 
     <!-- 섹션 컨텐츠 -->
     <main class="flex-1 p-8">
@@ -562,6 +602,7 @@ function showSection(name) {
             loadSchema(); loadMigrations();
         }
     }
+    if (name === 'schema') { loadSchema(); loadMigrations(); }
 }
 
 // ── 대시보드 ──────────────────────────────────────────────────────────
@@ -625,6 +666,7 @@ async function loadUsers() {
             <td class="px-4 py-3 font-medium">${esc(u.name)}${u.is_admin ? ' <span class="badge badge-purple" style="font-size:10px">관리자</span>' : ''}</td>
             <td class="px-4 py-3 text-on-surface-variant">${esc(u.email)}</td>
             <td class="px-4 py-3 text-on-surface-variant">${u.resume_count ?? 0}개</td>
+            <td class="px-4 py-3 text-on-surface-variant">${u.resume_count}개</td>
             <td class="px-4 py-3">${statusBadge(u.status)}</td>
             <td class="px-4 py-3 text-on-surface-variant text-xs">${fmtDate(u.created_at)}</td>
             <td class="px-4 py-3">
