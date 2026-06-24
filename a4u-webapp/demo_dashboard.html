@@ -134,6 +134,18 @@
             </div>
         </section>
     </div>
+    <!-- Sample Resumes Section -->
+    <section class="mt-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-headline-md text-headline-md text-on-background">샘플 이력서</h2>
+            <span class="text-body-sm text-on-surface-variant">클릭해서 내용을 확인하세요</span>
+        </div>
+        <div id="sample-resume-loading" class="flex items-center gap-2 text-on-surface-variant py-4">
+            <span class="material-symbols-outlined animate-spin">progress_activity</span>
+            <span class="text-sm">불러오는 중…</span>
+        </div>
+        <div id="sample-resume-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter hidden"></div>
+    </section>
 </div>
 </div>
 </main>
@@ -206,5 +218,74 @@
             icon.addEventListener('click', handleUnavailableFeature);
         }
     });
+
+    // ── 샘플 이력서 카드 로드 ─────────────────────────────────────
+    const SAMPLE_TYPE_LABELS = {
+        it: 'IT · 개발',
+        management: '경영 · 관리',
+        general: '일반직'
+    };
+    const SAMPLE_TYPE_COLORS = {
+        it: 'bg-blue-100 text-blue-700',
+        management: 'bg-purple-100 text-purple-700',
+        general: 'bg-green-100 text-green-700'
+    };
+
+    function calcCompletionPct(r) {
+        const fields = [r.full_name, r.email, r.phone, r.location, r.job_title, r.summary];
+        const filled = fields.filter(f => f && String(f).trim()).length;
+        const hasExp  = Array.isArray(r.experience) && r.experience.length > 0;
+        const hasEdu  = Array.isArray(r.education)  && r.education.length  > 0;
+        const hasSkills = Array.isArray(r.skills)   && r.skills.length     > 0;
+        const total = fields.length + 3;
+        return Math.round(((filled + (hasExp ? 1 : 0) + (hasEdu ? 1 : 0) + (hasSkills ? 1 : 0)) / total) * 100);
+    }
+
+    function createSampleCard(r) {
+        const pct    = calcCompletionPct(r);
+        const label  = SAMPLE_TYPE_LABELS[r.sample_type] || r.sample_type || '샘플';
+        const color  = SAMPLE_TYPE_COLORS[r.sample_type] || 'bg-gray-100 text-gray-600';
+        const card   = document.createElement('a');
+        card.href    = 'resume.html';
+        card.className = 'block bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-border-subtle hover:shadow-md hover:border-primary transition-all group cursor-pointer';
+        card.innerHTML = `
+            <div class="flex items-start justify-between gap-2 mb-3">
+                <h3 class="font-label-md text-on-surface group-hover:text-primary transition-colors truncate">${r.title || '(제목 없음)'}</h3>
+                <span class="shrink-0 text-xs px-2 py-0.5 rounded-full font-semibold ${color}">${label}</span>
+            </div>
+            <p class="text-sm text-on-surface-variant mb-1">${r.full_name || '(이름 미입력)'}</p>
+            <p class="text-xs text-on-surface-variant mb-4">${r.job_title || '직군 미입력'}</p>
+            <div class="mb-1 flex justify-between items-center">
+                <span class="text-xs font-semibold text-primary">작성률</span>
+                <span class="text-xs font-bold text-primary">${pct}%</span>
+            </div>
+            <div class="w-full bg-surface-container rounded-full h-1.5 mb-4">
+                <div class="bg-primary h-1.5 rounded-full" style="width:${pct}%"></div>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-border-subtle">
+                <span class="text-xs text-on-surface-variant flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">visibility</span> 읽기 전용
+                </span>
+                <span class="material-symbols-outlined text-sm text-primary group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </div>
+        `;
+        return card;
+    }
+
+    (async function loadSampleResumes() {
+        const loadingEl = document.getElementById('sample-resume-loading');
+        const listEl    = document.getElementById('sample-resume-list');
+        try {
+            const r    = await fetch('/api/resumes?include_samples=true', { credentials: 'same-origin' });
+            const data = await r.json();
+            const samples = (data.success && data.resumes || []).filter(r => r.is_sample);
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (!samples.length) return;
+            samples.forEach(resume => listEl.appendChild(createSampleCard(resume)));
+            listEl.classList.remove('hidden');
+        } catch (_) {
+            if (loadingEl) loadingEl.classList.add('hidden');
+        }
+    })();
 </script><script src="common.js"></script>
 </body></html>
