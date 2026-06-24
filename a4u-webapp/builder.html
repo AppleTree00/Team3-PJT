@@ -341,6 +341,7 @@
         { id: 'Cover Letter', label: '자기소개서', fields: ['coverLetter'] }
     ];
     let currentSectionIndex = 0;
+    let currentResumeId = null;
 
     function generateBreadcrumbs() {
         const container = document.getElementById('breadcrumbs');
@@ -372,7 +373,7 @@
         const nextBtn = document.getElementById('next-section-btn');
         if (currentSectionIndex === SECTIONS.length - 1) {
             nextBtn.innerHTML = '저장하기 <span class="material-symbols-outlined">save</span>';
-            nextBtn.onclick = saveResume;
+            nextBtn.onclick = (e) => saveResume(e);
         } else {
             nextBtn.innerHTML = '다음 <span class="material-symbols-outlined">arrow_forward</span>';
             nextBtn.onclick = () => switchSection(currentSectionIndex + 1);
@@ -476,6 +477,7 @@
     // ── 상태 저장 및 로드 ─────────────────────────────────────────────
     function saveBuilderState() {
         const state = {
+            id: currentResumeId,
             personal: {
                 fullName: document.getElementById('personalFullName').value,
                 summary: document.getElementById('personalSummary').value,
@@ -496,8 +498,10 @@
         localStorage.setItem('a4uBuilderState', JSON.stringify(state));
     }
 
-    function loadBuilderState() {
-        const state = JSON.parse(localStorage.getItem('a4uBuilderState') || '{}');
+    function populateForm(state) {
+        if (!state) return;
+        currentResumeId = state.id || null;
+
         if (state.personal) {
             document.getElementById('personalFullName').value = state.personal.fullName || '';
             document.getElementById('personalSummary').value = state.personal.summary || '';
@@ -508,7 +512,7 @@
             document.getElementById('experience-entries').innerHTML = '';
             state.experience.forEach(exp => addExperienceEntry(exp));
         } else {
-            addExperienceEntry(); // Add one blank entry if none are saved
+            addExperienceEntry();
         }
         if (state.skills && state.skills.length > 0) {
             document.getElementById('skills-form-container').innerHTML = '';
@@ -517,6 +521,13 @@
         if (state.coverLetter) {
             document.getElementById('coverLetter').value = state.coverLetter;
         }
+    }
+
+    function loadBuilderState() {
+        const stateJSON = localStorage.getItem('a4uBuilderState');
+        if (!stateJSON) { addExperienceEntry(); return; }
+        const state = JSON.parse(stateJSON);
+        populateForm(state);
     }
 
     // ── 경력/기술 동적 관리 ───────────────────────────────────────────
@@ -555,10 +566,63 @@
         document.getElementById('skills-form-container').insertAdjacentHTML('beforeend', skillTagHtml);
     }
 
-    async function saveResume() {
-        showToast('이력서가 저장되었습니다! (데모)', 'success');
-        saveBuilderState();
-        // In a real app, you would post the data to the server.
+    async function saveResume(event) {
+        if(event) event.preventDefault();
+        if (_currentUser && _currentUser.email === 'demo@a4u.com') {
+            showToast('데모 체험 중에는 저장할 수 없습니다. 일반 계정으로 이용해주세요.', 'warning');
+            return;
+        }
+
+        const btn = document.getElementById('next-section-btn');
+        const originalBtnHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '저장 중... <span class="material-symbols-outlined animate-spin">progress_activity</span>';
+
+        const state = {
+            personal: { fullName: document.getElementById('personalFullName').value, summary: document.getElementById('personalSummary').value, email: document.getElementById('personalEmail').value, phone: document.getElementById('personalPhone').value },
+            experience: Array.from(document.querySelectorAll('#experience-entries .experience-entry')).map(entry => ({ title: entry.querySelector('[data-field="title"]').value, company: entry.querySelector('[data-field="company"]').value, start: entry.querySelector('[data-field="start"]').value, end: entry.querySelector('[data-field="end"]').value, current: entry.querySelector('[data-field="current"]').checked, desc: entry.querySelector('[data-field="desc"]').value })),
+            skills: Array.from(document.querySelectorAll('#skills-form-container .skill-tag')).map(tag => tag.dataset.skill),
+            coverLetter: document.getElementById('coverLetter').value,
+        };
+
+        const payload = {
+            title: state.personal.fullName ? `${state.personal.fullName}의 이력서` : '새 이력서',
+            content: state
+        };
+
+        const method = currentResumeId ? 'PUT' : 'POST';
+        const url = currentResumeId ? `/api/resumes/${currentResumeId}` : '/api/resumes';
+
+        try {
+            const r = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify(payload)
+            });
+            const data = await r.json();
+
+            if (data.success) {
+                if (data.resume && data.resume.id) {
+                    currentResumeId = data.resume.id;
+                    const newUrl = new URL(window.location);
+                    if (!newUrl.searchParams.has('id')) {
+                        newUrl.searchParams.set('id', currentResumeId);
+                        history.pushState({ path: newUrl.href }, '', newUrl.href);
+                    }
+                }
+                saveBuilderState();
+                showToast('이력서가 서버에 저장되었습니다!', 'success');
+            } else {
+                showToast(`저장 실패: ${data.message || '알 수 없는 오류'}`, 'error');
+            }
+        } catch (error) {
+            console.error('Save resume error:', error);
+            showToast('네트워크 오류로 저장에 실패했습니다.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+        }
     }
 
     function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
