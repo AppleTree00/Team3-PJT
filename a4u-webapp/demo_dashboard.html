@@ -30,53 +30,20 @@
 <!-- [수정 2026-06-25] 레이아웃 재편: 빠른작업 카드 제거(네비 중복), 이력서/지원·면접 2그룹으로 직관적 배치 -->
 <!-- [이전 코드] grid grid-cols-1 lg:grid-cols-3 좌2/3+우1/3 혼합 배치 → 기능 그룹 분리 배치로 교체 -->
 
-<!-- Welcome Section -->
-<section class="mb-8 flex items-center justify-between flex-wrap gap-4">
-    <div>
-        <h1 class="font-headline-lg text-headline-lg text-on-background mb-1" id="demo-welcome-title">데모 사용자님, 환영합니다!</h1>
-        <p class="font-body-md text-body-md text-on-surface-variant" id="dashboard-subtitle">a4u의 핵심 기능을 둘러보세요.</p>
-    </div>
-    <button onclick="blockNewResume()" class="flex items-center gap-2 px-5 py-2.5 bg-surface-container text-on-surface-variant rounded-full font-label-md transition-all shadow-sm border border-border-subtle cursor-not-allowed opacity-60" title="데모 모드에서는 작성이 제한됩니다">
-        <span class="material-symbols-outlined text-[18px]">add</span>
-        새 이력서 작성
-    </button>
+<!-- [수정 2026-06-25] 제출관리 페이지: 이력서 그룹 제거, 지원·면접(샘플)만 유지 -->
+
+<!-- 페이지 헤더 -->
+<section class="mb-8">
+    <h1 class="font-headline-lg text-headline-lg text-on-background mb-1" id="demo-welcome-title">제출관리</h1>
+    <p class="font-body-md text-body-md text-on-surface-variant">지원 현황과 면접 일정 샘플을 확인하세요.</p>
 </section>
 
-<!-- ══ 그룹 1: 이력서 (샘플) ═══════════════════════════════════════════════ -->
-<section class="mb-10">
-    <h2 class="font-label-md text-on-surface-variant uppercase tracking-widest mb-4 flex items-center gap-2">
-        <span class="material-symbols-outlined text-[16px] text-primary">description</span>
-        이력서
-        <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold ml-1">샘플</span>
-    </h2>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- [이전 코드] Welcome Section + 이력서 그룹 — 이력서 관련 카드 제거 (2026-06-25)
+<section> 환영 문구 / 새 이력서 작성(비활성) 버튼 </section>
+<section> 이력서 경쟁력 카드 / 샘플 이력서 목록 (id: sample-resume-loading, sample-resume-list) </section>
+-->
 
-        <!-- 이력서 경쟁력 카드 -->
-        <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle flex flex-col justify-center items-center text-center">
-            <div class="h-14 w-14 bg-primary-fixed text-primary flex items-center justify-center rounded-full mb-3">
-                <span class="material-symbols-outlined text-3xl">workspace_premium</span>
-            </div>
-            <h3 class="font-headline-sm text-headline-sm text-on-background">나의 이력서 경쟁력</h3>
-            <p class="text-body-sm text-on-surface-variant mt-2 leading-relaxed">AI가 분석한 이력서의 강점을 확인하고 보완점을 찾아보세요.</p>
-            <a href="builder.html" class="mt-4 px-5 py-2 bg-primary text-on-primary rounded-full font-label-md hover:opacity-90 transition-all text-sm">이력서 보완하기</a>
-        </div>
-
-        <!-- 샘플 이력서 목록 -->
-        <div class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle">
-            <div class="flex justify-between items-center mb-4">
-                <span class="font-label-md text-on-surface-variant">샘플 이력서</span>
-                <span class="text-body-sm text-on-surface-variant text-xs">클릭해서 내용을 확인하세요</span>
-            </div>
-            <div id="sample-resume-loading" class="flex items-center gap-2 text-on-surface-variant py-6">
-                <span class="material-symbols-outlined animate-spin">progress_activity</span>
-                <span class="text-sm">불러오는 중…</span>
-            </div>
-            <div id="sample-resume-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 hidden"></div>
-        </div>
-    </div>
-</section>
-
-<!-- ══ 그룹 2: 지원 · 면접 (샘플) ════════════════════════════════════════ -->
+<!-- ══ 지원 · 면접 (샘플) ════════════════════════════════════════════════ -->
 <section>
     <h2 class="font-label-md text-on-surface-variant uppercase tracking-widest mb-4 flex items-center gap-2">
         <span class="material-symbols-outlined text-[16px] text-primary">work</span>
@@ -203,9 +170,9 @@
             const data = await r.json();
             if (data.success && data.user) {
                 const u = data.user;
-                // 환영 제목 업데이트
-                const titleEl = document.getElementById('demo-welcome-title');
-                if (titleEl) titleEl.textContent = `${u.name}님, 환영합니다!`;
+                // [수정 2026-06-25] 페이지 제목이 '제출관리'로 변경되어 이름 덮어쓰기 제거
+                // [이전 코드] const titleEl = document.getElementById('demo-welcome-title');
+                // [이전 코드] if (titleEl) titleEl.textContent = `${u.name}님, 환영합니다!`;
                 // 네비게이션 이름 표시
                 const profileLink = document.querySelector('a[href="profile-menu.html"]');
                 if (profileLink) {

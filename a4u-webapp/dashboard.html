@@ -3,13 +3,13 @@
 <html class="scroll-smooth" lang="ko"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta property="og:title" content="대시보드 - a4u">
+<meta property="og:title" content="제출관리 - a4u">
 <meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
 <meta property="og:image" content="/og-image.png">
 <meta property="og:type" content="website">
-<!-- [수정 2026-06-25] 제목 오류 수정: '관리자 대시보드' → '대시보드' (일반 사용자 화면) -->
-<!-- [이전 코드 주석] <title>a4u - 관리자 대시보드</title> -->
-<title>a4u - 대시보드</title>
+<!-- [수정 2026-06-25] 페이지 제목: 대시보드 → 제출관리 (네비 메뉴 재정의 반영) -->
+<!-- [이전 코드] <title>a4u - 대시보드</title> -->
+<title>a4u - 제출관리</title>
 {% include '_head.html' %}
 </head>
 <body class="bg-surface-gray text-on-surface font-body-md overflow-x-hidden">
@@ -17,65 +17,24 @@
 {% include '_navbar.html' %}
 <main class="pt-24 pb-12 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
 
-<!-- [수정 2026-06-25] 레이아웃 재편: 바로가기·빠른작업 카드 제거(네비 중복), 이력서/지원·면접 2그룹으로 직관적 배치 -->
-<!-- [이전 코드] grid grid-cols-1 lg:grid-cols-3 혼합 배치 → 기능 그룹 분리 배치로 교체 -->
+<!-- [수정 2026-06-25] 제출관리 페이지: 이력서 그룹 제거(→이력서관리 메뉴로 분리), 지원·면접만 유지 -->
 
-<!-- Welcome Section -->
+<!-- 페이지 헤더 -->
+<section class="mb-8">
+    <h1 class="font-headline-lg text-headline-lg text-on-background mb-1">제출관리</h1>
+    <p class="font-body-md text-body-md text-on-surface-variant">지원 현황과 면접 일정을 한눈에 확인하세요.</p>
+</section>
+
+<!-- [이전 코드] Welcome Section + 이력서 그룹 — 이력서 관련 카드 제거 (2026-06-25)
 <section class="mb-8 flex items-center justify-between flex-wrap gap-4">
-    <div>
-        <h1 class="font-headline-lg text-headline-lg text-on-background mb-1">다시 오신 것을 환영합니다, <span id="dashboard-user-name">님</span></h1>
-        <p class="font-body-md text-body-md text-on-surface-variant" id="dashboard-subtitle">오늘도 커리어 목표를 향해 나아가세요!</p>
-    </div>
-    <a href="select.html" id="btn-new-resume" class="flex items-center gap-2 px-5 py-2.5 bg-primary text-on-primary rounded-full font-label-md hover:opacity-90 transition-all shadow-sm">
-        <span class="material-symbols-outlined text-[18px]">add</span>
-        새 이력서 작성
-    </a>
+    환영 문구 / 새 이력서 작성 버튼
 </section>
-
-<!-- ══ 그룹 1: 이력서 ══════════════════════════════════════════════════════ -->
 <section class="mb-10">
-    <h2 class="font-label-md text-on-surface-variant uppercase tracking-widest mb-4 flex items-center gap-2">
-        <span class="material-symbols-outlined text-[16px] text-primary">description</span>
-        이력서
-    </h2>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-
-        <!-- 이력서 경쟁력 카드 -->
-        <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle flex flex-col justify-center items-center text-center">
-            <div class="h-14 w-14 bg-primary-fixed text-primary flex items-center justify-center rounded-full mb-3">
-                <span class="material-symbols-outlined text-3xl">workspace_premium</span>
-            </div>
-            <h3 class="font-headline-sm text-headline-sm text-on-background">나의 이력서 경쟁력</h3>
-            <!-- [수정 2026-06-25] 통계 카드: 실제 API 데이터 표시 영역 -->
-            <div id="stats-summary" class="mt-2 flex gap-4 text-sm text-on-surface-variant">
-                <span>이력서 <strong id="stat-resumes" class="text-primary">-</strong>개</span>
-                <span>지원 <strong id="stat-apps" class="text-primary">-</strong>건</span>
-            </div>
-            <p class="text-body-sm text-on-surface-variant mt-2 leading-relaxed">AI가 분석한 내 이력서의 강점을 확인하고 보완점을 찾아보세요.</p>
-            <button id="btn-improve-resume" class="mt-4 px-5 py-2 bg-primary text-on-primary rounded-full font-label-md hover:opacity-90 transition-all text-sm">이력서 보완하기</button>
-        </div>
-
-        <!-- 내 이력서 최근 목록 -->
-        <div class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle">
-            <div class="flex justify-between items-center mb-4">
-                <span class="font-label-md text-on-surface-variant">최근 이력서</span>
-                <a href="resume.html" class="text-primary font-label-md text-sm hover:underline">전체 보기 →</a>
-            </div>
-            <div id="resume-loading" class="flex items-center gap-2 text-on-surface-variant py-6">
-                <span class="material-symbols-outlined animate-spin">progress_activity</span>
-                <span class="text-sm">이력서를 불러오는 중...</span>
-            </div>
-            <div id="resume-empty" class="hidden text-center py-8">
-                <span class="material-symbols-outlined text-4xl text-outline-variant mb-3 block">description</span>
-                <p class="font-label-md text-on-surface-variant mb-2">작성된 이력서가 없습니다.</p>
-                <a href="select.html" class="text-primary text-sm hover:underline">첫 이력서 작성하기 →</a>
-            </div>
-            <div id="resume-list" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-        </div>
-    </div>
+    이력서 경쟁력 카드 / 최근 이력서 목록
 </section>
+-->
 
-<!-- ══ 그룹 2: 지원 · 면접 ═══════════════════════════════════════════════ -->
+<!-- ══ 지원 · 면접 ═══════════════════════════════════════════════════════ -->
 <section>
     <h2 class="font-label-md text-on-surface-variant uppercase tracking-widest mb-4 flex items-center gap-2">
         <span class="material-symbols-outlined text-[16px] text-primary">work</span>
@@ -209,24 +168,10 @@
         }
     });
 
-    // ── 빠른 작업 버튼 ─────────────────────────────────────────────
-    const btnNewResume = document.getElementById('btn-new-resume');
-    if (btnNewResume) {
-        btnNewResume.addEventListener('click', () => {
-            window.location.href = 'select.html';
-        });
-    }
-
     // ── "새로 추가" 버튼 ───────────────────────────────────────────
     const btnAddApp = document.getElementById('btn-add-application');
     if (btnAddApp) {
         btnAddApp.addEventListener('click', handleUnavailableFeature);
-    }
-
-    // ── 이력서 보완하기 ────────────────────────────────────────────
-    const btnImprove = document.getElementById('btn-improve-resume');
-    if (btnImprove) {
-        btnImprove.addEventListener('click', () => { window.location.href = 'builder.html'; });
     }
 
     // ── 풋터 링크 ──────────────────────────────────────────────────
@@ -234,62 +179,11 @@
         a.addEventListener('click', e => { e.preventDefault(); handleUnavailableFeature(); });
     });
 
-    // ── [수정 2026-06-25] 대시보드 통계 API 연동 ──────────────────
-    // 일반사용자 본인 데이터만 표시 (샘플 포함 안 함)
-    (async function loadStats() {
-        try {
-            const r = await fetch('/api/stats', { credentials: 'same-origin' });
-            const data = await r.json();
-            if (!data.success) return;
-            const s = data.stats;
-            const elResumes = document.getElementById('stat-resumes');
-            const elApps    = document.getElementById('stat-apps');
-            if (elResumes) elResumes.textContent = s.total_resumes ?? 0;
-            if (elApps)    elApps.textContent    = s.total_applications ?? 0;
-        } catch (_) {}
-    })();
-
-    // ── [수정 2026-06-25] 내 이력서 목록 API 연동 ─────────────────
-    // 본인 이력서만 (is_sample=false), 샘플 데이터 절대 미포함
-    (async function loadResumes() {
-        const loadingEl = document.getElementById('resume-loading');
-        const emptyEl   = document.getElementById('resume-empty');
-        const listEl    = document.getElementById('resume-list');
-        try {
-            // include_samples 파라미터 없이 호출 → 본인 이력서만 반환
-            const r = await fetch('/api/resumes', { credentials: 'same-origin' });
-            const data = await r.json();
-            if (loadingEl) loadingEl.classList.add('hidden');
-            if (!data.success) return;
-            // 혹시라도 샘플 데이터가 섞이지 않도록 프론트에서도 필터링
-            const myResumes = (data.resumes || []).filter(rv => !rv.is_sample);
-            if (!myResumes.length) {
-                if (emptyEl) emptyEl.classList.remove('hidden');
-                return;
-            }
-            if (listEl) listEl.classList.remove('hidden');
-            myResumes.slice(0, 4).forEach(rv => {
-                const card = document.createElement('a');
-                card.href = 'resume.html';
-                card.className = 'block bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-border-subtle hover:shadow-md hover:border-primary transition-all group';
-                const updatedDate = rv.updated_at
-                    ? new Date(rv.updated_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
-                    : '';
-                card.innerHTML = `
-                    <div class="flex items-start justify-between gap-2 mb-2">
-                        <h3 class="font-label-md text-on-surface group-hover:text-primary transition-colors truncate">${rv.title || '(제목 없음)'}</h3>
-                        <span class="material-symbols-outlined text-sm text-primary group-hover:translate-x-1 transition-transform shrink-0">arrow_forward</span>
-                    </div>
-                    <p class="text-sm text-on-surface-variant truncate">${rv.job_title || '직군 미입력'}</p>
-                    ${updatedDate ? `<p class="text-xs text-outline mt-2">${updatedDate} 수정</p>` : ''}
-                `;
-                listEl.appendChild(card);
-            });
-        } catch (_) {
-            if (loadingEl) loadingEl.classList.add('hidden');
-            if (emptyEl) emptyEl.classList.remove('hidden');
-        }
-    })();
+    // [이전 코드] 이력서 관련 버튼·통계·목록 — 이력서 카드 제거로 함께 제거 (2026-06-25)
+    // btnNewResume → select.html 이동 (이력서 등록 메뉴로 대체)
+    // btnImprove   → builder.html 이동 (이력서 관리 메뉴로 대체)
+    // loadStats()  → /api/stats (이력서 수·지원 수 통계, 이력서 카드 제거로 불필요)
+    // loadResumes() → /api/resumes (이력서 목록, 이력서 관리 메뉴로 이동)
 
     // ── [수정 2026-06-25] 지원 현황 칸반 API 연동 ─────────────────
     // 본인 지원 데이터만 표시 (샘플 없음)

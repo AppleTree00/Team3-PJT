@@ -79,14 +79,18 @@ def is_allowed_mimetype(mimetype):
 PROTECTED_PAGES = {
     'main.html', # 관리자는 메인 페이지 접근 시 로그아웃
     'dashboard.html', 'builder.html', 'resume.html',
-    'timeline.html', 'profile-menu.html', 'select.html'
+    # [수정 2026-06-25] timeline.html 제거 — 커리어관리 메뉴 삭제 (화면 미구현)
+    # [이전 코드] 'timeline.html',
+    'profile-menu.html', 'select.html'
 }
 
 # 어드민 데모 세션이 접근할 경우 자동 로그아웃되는 경로 (사용자 페이지 + 홈)
 ADMIN_DEMO_LOGOUT_PATHS = {
     '', 'main.html',
     'dashboard.html', 'builder.html', 'resume.html',
-    'timeline.html', 'profile-menu.html', 'select.html'
+    # [수정 2026-06-25] timeline.html 제거
+    # [이전 코드] 'timeline.html',
+    'profile-menu.html', 'select.html'
 }
 
 @app.before_request
@@ -140,7 +144,11 @@ def login_page():
     if session.get('user_id'):
         if session.get('is_admin'):
             return redirect('/admin')
-        return redirect('/dashboard.html')
+        # [수정 2026-06-25] B안: 로그인 후 이력서 관리 화면으로 이동 (사용자 흐름 개선)
+        # [이전 코드] return redirect('/dashboard.html')
+        if session.get('mode') == 'DEMO':
+            return redirect('/demo_dashboard.html')
+        return redirect('/resume.html')
     return render_template('login.html')
 
 @app.route('/main.html')
@@ -164,9 +172,11 @@ def builder_page():
 def resume_page():
     return render_template('resume.html')
 
+# [수정 2026-06-25] timeline.html 라우트 — 커리어관리 삭제, 접근 시 이력서 관리로 리다이렉트
+# [이전 코드] return render_template('timeline.html')
 @app.route('/timeline.html')
 def timeline_page():
-    return render_template('timeline.html')
+    return redirect('/resume.html')
 
 @app.route('/profile-menu.html')
 def profile_menu_page():
