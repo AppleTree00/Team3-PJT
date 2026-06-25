@@ -159,8 +159,8 @@
 </div>
 <!-- Navigation buttons -->
 <div class="mt-12 flex justify-between items-center">
-<!-- [수정 2026-06-25] onclick 누락 수정 — DEMO 사용자는 서버가 demo_dashboard.html로 자동 리다이렉트 -->
-<button onclick="window.location.href='/dashboard.html'" class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
+<!-- [수정 2026-06-25] onclick 누락 수정 + 미저장 이탈 경고 연결 -->
+<button onclick="goToDashboard()" class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
                     대시보드로 돌아가기
                 </button>
 <button class="px-8 py-3 rounded-lg bg-primary text-white font-label-md text-label-md shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
@@ -430,7 +430,9 @@
     }
 
     // 실시간 진행률 갱신 — 입력 이벤트 전역 감지
-    document.addEventListener('input', updateProgressBar);
+    // [수정 2026-06-25] isDirty 마킹: 입력 시 미저장 상태로 전환
+    let isDirty = false;
+    document.addEventListener('input', () => { isDirty = true; updateProgressBar(); });
     // ─────────────────────────────────────────────────────────────────
 
     function switchTab(tabId) {
@@ -512,6 +514,7 @@
             });
             const data = await r.json();
             if (data.success) {
+                isDirty = false; // [수정 2026-06-25] 저장 완료 — 이탈 경고 해제
                 showToast('이력서가 저장되었습니다!', 'success');
             } else {
                 if (handleDemoBlock(data)) return;
@@ -733,6 +736,8 @@
             }
             // [수정 2026-06-25] DEMO 데이터 채움 완료 후 진행률 최종 갱신
             updateProgressBar();
+            // DEMO 사용자는 저장 불가 → 이탈 경고 불필요
+            isDirty = false;
         } catch (_) {}
     })();
 
@@ -747,6 +752,21 @@
         }
     });
     updateStepper('Personal Info');
+
+    // [수정 2026-06-25] 미저장 이탈 경고: 대시보드 이동 시 확인 다이얼로그
+    function goToDashboard() {
+        if (isDirty) {
+            const ok = window.confirm(
+                '아직 이력서가 저장되지 않았어요.\n저장되지 않은 이력서는 새로 작성해야 합니다.\n\n정말로 이동하시나요?'
+            );
+            if (!ok) return;
+        }
+        window.location.href = '/dashboard.html';
+    }
+    // 브라우저 탭 닫기 / URL 직접 입력 등 외부 이탈도 경고
+    window.addEventListener('beforeunload', function (e) {
+        if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+    });
 </script>
 
 
