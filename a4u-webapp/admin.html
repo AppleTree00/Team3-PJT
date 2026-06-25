@@ -495,6 +495,43 @@
 </div>
 
 <!-- ── 템플릿 모달 ─────────────────────────────────────────────────────── -->
+<!-- ── 템플릿 미리보기 모달 ──────────────────────────────────────────── -->
+<div id="template-preview-modal" class="modal-backdrop hidden" onclick="closeModal('template-preview-modal')">
+  <div class="bg-white rounded-2xl shadow-2xl w-full flex flex-col overflow-hidden" style="max-width:780px;max-height:90vh" onclick="event.stopPropagation()">
+    <!-- 헤더 -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border-subtle shrink-0">
+      <div>
+        <h2 class="text-base font-bold text-on-surface" id="tpl-preview-title">템플릿 미리보기</h2>
+        <p class="text-xs text-on-surface-variant mt-0.5" id="tpl-preview-section-label"></p>
+      </div>
+      <button onclick="closeModal('template-preview-modal')" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container">
+        <span class="ms" style="font-size:22px">close</span>
+      </button>
+    </div>
+    <!-- 섹션 네비 필 -->
+    <div class="flex items-center gap-2 px-6 py-3 border-b border-border-subtle bg-surface-gray shrink-0 overflow-x-auto">
+      <div id="tpl-section-pills" class="flex gap-2 flex-nowrap"></div>
+    </div>
+    <!-- 미리보기 iframe + 좌우 버튼 -->
+    <div class="relative flex-1 overflow-hidden" style="min-height:460px">
+      <iframe id="tpl-preview-iframe" class="w-full h-full border-0" style="min-height:460px"></iframe>
+      <button id="tpl-prev-btn" onclick="navigateSection(-1)"
+        class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg border border-border-subtle flex items-center justify-center text-on-surface hover:bg-surface-container transition-all disabled:opacity-25 disabled:cursor-not-allowed z-10"
+        disabled>
+        <span class="ms" style="font-size:22px">chevron_left</span>
+      </button>
+      <button id="tpl-next-btn" onclick="navigateSection(1)"
+        class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg border border-border-subtle flex items-center justify-center text-on-surface hover:bg-surface-container transition-all disabled:opacity-25 disabled:cursor-not-allowed z-10">
+        <span class="ms" style="font-size:22px">chevron_right</span>
+      </button>
+    </div>
+    <!-- 페이지 닷 -->
+    <div class="flex items-center justify-center gap-2 px-6 py-3 border-t border-border-subtle shrink-0">
+      <div id="tpl-section-dots" class="flex gap-1.5 items-center"></div>
+    </div>
+  </div>
+</div>
+
 <div id="template-modal" class="modal-backdrop hidden">
   <div class="card w-full max-w-2xl p-6 relative" onclick="event.stopPropagation()">
     <h2 class="text-base font-bold text-on-surface mb-5" id="template-modal-title">템플릿 추가</h2>
@@ -946,36 +983,44 @@ async function loadTemplates() {
         const r = await fetch(`${API}/templates`, { credentials: 'same-origin' });
         const d = await r.json();
         const catLabel = { general: '일반', it: 'IT/개발', finance: '금융/회계', design: '디자인', management: '경영/관리' };
+        const catStyle = {
+            it:         { bg: 'background:#EDE9FE', iconColor: 'color:#3525cd', icon: 'code' },
+            management: { bg: 'background:#F0FDFA', iconColor: 'color:#006a61', icon: 'business_center' },
+            general:    { bg: 'background:#EEF2FF', iconColor: 'color:#4338ca', icon: 'person' },
+            finance:    { bg: 'background:#FFFBEB', iconColor: 'color:#B45309', icon: 'account_balance' },
+            design:     { bg: 'background:#FFF1F2', iconColor: 'color:#BE123C', icon: 'palette' },
+        };
         const grid = document.getElementById('templates-grid');
-        grid.innerHTML = (d.templates || []).map(t => `
-          <div class="card p-4">
-            ${t.thumbnail_url
-              ? `<img src="${esc(t.thumbnail_url)}" class="w-full h-28 object-cover rounded-lg mb-3 bg-surface-container-low"/>`
-              : `<div class="w-full h-28 rounded-lg mb-3 bg-surface-container-low flex items-center justify-center text-on-surface-variant"><span class="ms" style="font-size:36px">description</span></div>`}
-            <div class="flex items-start justify-between mb-1">
-              <div class="font-semibold text-sm">${esc(t.name)}</div>
-              ${t.is_active ? '<span class="badge badge-green">활성</span>' : '<span class="badge badge-gray">비활성</span>'}
+        grid.innerHTML = (d.templates || []).map(t => {
+            const cs = catStyle[t.category] || catStyle.general;
+            return `
+          <div class="card p-0 overflow-hidden flex flex-col" style="border-radius:14px">
+            <div class="flex items-center justify-center" style="height:120px;${cs.bg}">
+              ${t.thumbnail_url
+                ? `<img src="${esc(t.thumbnail_url)}" class="h-full w-full object-cover"/>`
+                : `<span class="ms" style="font-size:52px;${cs.iconColor}">${cs.icon}</span>`}
             </div>
-            <div class="text-xs text-on-surface-variant mb-1">${catLabel[t.category] || t.category}</div>
-            <div class="text-xs text-on-surface-variant mb-3 line-clamp-2">${esc(t.description || '')}</div>
-            ${t.file_path ? `<div class="text-xs text-secondary mb-2 flex items-center gap-1"><span class="ms" style="font-size:14px">attachment</span>${t.file_type.toUpperCase()} 파일 등록됨</div>` : ''}
-            <div class="flex gap-2">
-              ${t.file_path ? `
-                <button class="btn btn-outline btn-sm flex-1" onclick="previewTemplate(${t.id}, '${t.file_type}')">
-                  <span class="ms" style="font-size:15px">visibility</span> 미리보기
-                </button>
-                <button class="btn btn-outline btn-sm" onclick="printTemplate(${t.id}, '${t.file_type}')">
-                  <span class="ms" style="font-size:15px">print</span> 인쇄
-                </button>
-              ` : ''}
-              <button class="btn btn-outline btn-sm flex-1" onclick='openTemplateModal(${JSON.stringify(t).replace(/"/g,"&quot;")})'>
-                <span class="ms" style="font-size:15px">edit</span> 수정
+            <div class="px-4 pt-4 pb-3 flex-1 flex flex-col">
+              <div class="flex items-start justify-between gap-2 mb-1">
+                <span class="font-semibold text-sm text-on-surface leading-snug">${esc(t.name)}</span>
+                ${t.is_active ? '<span class="badge badge-green shrink-0">활성</span>' : '<span class="badge badge-gray shrink-0">비활성</span>'}
+              </div>
+              <span class="text-xs text-on-surface-variant mb-2">${catLabel[t.category] || t.category}</span>
+              <p class="text-xs text-on-surface-variant line-clamp-2 flex-1 leading-relaxed">${esc(t.description || '설명 없음')}</p>
+            </div>
+            <div class="px-4 pb-4 pt-2 border-t border-border-subtle flex gap-2">
+              <button class="btn btn-outline btn-sm flex-1" onclick="openTemplatePreview(${t.id}, '${esc(t.name)}')">
+                <span class="ms" style="font-size:15px">visibility</span> 미리보기
               </button>
-              <button class="btn btn-danger btn-sm" onclick="deleteTemplate(${t.id})">
+              <button class="btn btn-outline btn-sm" title="수정" onclick='openTemplateModal(${JSON.stringify(t).replace(/"/g,"&quot;")})'>
+                <span class="ms" style="font-size:15px">edit</span>
+              </button>
+              <button class="btn btn-danger btn-sm" title="삭제" onclick="deleteTemplate(${t.id})">
                 <span class="ms" style="font-size:15px">delete</span>
               </button>
             </div>
-          </div>`).join('') ||
+          </div>`;
+        }).join('') ||
           '<div class="col-span-3 text-center py-12 text-on-surface-variant">템플릿이 없습니다</div>';
     } catch (e) { console.error(e); }
 }
@@ -1080,21 +1125,150 @@ async function saveTemplate() {
     }
 }
 
+// ── 템플릿 미리보기 모달 ────────────────────────────────────────────────
+let _tplSections = [];
+let _tplCurrentIdx = 0;
+
+function openTemplatePreview(templateId, templateName) {
+    _tplSections = [];
+    _tplCurrentIdx = 0;
+
+    document.getElementById('tpl-preview-title').textContent = templateName || '템플릿 미리보기';
+    document.getElementById('tpl-preview-section-label').textContent = '불러오는 중...';
+    document.getElementById('tpl-section-pills').innerHTML = '';
+    document.getElementById('tpl-section-dots').innerHTML = '';
+
+    const iframe = document.getElementById('tpl-preview-iframe');
+    iframe.src = `/api/admin/templates/${templateId}/preview`;
+
+    iframe.onload = function () {
+        try {
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+            // 섹션 요소 수집: 헤더(h1) + .section 블록
+            const collected = [];
+            const h1 = doc.querySelector('h1');
+            if (h1) {
+                collected.push({ el: h1, label: '기본 정보' });
+            } else {
+                collected.push({ el: doc.body, label: '기본 정보' });
+            }
+            doc.querySelectorAll('.section').forEach(sec => {
+                const h2 = sec.querySelector('h2');
+                collected.push({ el: sec, label: h2 ? h2.textContent.trim() : '섹션' });
+            });
+
+            // 섹션이 1개뿐이면 전체 보기 단일 섹션으로
+            if (collected.length <= 1) {
+                collected.splice(0, collected.length, { el: doc.body, label: '전체 보기' });
+            }
+
+            _tplSections = collected;
+
+            // iframe 내부 부드러운 스크롤 + 하이라이트 스타일 주입
+            const style = doc.createElement('style');
+            style.textContent = `
+                html { scroll-behavior: smooth; }
+                .tpl-active-section {
+                    outline: 2px solid rgba(53,37,205,0.25);
+                    outline-offset: 6px;
+                    border-radius: 8px;
+                    background: rgba(53,37,205,0.03) !important;
+                    transition: background 0.3s;
+                }`;
+            doc.head.appendChild(style);
+
+            _renderSectionNav();
+            _scrollToSection(0);
+        } catch (e) {
+            // 동일 출처여야 하지만 예외 시 폴백
+            _tplSections = [{ el: null, label: '전체 보기' }];
+            _renderSectionNav();
+        }
+    };
+
+    document.getElementById('template-preview-modal').classList.remove('hidden');
+}
+
+function _renderSectionNav() {
+    const pills = document.getElementById('tpl-section-pills');
+    const dots  = document.getElementById('tpl-section-dots');
+
+    pills.innerHTML = _tplSections.map((s, i) => `
+        <button onclick="_scrollToSection(${i})" id="tpl-pill-${i}"
+          class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all
+                 ${i === _tplCurrentIdx ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}">
+          ${s.label}
+        </button>`).join('');
+
+    dots.innerHTML = _tplSections.map((_, i) => `
+        <div id="tpl-dot-${i}" class="rounded-full transition-all duration-200
+             ${i === _tplCurrentIdx ? 'bg-primary' : 'bg-surface-container-high'}"
+             style="${i === _tplCurrentIdx ? 'width:16px;height:8px' : 'width:8px;height:8px'}"></div>`).join('');
+
+    _updateNavButtons();
+    _updateSectionLabel();
+}
+
+function _scrollToSection(idx) {
+    if (idx < 0 || idx >= _tplSections.length) return;
+    _tplCurrentIdx = idx;
+
+    const s = _tplSections[idx];
+    if (s && s.el) {
+        try {
+            s.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // 하이라이트 효과
+            const iframe = document.getElementById('tpl-preview-iframe');
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.querySelectorAll('.tpl-active-section').forEach(e => e.classList.remove('tpl-active-section'));
+            if (s.el !== doc.body) s.el.classList.add('tpl-active-section');
+        } catch (e) {}
+    }
+
+    // 필 + 닷 상태 갱신
+    _tplSections.forEach((_, i) => {
+        const pill = document.getElementById(`tpl-pill-${i}`);
+        const dot  = document.getElementById(`tpl-dot-${i}`);
+        if (pill) {
+            pill.className = `px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all
+                ${i === _tplCurrentIdx ? 'bg-primary text-white shadow-sm' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`;
+        }
+        if (dot) {
+            dot.className = `rounded-full transition-all duration-200 ${i === _tplCurrentIdx ? 'bg-primary' : 'bg-surface-container-high'}`;
+            dot.style.cssText = i === _tplCurrentIdx ? 'width:16px;height:8px' : 'width:8px;height:8px';
+        }
+    });
+
+    _updateNavButtons();
+    _updateSectionLabel();
+}
+
+function navigateSection(dir) {
+    _scrollToSection(_tplCurrentIdx + dir);
+}
+
+function _updateNavButtons() {
+    document.getElementById('tpl-prev-btn').disabled = _tplCurrentIdx === 0;
+    document.getElementById('tpl-next-btn').disabled = _tplCurrentIdx === _tplSections.length - 1;
+}
+
+function _updateSectionLabel() {
+    const label = document.getElementById('tpl-preview-section-label');
+    if (_tplSections[_tplCurrentIdx]) {
+        label.textContent = `${_tplCurrentIdx + 1} / ${_tplSections.length}  —  ${_tplSections[_tplCurrentIdx].label}`;
+    }
+}
+
 function previewTemplate(templateId, fileType) {
-    // 새 창에서 파일 미리보기
-    const url = `${API}/templates/${templateId}/file`;
-    window.open(url, '_blank');
+    openTemplatePreview(templateId, '템플릿 미리보기');
 }
 
 function printTemplate(templateId, fileType) {
-    // 인쇄 기능 - 새 창에서 파일을 연 후 인쇄
     const url = `${API}/templates/${templateId}/file`;
-    const printWindow = window.open(url, '_blank');
-    printWindow.addEventListener('load', () => {
-        setTimeout(() => {
-            printWindow.print();
-        }, 500);
-    });
+    const w = window.open(url, '_blank');
+    if (w) w.addEventListener('load', () => setTimeout(() => w.print(), 500));
 }
 
 async function deleteTemplate(id) {
