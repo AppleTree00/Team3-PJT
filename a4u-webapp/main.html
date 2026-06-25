@@ -224,7 +224,20 @@
     })();
 
     // ── 데모 계정 자동 로그인 ──────────────────────────────────────────
+    // [수정 2026-06-25] 이미 로그인된 일반 사용자는 데모보기 진입 차단
     async function demoLogin(btn) {
+        // 먼저 현재 로그인 상태 확인
+        try {
+            const meRes = await fetch('/api/auth/me', { credentials: 'same-origin' });
+            const meData = await meRes.json();
+            if (meData.success) {
+                // 이미 로그인된 상태 → 차단
+                showToast('데모보기는 로그아웃 후 이용가능합니다.', 'warning');
+                return;
+            }
+        } catch (_) {}
+
+        // [이전 코드] 로그인 상태 확인 없이 바로 데모 로그인 시도
         const original = btn.textContent;
         btn.textContent = '로그인 중...';
         btn.disabled = true;
