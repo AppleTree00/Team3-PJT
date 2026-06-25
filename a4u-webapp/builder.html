@@ -99,15 +99,18 @@
 <div class="form-section" id="Experience">
 <div class="flex justify-between items-center mb-8">
 <h1 class="font-headline-lg text-headline-lg">경력 사항</h1>
-<button class="text-primary font-label-md text-label-md flex items-center gap-1">
+<!-- [수정 2026-06-25] 항목 추가 버튼 onclick 연결 -->
+<button onclick="addExperienceCard()" class="text-primary font-label-md text-label-md flex items-center gap-1">
 <span class="material-symbols-outlined text-[20px]">add_circle</span> 항목 추가
-                    </button>
+</button>
 </div>
-<div class="bg-white rounded-xl p-6 shadow-sm border border-border-subtle mb-6 relative">
-<button class="absolute top-4 right-4 text-outline hover:text-error transition-colors">
+<!-- [수정 2026-06-25] experience-list 래퍼 추가 — DEMO 데이터·카드 추가/삭제 지원 -->
+<div id="experience-list">
+<div class="exp-card bg-white rounded-xl p-6 shadow-sm border border-border-subtle mb-6 relative">
+<!-- [수정 2026-06-25] 삭제 버튼 onclick 연결 -->
+<button onclick="removeExperienceCard(this)" class="absolute top-4 right-4 text-outline hover:text-error transition-colors">
 <span class="material-symbols-outlined">delete</span>
 </button>
-<!-- [수정 2026-06-25] 경력 더미 데이터 제거 -->
 <!-- [이전 코드] value="시니어 프로덕트 디자이너", value="InnovateTech Inc.", textarea 내 하드코딩 성과 -->
 <div class="space-y-4">
 <div class="grid grid-cols-2 gap-4">
@@ -133,6 +136,7 @@
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">주요 성과</label>
 <textarea class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" rows="3" placeholder="• 주요 성과나 담당 업무를 입력하세요."></textarea>
+</div>
 </div>
 </div>
 </div>
@@ -299,6 +303,7 @@
     const STEP_ORDER = ['Personal Info', 'Experience', 'Skills'];
     let _activeStep = 'Personal Info';
 
+    // [수정 2026-06-25] calcSectionProgress: 카드 단위 → 개별 필드 단위로 변경
     function calcSectionProgress(sectionId) {
         if (sectionId === 'Personal Info') {
             const ids = ['personalFullName', 'personalSummary', 'personalEmail', 'personalPhone'];
@@ -308,14 +313,10 @@
         if (sectionId === 'Experience') {
             const sec = document.getElementById('Experience');
             if (!sec) return 0;
-            const cards = sec.querySelectorAll('.bg-white.rounded-xl');
-            if (!cards.length) return 0;
-            let filled = 0;
-            cards.forEach(card => {
-                const hasText = Array.from(card.querySelectorAll('input, textarea')).some(i => i.value.trim().length > 0);
-                if (hasText) filled++;
-            });
-            return Math.round((filled / cards.length) * 100);
+            const allInputs = sec.querySelectorAll('input[type="text"], input[type="month"], textarea');
+            if (!allInputs.length) return 0;
+            const filled = Array.from(allInputs).filter(i => i.value.trim().length > 0).length;
+            return Math.round((filled / allInputs.length) * 100);
         }
         if (sectionId === 'Skills') {
             const tags = document.querySelectorAll('#skills-list [data-skill]');
@@ -325,6 +326,68 @@
         }
         return 0;
     }
+
+    // [수정 2026-06-25] 경력 카드 공통 함수 ─────────────────────────────
+    function _escHtml(str) {
+        return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function _makeExpCardHtml(exp) {
+        exp = exp || {};
+        const desc = exp.description || (Array.isArray(exp.bullets) ? exp.bullets.join('\n') : '');
+        return `<div class="exp-card bg-white rounded-xl p-6 shadow-sm border border-border-subtle mb-6 relative">
+<button onclick="removeExperienceCard(this)" class="absolute top-4 right-4 text-outline hover:text-error transition-colors" type="button">
+<span class="material-symbols-outlined">delete</span>
+</button>
+<div class="space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<div><label class="block font-label-md text-label-md text-on-surface mb-2">직책</label>
+<input class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" placeholder="예) 시니어 개발자" value="${_escHtml(exp.title)}"></div>
+<div><label class="block font-label-md text-label-md text-on-surface mb-2">회사명</label>
+<input class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" placeholder="예) (주)회사명" value="${_escHtml(exp.company)}"></div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div><label class="block font-label-md text-label-md text-on-surface mb-2">시작일</label>
+<input class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month" value="${_escHtml(exp.start_date)}"></div>
+<div><label class="block font-label-md text-label-md text-on-surface mb-2">종료일</label>
+<input class="w-full px-4 py-2 rounded-lg border border-border-subtle" type="month" value="${_escHtml(exp.end_date)}"></div>
+</div>
+<div><label class="block font-label-md text-label-md text-on-surface mb-2">주요 성과</label>
+<textarea class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" rows="3" placeholder="• 주요 성과나 담당 업무를 입력하세요.">${_escHtml(desc)}</textarea>
+</div>
+</div>
+</div>`;
+    }
+
+    function renderExperienceCards(experiences) {
+        const list = document.getElementById('experience-list');
+        if (!list) return;
+        const entries = (Array.isArray(experiences) && experiences.length > 0) ? experiences : [{}];
+        list.innerHTML = entries.map(_makeExpCardHtml).join('');
+        updateProgressBar();
+    }
+
+    function addExperienceCard() {
+        const list = document.getElementById('experience-list');
+        if (!list) return;
+        const tmp = document.createElement('div');
+        tmp.innerHTML = _makeExpCardHtml({});
+        list.appendChild(tmp.firstElementChild);
+        updateProgressBar();
+    }
+
+    function removeExperienceCard(btn) {
+        const card = btn.closest('.exp-card');
+        if (!card) return;
+        const list = document.getElementById('experience-list');
+        if (list && list.querySelectorAll('.exp-card').length <= 1) {
+            showToast('최소 1개의 경력 항목이 필요합니다.', 'warning');
+            return;
+        }
+        card.remove();
+        updateProgressBar();
+    }
+    // ───────────────────────────────────────────────────────────────────
 
     function updateStepper(activeSection) {
         _activeStep = activeSection;
@@ -627,7 +690,12 @@
                 summary: '25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있습니다.',
                 email: 'honggildong@example.com',
                 phone: '010-1234-5678',
-                skills: ['Java / J2EE', 'Spring Framework', 'Oracle / MySQL', 'PM / PL', '시스템 아키텍처']
+                skills: ['Java / J2EE', 'Spring Framework', 'Oracle / MySQL', 'PM / PL', '시스템 아키텍처'],
+                // [수정 2026-06-25] DEMO 경력 데이터 추가 — 경력 섹션 작성율 반영
+                experience: [
+                    { title: '수석개발자 / PM', company: '(주)한국시스템통합', start_date: '2010-03', end_date: '', description: '차세대 금융 시스템 구축 프로젝트 총괄 PM 수행\nJava 기반 프레임워크 고도화 및 표준 가이드 수립\n팀원 15명 리드, 납기 준수율 100%' },
+                    { title: '선임개발자', company: '미래정보기술(주)', start_date: '2005-01', end_date: '2010-02', description: 'Java/J2EE 기반 공공기관 포털 시스템 개발\nOracle DB 쿼리 최적화 및 성능 튜닝\n유지보수 비용 30% 절감' }
+                ]
             };
 
             // 인적 사항 채우기
@@ -640,6 +708,9 @@
             if (summaryEl) { summaryEl.value = DEMO_DATA.summary; summaryEl.dispatchEvent(new Event('input')); }
             if (emailEl)   { emailEl.value   = DEMO_DATA.email;   emailEl.dispatchEvent(new Event('input')); }
             if (phoneEl)   { phoneEl.value   = DEMO_DATA.phone;   phoneEl.dispatchEvent(new Event('input')); }
+
+            // [수정 2026-06-25] DEMO 경력 카드 렌더링
+            renderExperienceCards(DEMO_DATA.experience);
 
             // 스킬 태그 채우기
             const skillsList    = document.getElementById('skills-list');
@@ -659,6 +730,8 @@
                     `<span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">${t}</span>`
                 ).join('');
             }
+            // [수정 2026-06-25] DEMO 데이터 채움 완료 후 진행률 최종 갱신
+            updateProgressBar();
         } catch (_) {}
     })();
 

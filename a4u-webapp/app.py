@@ -222,12 +222,17 @@ def _analyze_resume_with_ai(text):
     if not text:
         return None
 
+    # [수정 2026-06-25] experience[] 배열 추가 — 경력사항 자동 채우기 지원
     system_prompt = (
         "당신은 이력서 파싱 전문가입니다. 주어진 이력서 텍스트에서 정보를 추출해 "
         "반드시 아래 JSON 형식으로만 응답하세요. 없는 정보는 빈 문자열 또는 빈 배열로 두세요.\n"
-        '{"name":"","job_title":"","email":"","phone":"","location":"","summary":"","skills":[]}'
+        "experience의 start_date/end_date는 'YYYY-MM' 형식으로, end_date가 현재이면 빈 문자열('')로 두세요.\n"
+        'description은 주요 성과·업무를 개행(\n)으로 구분하세요. skills는 기술명 배열입니다.\n'
+        '{"name":"","job_title":"","email":"","phone":"","location":"","summary":"",'
+        '"skills":[],'
+        '"experience":[{"title":"","company":"","start_date":"","end_date":"","description":""}]}'
     )
-    user_msg = f"이력서:\n{text[:4000]}"
+    user_msg = f"이력서:\n{text[:6000]}"
 
     openai_key = os.environ.get('OPENAI_API_KEY', '')
     gemini_key = os.environ.get('GEMINI_API_KEY', '')
@@ -245,7 +250,7 @@ def _analyze_resume_with_ai(text):
                     {'role': 'user', 'content': user_msg}
                 ],
                 temperature=0,
-                max_tokens=600,
+                max_tokens=1500,
                 response_format={"type": "json_object"}
             )
             raw = resp.choices[0].message.content
