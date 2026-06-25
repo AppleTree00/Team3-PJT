@@ -156,6 +156,62 @@
 </button>
 </div>
 </div>
+
+<!-- [수정 2026-06-25] Phase 1 AI 코칭: 맥락 입력 + 요청 버튼 + 결과 패널
+     목표 직무·업종·경력 연차를 프롬프트에 주입해 맞춤 어드바이스 제공
+     DB 변경 없음, coaching_routes.py _build_prompt() 에 target_job 등 3필드 추가 -->
+<div class="mt-8 bg-white rounded-xl shadow-sm border border-border-subtle overflow-hidden">
+  <div class="px-8 py-5 border-b border-border-subtle flex items-center gap-3">
+    <span class="material-symbols-outlined text-primary">psychology</span>
+    <h2 class="font-title-md text-title-md text-on-surface">AI 코칭 요청</h2>
+    <span id="coaching-provider-badge" class="hidden ml-auto text-[11px] px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-semibold"></span>
+  </div>
+  <div class="px-8 py-6 space-y-4">
+    <p class="text-body-sm font-body-sm text-on-surface-variant">목표 직무와 업종을 입력하면 AI가 더 구체적인 어드바이스를 제공합니다. (선택 사항)</p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div>
+        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">목표 직무</label>
+        <input id="coaching-target-job" type="text" placeholder="예) 백엔드 개발자"
+          class="w-full px-3 py-2 text-sm rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none"/>
+      </div>
+      <div>
+        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">목표 업종</label>
+        <input id="coaching-target-industry" type="text" placeholder="예) IT 스타트업"
+          class="w-full px-3 py-2 text-sm rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none"/>
+      </div>
+      <div>
+        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">경력 단계</label>
+        <select id="coaching-career-level"
+          class="w-full px-3 py-2 text-sm rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-white">
+          <option value="">선택 안 함</option>
+          <option value="신입 (0~1년)">신입 (0~1년)</option>
+          <option value="주니어 (2~4년)">주니어 (2~4년)</option>
+          <option value="미드레벨 (5~7년)">미드레벨 (5~7년)</option>
+          <option value="시니어 (8년 이상)">시니어 (8년 이상)</option>
+          <option value="임원급">임원급</option>
+        </select>
+      </div>
+    </div>
+    <button id="coaching-request-btn" onclick="requestAICoaching(this)"
+      class="w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-white font-label-md text-label-md shadow-sm hover:opacity-90 transition-all">
+      <span class="material-symbols-outlined text-[20px]">psychology</span>
+      AI 코칭 받기
+    </button>
+  </div>
+  <!-- 결과 패널 (초기 숨김) -->
+  <div id="coaching-result-panel" class="hidden border-t border-border-subtle px-8 py-6">
+    <div class="flex items-center justify-between mb-4">
+      <span class="font-label-md text-label-md text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>코칭 결과
+      </span>
+      <button onclick="document.getElementById('coaching-result-panel').classList.add('hidden')"
+        class="text-outline hover:text-on-surface transition-colors">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+    <pre id="coaching-result-text" class="whitespace-pre-wrap text-body-sm font-body-sm text-on-surface leading-relaxed bg-surface-gray rounded-lg p-4 max-h-96 overflow-y-auto"></pre>
+  </div>
+</div>
 </div>
 <!-- Navigation buttons -->
 <div class="mt-12 flex justify-between items-center">
@@ -582,34 +638,81 @@
     }
 
     // ── AI 코칭 요청 ───────────────────────────────────────────────────
+    // [수정 2026-06-25] Phase 1: 맥락 3필드(목표 직무·업종·경력 단계) 추가,
+    //   이력서 텍스트를 전체 입력 필드에서 조합, 결과를 패널에 표시
+    // [이전 코드] body: JSON.stringify({ resume_text: resumeText, sample_type: 'general' })
+    //             showToast만 호출 — 결과 미표시
     async function requestAICoaching(btn) {
-        const summaryEl = document.querySelector('textarea[id]');
-        const resumeText = summaryEl ? summaryEl.value : '';
-        if (!resumeText.trim()) {
-            showToast('이력서 내용을 먼저 입력해주세요.', 'warning');
+        // 이력서 내용 조합 (인적사항 + 소개 + 경력 서술형 텍스트)
+        const parts = [];
+        const nameEl    = document.getElementById('personalFullName');
+        const summaryEl = document.getElementById('personalSummary');
+        const jobEl     = document.getElementById('personalJobTitle') || document.querySelector('input[placeholder*="직책"], input[placeholder*="직무"]');
+        if (nameEl && nameEl.value.trim())    parts.push('이름: ' + nameEl.value.trim());
+        if (jobEl  && jobEl.value.trim())     parts.push('직책: ' + jobEl.value.trim());
+        if (summaryEl && summaryEl.value.trim()) parts.push('\n[자기소개]\n' + summaryEl.value.trim());
+
+        // 경력 카드 텍스트 수집
+        document.querySelectorAll('#experience-list .exp-card').forEach(card => {
+            const inputs   = card.querySelectorAll('input[type="text"]');
+            const textarea = card.querySelector('textarea');
+            const title    = inputs[0] ? inputs[0].value.trim() : '';
+            const company  = inputs[1] ? inputs[1].value.trim() : '';
+            const desc     = textarea  ? textarea.value.trim()  : '';
+            if (title || company || desc) {
+                parts.push(`\n[경력] ${title} / ${company}\n${desc}`);
+            }
+        });
+
+        // 기술 태그 수집
+        const skillTags = [...document.querySelectorAll('#skills-list .skill-tag span:first-child')]
+            .map(el => el.textContent.trim()).filter(Boolean);
+        if (skillTags.length) parts.push('\n[기술] ' + skillTags.join(', '));
+
+        const resumeText = parts.join('\n').trim();
+        if (!resumeText) {
+            showToast('이력서 내용을 먼저 입력해주세요. (인적사항, 소개, 경력 중 하나 이상)', 'warning');
             return;
         }
 
+        // 맥락 필드 수집
+        const targetJob      = (document.getElementById('coaching-target-job')?.value || '').trim();
+        const targetIndustry = (document.getElementById('coaching-target-industry')?.value || '').trim();
+        const careerLevel    = (document.getElementById('coaching-career-level')?.value || '').trim();
+
         const originalContent = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = `
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            AI 분석 중...
-        `;
+        btn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>&nbsp;AI 분석 중...`;
 
         try {
             const r = await fetch('/api/coaching', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
-                body: JSON.stringify({ resume_text: resumeText, sample_type: 'general' })
+                body: JSON.stringify({
+                    resume_text:      resumeText,
+                    sample_type:      'general',
+                    target_job:       targetJob,
+                    target_industry:  targetIndustry,
+                    career_level:     careerLevel
+                })
             });
             const data = await r.json();
             if (data.success) {
-                showToast('AI 코칭을 성공적으로 받아왔습니다.', 'success');
+                // 결과 패널 표시
+                const panel = document.getElementById('coaching-result-panel');
+                const resultText = document.getElementById('coaching-result-text');
+                const badge = document.getElementById('coaching-provider-badge');
+                if (resultText) resultText.textContent = data.coaching;
+                if (panel) panel.classList.remove('hidden');
+                if (badge) {
+                    const providerLabel = { openai: '🤖 OpenAI', gemini: '✨ Gemini', mock: '📋 데모 모드' };
+                    badge.textContent = providerLabel[data.provider] || data.provider;
+                    badge.classList.remove('hidden');
+                }
+                // 결과 패널로 스크롤
+                panel?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                showToast('AI 코칭 결과가 준비되었습니다.', 'success');
             } else {
                 showToast(data.message || 'AI 코칭 요청에 실패했습니다.', 'error');
             }

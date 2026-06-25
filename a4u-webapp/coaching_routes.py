@@ -79,8 +79,12 @@ UNAVAILABLE_SAMPLE_MSG = (
 )
 
 
-def _build_prompt(sample_type: str, resume_text: str, focus: str) -> tuple[str, str]:
-    """system prompt + user message 반환"""
+def _build_prompt(sample_type: str, resume_text: str, focus: str,
+                  target_job: str = '', target_industry: str = '', career_level: str = '') -> tuple[str, str]:
+    """system prompt + user message 반환
+    [수정 2026-06-25] Phase 1: target_job·target_industry·career_level 맥락 주입
+    — DB 변경 없이 이미 학습된 모델 역량을 최대 활용
+    """
     config = FEW_SHOT_EXAMPLES.get(sample_type)
     if not config:
         return None, None
@@ -90,8 +94,21 @@ def _build_prompt(sample_type: str, resume_text: str, focus: str) -> tuple[str, 
         for i, ex in enumerate(config['examples'])
     ])
 
-    system_prompt = f"""{config['system']}
+    # [수정 2026-06-25] 사용자 맥락 블록 — 값이 있는 항목만 포함
+    context_lines = []
+    if target_job:
+        context_lines.append(f"- 목표 직무: {target_job}")
+    if target_industry:
+        context_lines.append(f"- 목표 업종/산업: {target_industry}")
+    if career_level:
+        context_lines.append(f"- 경력 단계: {career_level}")
+    context_block = (
+        "\n=== 지원자 맥락 ===\n" + "\n".join(context_lines) + "\n이 맥락에 맞춰 채용 가능성을 높이는 어드바이스를 제공하세요.\n"
+        if context_lines else ""
+    )
 
+    system_prompt = f"""{config['system']}
+{context_block}
 === Few-shot 예시 ===
 {examples_text}
 
@@ -100,6 +117,7 @@ def _build_prompt(sample_type: str, resume_text: str, focus: str) -> tuple[str, 
 - "▶ 개선 전 / ▶ 개선 후 / 💡 팁" 형식을 사용하세요.
 - 3~5개의 구체적 개선 포인트를 제시하세요.
 - 수치가 없는 경우 추정 수치를 제안해주세요.
+- 목표 직무·업종이 명시된 경우 해당 분야 채용공고 키워드와 트렌드를 반영하세요.
 """
     user_msg = f"""다음 이력서 내용을 코칭해주세요.
 
@@ -193,19 +211,22 @@ def coaching():
     resume_text = (data.get('resume_text') or '').strip()
     sample_type = (data.get('sample_type') or 'general').lower()
     focus = (data.get('focus') or '').strip()
+    # [수정 2026-06-25] Phase 1: 맥락 필드 수신 (선택 입력, 없으면 빈 문자열)
+    target_job      = (data.get('target_job') or '').strip()
+    target_industry = (data.get('target_industry') or '').strip()
+    career_level    = (data.get('career_level') or '').strip()
 
     if not resume_text:
         return jsonify(success=False, message='이력서 내용을 입력해주세요.'), 400
 
-    # 지원 범위 확인
+    # 지원 범위 확인 — sample_type이 없으면 general로 폴백
     if sample_type not in FEW_SHOT_EXAMPLES:
-        return jsonify(
-            success=False,
-            message=UNAVAILABLE_SAMPLE_MSG,
-            supported_types=list(FEW_SHOT_EXAMPLES.keys())
-        ), 422
+        sample_type = 'general'
 
-    system_prompt, user_msg = _build_prompt(sample_type, resume_text, focus)
+    system_prompt, user_msg = _build_prompt(
+        sample_type, resume_text, focus,
+        target_job=target_job, target_industry=target_industry, career_level=career_level
+    )
 
     openai_key = os.environ.get('OPENAI_API_KEY', '')
     gemini_key = os.environ.get('GEMINI_API_KEY', '')
