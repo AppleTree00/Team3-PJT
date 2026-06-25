@@ -1,0 +1,25 @@
+<!-- [수정 2026-06-25] 표준 데모 배너 — 모든 사용자 페이지 공통 include -->
+<!-- JS로 /api/auth/me 호출 후 DEMO 모드일 때만 표시 -->
+<div id="demo-mode-banner" class="hidden bg-amber-50 border-b-2 border-amber-300 text-amber-800 px-4 py-3 text-center text-sm font-semibold">
+    <div class="max-w-max-width mx-auto flex items-center justify-center gap-2 flex-wrap">
+        <span class="material-symbols-outlined text-base leading-none">experiment</span>
+        <span>현재 데모 버전을 체험 중입니다. 저장, 수정 등 일부 기능이 제한됩니다.</span>
+        <a href="login.html?tab=register"
+           class="ml-2 px-3 py-1 bg-primary text-white rounded-full text-xs hover:opacity-90 transition-opacity whitespace-nowrap">
+            일반 계정으로 전환
+        </a>
+    </div>
+</div>
+<script>
+(function() {
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.success && d.mode === 'DEMO') {
+                var el = document.getElementById('demo-mode-banner');
+                if (el) el.classList.remove('hidden');
+            }
+        })
+        .catch(function() {});
+})();
+</script>

@@ -486,6 +486,10 @@ const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('reason') === 'auth') {
     showError('login', '로그인이 필요한 페이지입니다.');
 }
+// [수정 2026-06-25] ?tab=register 파라미터 시 회원가입 탭 자동 전환
+if (urlParams.get('tab') === 'register') {
+    switchTab('register');
+}
 </script>
 </body>
 </html>

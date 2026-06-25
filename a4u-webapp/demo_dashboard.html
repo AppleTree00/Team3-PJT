@@ -16,14 +16,9 @@
 <!-- TopNavBar -->
 {% include '_navbar.html' %}
 <main class="pt-16">
-<!-- Demo Mode Banner -->
-<div id="demo-mode-banner" class="bg-amber-50 border-b-2 border-amber-300 text-amber-800 px-4 py-3 text-center text-sm font-semibold">
-    <div class="max-w-max-width mx-auto flex items-center justify-center gap-2">
-        <span class="material-symbols-outlined">experiment</span>
-        <span>현재 데모 버전을 체험 중입니다. 저장, 수정 등 일부 기능이 제한됩니다.</span>
-        <a href="login.html" class="ml-4 px-3 py-1 bg-primary text-white rounded-full text-xs hover:opacity-90">일반 계정으로 전환</a>
-    </div>
-</div>
+<!-- [이전 코드] 하드코딩 배너 (href="login.html") -->
+<!-- [수정 2026-06-25] 표준 _demo_banner.html include로 교체 -->
+{% include '_demo_banner.html' %}
 
 <div class="pt-8 pb-12 px-margin-mobile md:px-margin-desktop max-w-max-width mx-auto">
 
