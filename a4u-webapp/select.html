@@ -188,15 +188,22 @@
 </div>
 </div>
 </div>
+<!-- [수정 2026-06-25] 이력서 저장 버튼 추가 — 기존에는 저장 버튼 없었음 (localStorage만 사용) -->
 <!-- Navigation buttons -->
 <div class="mt-12 flex justify-between items-center">
-<button class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
-                    대시보드로 돌아가기
-                </button>
-<button class="px-8 py-3 rounded-lg bg-primary text-white font-label-md text-label-md shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
-                    다음 섹션
-                    <span class="material-symbols-outlined">arrow_forward</span>
+<button onclick="window.location.href='/dashboard'" class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
+    대시보드로 돌아가기
 </button>
+<div class="flex gap-3">
+<button id="btnNextSection" class="px-8 py-3 rounded-lg border border-primary text-primary font-label-md text-label-md hover:bg-primary/5 transition-all flex items-center gap-2">
+    다음 섹션
+    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button id="btnSaveResume" onclick="saveResumeToAPI()" class="px-8 py-3 rounded-lg bg-primary text-white font-label-md text-label-md shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
+    <span class="material-symbols-outlined">save</span>
+    이력서 저장
+</button>
+</div>
 </div>
 </div>
 <!-- Preview Side -->
@@ -209,12 +216,14 @@
 <!-- Resume Header -->
 <div class="border-b-4 border-primary pb-8 mb-8 flex justify-between items-start">
 <div>
-<h1 id="parsedNamePreview" class="font-display-lg text-display-lg uppercase tracking-tight text-on-background">홍길동</h1>
-<p id="parsedTitlePreview" class="font-headline-md text-headline-md text-primary mt-2">시니어 Java 개발자 / PM</p>
+<!-- [수정 2026-06-25] 미리보기 헤더 하드코딩 제거 — GENERAL: 안내문, DEMO: JS로 채움 -->
+<!-- [이전 코드] 홍길동 / 시니어 Java 개발자 / PM / alex.r@design.com / +1 (555) 000-1234 / 미국, 뉴욕 -->
+<h1 id="parsedNamePreview" class="font-display-lg text-display-lg uppercase tracking-tight text-on-background text-outline-variant">이름을 입력하세요</h1>
+<p id="parsedTitlePreview" class="font-headline-md text-headline-md text-primary mt-2"></p>
 <div class="flex gap-4 mt-4 text-label-sm text-outline font-label-sm">
-<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mail</span> <span id="parsedEmailPreview">alex.r@design.com</span></span>
-<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">phone</span> <span id="parsedPhonePreview">+1 (555) 000-1234</span></span>
-<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> <span id="parsedLocationPreview">미국, 뉴욕</span></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mail</span> <span id="parsedEmailPreview" class="text-outline-variant">이메일</span></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">phone</span> <span id="parsedPhonePreview" class="text-outline-variant">전화번호</span></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> <span id="parsedLocationPreview" class="text-outline-variant"></span></span>
 </div>
 </div>
 <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md bg-surface-gray flex items-center justify-center shrink-0">
@@ -226,29 +235,28 @@
 <div class="grid grid-cols-3 gap-8 flex-grow">
 <!-- Main Column -->
 <div class="col-span-2 space-y-8">
+<!-- [수정 2026-06-25] 미리보기 소개·경력 하드코딩 제거 -->
+<!-- [이전 코드] 25년 Java 개발자 요약 / 수석개발자·한국시스템통합 / 미래정보기술 -->
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">소개</h3>
-<p class="text-body-sm font-body-sm leading-relaxed text-on-surface-variant">25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있으며, 현재는 은퇴를 앞두고 후배 개발자 양성과 기술 고도화에 전념하고 있습니다.</p>
+<p id="previewSummary" class="text-body-sm font-body-sm leading-relaxed text-on-surface-variant text-outline-variant">전문가 요약을 입력하면 여기에 표시됩니다.</p>
 </section>
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">경력</h3>
-<div class="space-y-6"><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">수석 개발자 / 프로젝트 매니저 (PM)</h4><span class="text-[11px] font-bold text-outline">2010 — 현재</span></div><p class="text-label-sm font-label-sm text-primary mb-2">(주)한국시스템통합 (SI 중소기업)</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li class="">차세대 금융 시스템 구축 프로젝트 총괄 PM 수행.</li><li class="">Java 기반 프레임워크 고도화 및 표준 가이드 수립.</li><li class="">50명 규모의 개발팀 리딩 및 기술 멘토링.</li></ul></div><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">선임 개발자</h4><span class="text-[11px] font-bold text-outline">2000 — 2010</span></div><p class="text-label-sm font-label-sm text-primary mb-2">미래정보기술</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li class="">공공기관 행정망 통합 시스템 개발 참여.</li><li class="">Spring Framework 기반 웹 서비스 아키텍처 설계.</li></ul></div></div>
+<div id="previewExperience" class="space-y-6 text-body-sm font-body-sm text-outline-variant">경력 사항을 입력하면 여기에 표시됩니다.</div>
 </section>
 </div>
 <!-- Sidebar Column -->
 <div class="space-y-8 border-l border-border-subtle pl-8">
+<!-- [수정 2026-06-25] 미리보기 기술·학력 하드코딩 제거 -->
+<!-- [이전 코드] JAVA/J2EE·SPRING FRAMEWORK·ORACLE/MYSQL·PM/PL·SYSTEM ARCHITECTURE / 인터랙션 디자인 학사·School of Visual Arts -->
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">기술</h3>
-<div class="flex flex-wrap gap-2"><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">JAVA / J2EE</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">SPRING FRAMEWORK</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">ORACLE / MYSQL</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">PM / PL</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">SYSTEM ARCHITECTURE</span></div>
+<div id="previewSkills" class="flex flex-wrap gap-2 text-outline-variant text-[10px]">기술을 추가하면 여기에 표시됩니다.</div>
 </section>
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">학력</h3>
-<div class="space-y-4">
-<div>
-<p class="font-label-md text-label-md text-on-background">인터랙션 디자인 학사 (BFA)</p>
-<p class="text-label-sm font-label-sm text-outline">School of Visual Arts</p>
-</div>
-</div>
+<div id="previewEducation" class="space-y-4 text-outline-variant text-[10px]">학력 사항을 입력하면 여기에 표시됩니다.</div>
 </section>
 </div>
 </div>
@@ -344,39 +352,77 @@
     const parsedLocationPreview = document.getElementById('parsedLocationPreview');
     let selectedResumeFile = null;
 
+    /* [수정 2026-06-25] saveResumeState: localStorage 보조 저장 유지 (syncPreview용) */
     function saveResumeState() {
         const state = {
-            fullName: personalFullName.value,
-            summary: personalSummary.value,
-            email: personalEmail.value,
-            phone: personalPhone.value,
-            previewName: parsedNamePreview.textContent,
-            previewTitle: parsedTitlePreview.textContent,
-            previewEmail: parsedEmailPreview.textContent,
-            previewPhone: parsedPhonePreview.textContent,
-            previewLocation: parsedLocationPreview.textContent
+            fullName: personalFullName ? personalFullName.value : '',
+            summary: personalSummary ? personalSummary.value : '',
+            email: personalEmail ? personalEmail.value : '',
+            phone: personalPhone ? personalPhone.value : '',
         };
         localStorage.setItem('a4uResumeState', JSON.stringify(state));
     }
 
-    function loadResumeState() {
-        const stored = localStorage.getItem('a4uResumeState');
-        if (!stored) {
+    /* [수정 2026-06-25] loadResumeState: GENERAL 사용자는 localStorage 클리어 — 이전 DEMO 잔류 방지
+       [이전 코드] 무조건 localStorage 복원 → DEMO 샘플 데이터가 GENERAL 사용자에게 노출되는 버그 */
+    async function loadResumeState() {
+        let mode = 'GENERAL';
+        try {
+            const res = await fetch('/api/auth/me');
+            const data = await res.json();
+            mode = data.mode || 'GENERAL';
+        } catch (e) { /* 세션 확인 실패 시 GENERAL로 간주 */ }
+
+        if (mode !== 'DEMO') {
+            localStorage.removeItem('a4uResumeState');
             return;
         }
+        const stored = localStorage.getItem('a4uResumeState');
+        if (!stored) return;
         try {
             const state = JSON.parse(stored);
-            if (state.fullName) personalFullName.value = state.fullName;
-            if (state.summary) personalSummary.value = state.summary;
-            if (state.email) personalEmail.value = state.email;
-            if (state.phone) personalPhone.value = state.phone;
-            if (state.previewName) parsedNamePreview.textContent = state.previewName;
-            if (state.previewTitle) parsedTitlePreview.textContent = state.previewTitle;
-            if (state.previewEmail) parsedEmailPreview.textContent = state.previewEmail;
-            if (state.previewPhone) parsedPhonePreview.textContent = state.previewPhone;
-            if (state.previewLocation) parsedLocationPreview.textContent = state.previewLocation;
+            if (state.fullName && personalFullName) personalFullName.value = state.fullName;
+            if (state.summary && personalSummary) personalSummary.value = state.summary;
+            if (state.email && personalEmail) personalEmail.value = state.email;
+            if (state.phone && personalPhone) personalPhone.value = state.phone;
         } catch (e) {
             console.warn('Resume state load failed', e);
+        }
+    }
+
+    /* [수정 2026-06-25] saveResumeToAPI: DB에 이력서 저장 (기존에 없던 API 저장 로직 추가)
+       이전에는 localStorage에만 저장 → 재로그인 시 이력서 사라지는 버그 */
+    async function saveResumeToAPI() {
+        const title = (personalFullName && personalFullName.value)
+            ? personalFullName.value + '의 이력서'
+            : '새 이력서';
+        const payload = {
+            title,
+            full_name: personalFullName ? personalFullName.value : '',
+            email: personalEmail ? personalEmail.value : '',
+            phone: personalPhone ? personalPhone.value : '',
+            summary: personalSummary ? personalSummary.value : '',
+            skills: Array.from(document.querySelectorAll('#skills-list span[data-skill]'))
+                .map(s => s.getAttribute('data-skill')),
+            experience: [],
+            education: [],
+            extra: {}
+        };
+        try {
+            const res = await fetch('/api/resumes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('이력서가 저장되었습니다!', 'success');
+                setTimeout(() => { window.location.href = '/dashboard'; }, 1200);
+            } else {
+                showToast(data.message || '저장 실패. 다시 시도해 주세요.', 'error');
+            }
+        } catch (e) {
+            showToast('네트워크 오류. 다시 시도해 주세요.', 'error');
         }
     }
 
@@ -500,9 +546,15 @@
         [personalFullName, personalSummary, personalEmail, personalPhone].forEach(el => {
             el.addEventListener('input', () => {
                 saveResumeState();
-                if (el.id === 'personalFullName' && parsedNamePreview) parsedNamePreview.textContent = el.value || '이름 (NAME)';
+                if (el.id === 'personalFullName' && parsedNamePreview) parsedNamePreview.textContent = el.value || '이름을 입력하세요';
                 if (el.id === 'personalEmail' && parsedEmailPreview) parsedEmailPreview.textContent = el.value || '이메일';
                 if (el.id === 'personalPhone' && parsedPhonePreview) parsedPhonePreview.textContent = el.value || '전화번호';
+                /* [수정 2026-06-25] summary 미리보기 동기화 추가 */
+                const previewSummary = document.getElementById('previewSummary');
+                if (el.id === 'personalSummary' && previewSummary) {
+                    previewSummary.textContent = el.value || '전문가 요약을 입력하면 여기에 표시됩니다.';
+                    previewSummary.classList.toggle('text-outline-variant', !el.value);
+                }
             });
         });
     }
@@ -533,5 +585,60 @@
 
     persistFormChanges();
     loadResumeState();
+
+    /* [수정 2026-06-25] DEMO 모드 샘플 데이터 주입 — GENERAL 사용자: 빈 폼, DEMO: 아래 데이터 채움 */
+    (async function fillDemoDataIfNeeded() {
+        try {
+            const res = await fetch('/api/auth/me');
+            const data = await res.json();
+            if (!data.success || data.mode !== 'DEMO') return;
+
+            const DEMO = {
+                name: '홍길동',
+                title: '시니어 Java 개발자 / SI 전문가',
+                email: 'hong.gildong@example.com',
+                phone: '+82 10-1234-5678',
+                location: '서울, 대한민국',
+                summary: '25년 이상의 SI 경력을 바탕으로 Java 기반 아키텍처 설계 및 운영, 대규모 프로젝트 PM 역량을 전문적으로 보유하고 있습니다.',
+                skills: ['JAVA / J2EE', 'SPRING FRAMEWORK', 'ORACLE / MYSQL', 'PM / PL', 'SYSTEM ARCHITECTURE']
+            };
+
+            if (personalFullName)  { personalFullName.value  = DEMO.name;    personalFullName.dispatchEvent(new Event('input')); }
+            if (personalSummary)   { personalSummary.value   = DEMO.summary; personalSummary.dispatchEvent(new Event('input')); }
+            if (personalEmail)     { personalEmail.value     = DEMO.email;   personalEmail.dispatchEvent(new Event('input')); }
+            if (personalPhone)     { personalPhone.value     = DEMO.phone;   personalPhone.dispatchEvent(new Event('input')); }
+            if (parsedNamePreview)     parsedNamePreview.textContent = DEMO.name;
+            if (parsedTitlePreview)    parsedTitlePreview.textContent = DEMO.title;
+            if (parsedEmailPreview)    parsedEmailPreview.textContent = DEMO.email;
+            if (parsedPhonePreview)    parsedPhonePreview.textContent = DEMO.phone;
+            if (parsedLocationPreview) parsedLocationPreview.textContent = DEMO.location;
+
+            const previewSummary = document.getElementById('previewSummary');
+            if (previewSummary) {
+                previewSummary.textContent = DEMO.summary;
+                previewSummary.classList.remove('text-outline-variant');
+            }
+
+            const skillsList = document.getElementById('skills-list');
+            const previewSkills = document.getElementById('previewSkills');
+            if (skillsList) {
+                skillsList.innerHTML = DEMO.skills.map(skill =>
+                    `<span data-skill="${skill}" class="px-4 py-2 rounded-full bg-success-mint text-secondary font-label-md text-label-md flex items-center gap-2">
+                        ${skill} <span class="material-symbols-outlined text-[16px] cursor-pointer">close</span>
+                    </span>`
+                ).join('');
+            }
+            if (previewSkills) {
+                previewSkills.innerHTML = DEMO.skills.map(skill =>
+                    `<span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">${skill}</span>`
+                ).join('');
+            }
+
+            const btnSave = document.getElementById('btnSaveResume');
+            if (btnSave) btnSave.disabled = true;
+        } catch (e) {
+            console.warn('DEMO 데이터 주입 실패:', e);
+        }
+    })();
 </script><script src="common.js"></script>
 </body></html>
