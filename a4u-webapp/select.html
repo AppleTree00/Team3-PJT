@@ -500,6 +500,62 @@
     document.addEventListener('input', () => { isDirty = true; updateProgressBar(); });
     // ─────────────────────────────────────────────────────────────────
 
+    // [수정 2026-06-25] 스킬 태그 추가 기능 — + 버튼 및 Enter 키 연결
+    (function initSkillInput() {
+        const skillInput = document.querySelector('input[placeholder="기술 추가..."]');
+        const addBtn     = skillInput ? skillInput.nextElementSibling : null;
+        const skillsList = document.getElementById('skills-list');
+        const previewSkills = document.getElementById('previewSkills');
+
+        function addSkill() {
+            const val = skillInput.value.trim();
+            if (!val) return;
+
+            const placeholder = skillsList.querySelector('p');
+            if (placeholder) placeholder.remove();
+
+            const tag = document.createElement('span');
+            tag.setAttribute('data-skill', val);
+            tag.className = 'px-4 py-2 rounded-full bg-success-mint text-secondary font-label-md text-label-md flex items-center gap-2';
+            tag.innerHTML = `${_escHtml(val)} <span class="material-symbols-outlined text-[16px] cursor-pointer">close</span>`;
+            tag.querySelector('span').addEventListener('click', () => {
+                tag.remove();
+                syncPreviewSkills();
+                updateProgressBar();
+                if (!skillsList.querySelectorAll('[data-skill]').length) {
+                    const p = document.createElement('p');
+                    p.className = 'text-sm text-outline';
+                    p.textContent = '아래에서 기술을 추가하세요.';
+                    skillsList.appendChild(p);
+                }
+            });
+            skillsList.appendChild(tag);
+
+            skillInput.value = '';
+            syncPreviewSkills();
+            updateProgressBar();
+            isDirty = true;
+        }
+
+        function syncPreviewSkills() {
+            if (!previewSkills) return;
+            const tags = [...skillsList.querySelectorAll('[data-skill]')]
+                .map(s => s.getAttribute('data-skill')).filter(Boolean);
+            if (!tags.length) {
+                previewSkills.textContent = '기술을 추가하면 여기에 표시됩니다.';
+            } else {
+                previewSkills.innerHTML = tags.map(t =>
+                    `<span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">${_escHtml(t)}</span>`
+                ).join('');
+            }
+        }
+
+        if (addBtn)    addBtn.addEventListener('click', addSkill);
+        if (skillInput) skillInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); addSkill(); }
+        });
+    })();
+
     function switchTab(tabId) {
         // Update Form Visibility
         const sections = document.querySelectorAll('.form-section');
