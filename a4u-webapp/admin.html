@@ -352,11 +352,19 @@
                   <label class="text-xs font-semibold text-on-surface-variant">생성된 SQL (수정 가능)</label>
                   <span id="ai-used-badge" class="badge"></span>
                 </div>
-                <textarea id="generated-sql" class="input font-mono text-xs mb-3" rows="7"></textarea>
+                <textarea id="generated-sql" class="input font-mono text-xs mb-3" rows="7"
+                  oninput="clearDiff('ai-diff-panel')"></textarea>
                 <input id="migration-desc" type="text" class="input text-xs mb-3" placeholder="마이그레이션 설명 (선택)"/>
-                <button class="btn btn-primary w-full justify-center" onclick="applyMigration()">
-                  <span class="ms" style="font-size:17px">play_arrow</span> 마이그레이션 적용
-                </button>
+                <div class="flex gap-2 mb-3">
+                  <button class="btn btn-outline flex-1 justify-center" onclick="previewDiff('generated-sql','ai-diff-panel')">
+                    <span class="ms" style="font-size:16px">difference</span> 변경사항 미리보기
+                  </button>
+                  <button class="btn btn-primary flex-1 justify-center" onclick="applyMigration()">
+                    <span class="ms" style="font-size:17px">play_arrow</span> 마이그레이션 적용
+                  </button>
+                </div>
+                <!-- AI 모드 Diff 패널 -->
+                <div id="ai-diff-panel" class="hidden"></div>
               </div>
             </div>
           </div>
@@ -387,12 +395,19 @@
               </p>
               <textarea id="direct-sql" class="input font-mono text-xs mb-3" rows="7"
                 placeholder="-- 예시: 컬럼 추가&#10;ALTER TABLE users ADD COLUMN phone VARCHAR(20);&#10;&#10;-- 예시: 테이블 생성&#10;CREATE TABLE notifications (&#10;  id INTEGER PRIMARY KEY,&#10;  user_id INTEGER,&#10;  message TEXT&#10;);"></textarea>
-              <div class="flex gap-3 items-center">
+              <div class="flex gap-2 mb-3">
                 <input id="direct-desc" type="text" class="input text-xs flex-1" placeholder="변경 설명 (이력에 기록됨)"/>
-                <button class="btn btn-primary whitespace-nowrap" onclick="applyDirectSQL()">
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-outline flex-1 justify-center" onclick="previewDiff('direct-sql','direct-diff-panel')">
+                  <span class="ms" style="font-size:16px">difference</span> 변경사항 미리보기
+                </button>
+                <button class="btn btn-primary flex-1 justify-center whitespace-nowrap" onclick="applyDirectSQL()">
                   <span class="ms" style="font-size:17px">terminal</span> 실행
                 </button>
               </div>
+              <!-- Direct 모드 Diff 패널 -->
+              <div id="direct-diff-panel" class="hidden mt-3"></div>
             </div>
           </div>
         </div>
@@ -1185,6 +1200,208 @@ async function loadSchema() {
         if (el1) el1.textContent = msg;
         if (el2) el2.textContent = msg;
     }
+}
+
+// ── 스키마 Diff 미리보기 ──────────────────────────────────────────────
+
+// SQL 파싱 → 변경사항 추출
+function parseSQLChanges(sql) {
+    const changes = [];
+    const current = window._currentSchema || {};
+
+    // 개행 정리 + 세미콜론 기준 분리
+    const stmts = sql.replace(/--[^\n]*/g, '')          // 인라인 주석 제거
+                     .replace(/\/\*[\s\S]*?\*\//g, '')   // 블록 주석 제거
+                     .split(/;/)
+                     .map(s => s.trim())
+                     .filter(Boolean);
+
+    stmts.forEach(stmt => {
+        const up = stmt.toUpperCase();
+
+        // CREATE TABLE
+        const ctMatch = stmt.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)\s*\(([\s\S]*)\)/i);
+        if (ctMatch) {
+            const tbl = ctMatch[1].toLowerCase();
+            const colDefs = ctMatch[2].split(',').map(c => c.trim()).filter(c =>
+                c && !/^(PRIMARY KEY|UNIQUE|INDEX|KEY|FOREIGN|CHECK|CONSTRAINT)/i.test(c)
+            );
+            const cols = colDefs.map(c => {
+                const parts = c.trim().split(/\s+/);
+                return { name: parts[0], type: parts.slice(1, 3).join(' ') };
+            }).filter(c => c.name);
+            changes.push({ kind: 'create_table', table: tbl, cols, exists: !!current[tbl] });
+            return;
+        }
+
+        // DROP TABLE
+        const dtMatch = stmt.match(/DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?(\w+)/i);
+        if (dtMatch) {
+            const tbl = dtMatch[1].toLowerCase();
+            changes.push({ kind: 'drop_table', table: tbl, exists: !!current[tbl] });
+            return;
+        }
+
+        // ALTER TABLE — ADD COLUMN
+        const addMatch = stmt.match(/ALTER\s+TABLE\s+(\w+)\s+ADD\s+(?:COLUMN\s+)?(\w+)\s+([A-Z]+(?:\([^)]+\))?(?:\s+NOT\s+NULL)?(?:\s+DEFAULT\s+\S+)?)/i);
+        if (addMatch) {
+            changes.push({ kind: 'add_column', table: addMatch[1].toLowerCase(),
+                col: addMatch[2], type: addMatch[3].trim() });
+            return;
+        }
+
+        // ALTER TABLE — DROP COLUMN
+        const dropColMatch = stmt.match(/ALTER\s+TABLE\s+(\w+)\s+DROP\s+(?:COLUMN\s+)?(\w+)/i);
+        if (dropColMatch) {
+            changes.push({ kind: 'drop_column', table: dropColMatch[1].toLowerCase(),
+                col: dropColMatch[2] });
+            return;
+        }
+
+        // ALTER TABLE — MODIFY / ALTER COLUMN (rename not supported here)
+        const modMatch = stmt.match(/ALTER\s+TABLE\s+(\w+)\s+(?:MODIFY|ALTER\s+COLUMN)\s+(\w+)\s+([A-Z]+(?:\([^)]+\))?)/i);
+        if (modMatch) {
+            changes.push({ kind: 'modify_column', table: modMatch[1].toLowerCase(),
+                col: modMatch[2], type: modMatch[3] });
+        }
+    });
+
+    return changes;
+}
+
+// 변경사항을 HTML로 렌더링
+function renderDiff(changes) {
+    const current = window._currentSchema || {};
+    if (!changes.length) {
+        return `<div class="text-center text-sm text-on-surface-variant py-4">
+            <span class="ms" style="font-size:24px">search_off</span><br>
+            감지된 스키마 변경사항이 없습니다.<br>
+            <span class="text-xs">CREATE TABLE · DROP TABLE · ALTER TABLE 구문을 분석합니다.</span>
+        </div>`;
+    }
+
+    // 테이블별로 그루핑
+    const byTable = {};
+    changes.forEach(c => {
+        if (!byTable[c.table]) byTable[c.table] = [];
+        byTable[c.table].push(c);
+    });
+
+    let html = '';
+    for (const [tbl, ops] of Object.entries(byTable)) {
+        const existingCols = current[tbl] || [];
+        const hasCreate = ops.some(o => o.kind === 'create_table');
+        const hasDrop   = ops.some(o => o.kind === 'drop_table');
+
+        // 테이블 헤더 색상
+        const hdrClass = hasCreate ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                       : hasDrop   ? 'bg-red-50 border-red-300 text-red-800'
+                                   : 'bg-amber-50 border-amber-300 text-amber-800';
+        const hdrIcon  = hasCreate ? 'add_circle' : hasDrop ? 'remove_circle' : 'edit';
+        const hdrLabel = hasCreate ? '새 테이블 생성' : hasDrop ? '테이블 삭제' : '테이블 수정';
+        const hdrColor = hasCreate ? 'text-emerald-600' : hasDrop ? 'text-red-600' : 'text-amber-600';
+
+        html += `<div class="rounded-xl border ${hdrClass} overflow-hidden mb-3">
+            <div class="flex items-center gap-2 px-4 py-2.5 border-b ${hdrClass}">
+                <span class="ms ${hdrColor}" style="font-size:16px">${hdrIcon}</span>
+                <span class="font-bold text-sm">${tbl}</span>
+                <span class="text-xs ml-auto opacity-70">${hdrLabel}</span>
+            </div>
+            <div class="bg-white divide-y divide-slate-100">`;
+
+        if (hasCreate) {
+            // CREATE TABLE: 모든 컬럼을 + 로 표시
+            const createOp = ops.find(o => o.kind === 'create_table');
+            createOp.cols.forEach(c => {
+                html += `<div class="flex items-center gap-3 px-4 py-2 bg-emerald-50/40">
+                    <span class="text-emerald-600 font-bold text-xs w-4">+</span>
+                    <span class="font-mono text-xs font-semibold text-on-surface">${c.name}</span>
+                    <span class="text-xs text-on-surface-variant ml-auto">${c.type}</span>
+                </div>`;
+            });
+        } else if (hasDrop) {
+            // DROP TABLE: 기존 컬럼을 - 로 표시
+            if (existingCols.length) {
+                existingCols.forEach(c => {
+                    html += `<div class="flex items-center gap-3 px-4 py-2 bg-red-50/40">
+                        <span class="text-red-500 font-bold text-xs w-4">−</span>
+                        <span class="font-mono text-xs font-semibold text-on-surface line-through opacity-60">${c.name}</span>
+                        <span class="text-xs text-on-surface-variant ml-auto line-through opacity-60">${c.type}</span>
+                    </div>`;
+                });
+            } else {
+                html += `<div class="px-4 py-3 text-xs text-on-surface-variant">테이블 전체 삭제됩니다.</div>`;
+            }
+        } else {
+            // ALTER TABLE: 기존 컬럼을 먼저 표시(변경 없음), 그 다음 변경사항
+            existingCols.forEach(col => {
+                const modify = ops.find(o => o.kind === 'modify_column' && o.col.toLowerCase() === col.name.toLowerCase());
+                const dropIt = ops.find(o => o.kind === 'drop_column'   && o.col.toLowerCase() === col.name.toLowerCase());
+                if (dropIt) {
+                    html += `<div class="flex items-center gap-3 px-4 py-2 bg-red-50/40">
+                        <span class="text-red-500 font-bold text-xs w-4">−</span>
+                        <span class="font-mono text-xs text-on-surface line-through opacity-60">${col.name}</span>
+                        <span class="text-xs text-on-surface-variant ml-auto line-through opacity-60">${col.type}</span>
+                    </div>`;
+                } else if (modify) {
+                    html += `<div class="flex items-center gap-3 px-4 py-2 bg-amber-50/60">
+                        <span class="text-amber-500 font-bold text-xs w-4">~</span>
+                        <span class="font-mono text-xs font-semibold text-on-surface">${col.name}</span>
+                        <span class="text-xs text-on-surface-variant ml-auto">
+                            <span class="line-through opacity-60">${col.type}</span>
+                            <span class="text-amber-700 ml-1">→ ${modify.type}</span>
+                        </span>
+                    </div>`;
+                } else {
+                    html += `<div class="flex items-center gap-3 px-4 py-2 opacity-40">
+                        <span class="text-slate-400 text-xs w-4">·</span>
+                        <span class="font-mono text-xs text-on-surface">${col.name}</span>
+                        <span class="text-xs text-on-surface-variant ml-auto">${col.type}</span>
+                    </div>`;
+                }
+            });
+            // ADD COLUMN
+            ops.filter(o => o.kind === 'add_column').forEach(o => {
+                html += `<div class="flex items-center gap-3 px-4 py-2 bg-emerald-50/40">
+                    <span class="text-emerald-600 font-bold text-xs w-4">+</span>
+                    <span class="font-mono text-xs font-semibold text-on-surface">${o.col}</span>
+                    <span class="text-xs text-on-surface-variant ml-auto">${o.type}</span>
+                </div>`;
+            });
+        }
+
+        html += `</div></div>`;
+    }
+    return html;
+}
+
+// 미리보기 실행 (sqlElId: textarea id, panelId: diff panel id)
+function previewDiff(sqlElId, panelId) {
+    const sql   = (document.getElementById(sqlElId)?.value || '').trim();
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    if (!sql) { toast('SQL을 먼저 입력하거나 생성하세요.', 'error'); return; }
+
+    const changes = parseSQLChanges(sql);
+    const inner = renderDiff(changes);
+
+    panel.innerHTML = `
+        <div class="rounded-xl border border-border-subtle overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-2.5 bg-slate-800 text-white text-sm font-semibold">
+                <span class="ms" style="font-size:16px">difference</span>
+                스키마 변경사항 미리보기
+                <span class="ml-auto text-xs opacity-60">적용 전 확인용 — 실제 DB는 아직 변경되지 않았습니다</span>
+            </div>
+            <div class="p-4 bg-slate-50 space-y-1">${inner}</div>
+        </div>`;
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// SQL 수정 시 diff 초기화
+function clearDiff(panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel) { panel.classList.add('hidden'); panel.innerHTML = ''; }
 }
 
 async function generateSQL() {
