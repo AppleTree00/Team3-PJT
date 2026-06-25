@@ -445,6 +445,56 @@
 
     // 페이지 로드 시 동기화 시작
     syncPreview();
+
+    // ── [수정 2026-06-25] 데모 모드 샘플 데이터 주입 ─────────────────
+    // GENERAL 모드: 빈 상태 (신규 작성)
+    // DEMO 모드: 샘플 데이터 자동 채움 (읽기 전용 시연용)
+    (async function fillDemoDataIfNeeded() {
+        try {
+            const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
+            const data = await r.json();
+            if (!data.success || data.mode !== 'DEMO') return;
+
+            // ── 샘플 데이터 정의 ──
+            const DEMO_DATA = {
+                name: '홍길동',
+                summary: '25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있습니다.',
+                email: 'honggildong@example.com',
+                phone: '010-1234-5678',
+                skills: ['Java / J2EE', 'Spring Framework', 'Oracle / MySQL', 'PM / PL', '시스템 아키텍처']
+            };
+
+            // 인적 사항 채우기
+            const nameEl    = document.getElementById('personalFullName');
+            const summaryEl = document.getElementById('personalSummary');
+            const emailEl   = document.getElementById('personalEmail');
+            const phoneEl   = document.getElementById('personalPhone');
+
+            if (nameEl)    { nameEl.value    = DEMO_DATA.name;    nameEl.dispatchEvent(new Event('input')); }
+            if (summaryEl) { summaryEl.value = DEMO_DATA.summary; summaryEl.dispatchEvent(new Event('input')); }
+            if (emailEl)   { emailEl.value   = DEMO_DATA.email;   emailEl.dispatchEvent(new Event('input')); }
+            if (phoneEl)   { phoneEl.value   = DEMO_DATA.phone;   phoneEl.dispatchEvent(new Event('input')); }
+
+            // 스킬 태그 채우기
+            const skillsList    = document.getElementById('skills-list');
+            const previewSkills = document.getElementById('preview-skills');
+            if (skillsList && previewSkills) {
+                const placeholder = skillsList.querySelector('p');
+                if (placeholder) placeholder.remove();
+
+                DEMO_DATA.skills.forEach(skill => {
+                    const tag = document.createElement('span');
+                    tag.className = 'px-4 py-2 rounded-full bg-success-mint text-secondary font-label-md text-label-md flex items-center gap-2';
+                    tag.innerHTML = `${skill} <span class="material-symbols-outlined text-[16px] cursor-pointer">close</span>`;
+                    skillsList.appendChild(tag);
+                });
+
+                previewSkills.innerHTML = DEMO_DATA.skills.map(t =>
+                    `<span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">${t}</span>`
+                ).join('');
+            }
+        } catch (_) {}
+    })();
 </script>
 
 
