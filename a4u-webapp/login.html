@@ -265,12 +265,10 @@ tailwind.config = {
               <span class="material-symbols-outlined text-[13px]">person</span>
               사용자 데모
             </button>
-            <form method="POST" action="/api/auth/admin-demo-login" style="display:contents">
-              <button type="submit" class="py-2 border border-secondary/30 text-secondary text-xs rounded-lg hover:bg-surface-container transition-colors font-medium flex items-center justify-center gap-1">
-                <span class="material-symbols-outlined text-[13px]">admin_panel_settings</span>
-                관리자 데모
-              </button>
-            </form>
+            <button type="button" onclick="fillDemoAdmin()" class="py-2 border border-secondary/30 text-secondary text-xs rounded-lg hover:bg-surface-container transition-colors font-medium flex items-center justify-center gap-1">
+              <span class="material-symbols-outlined text-[13px]">admin_panel_settings</span>
+              관리자 데모
+            </button>
           </div>
         </div>
 
@@ -413,6 +411,7 @@ async function fillDemoAdmin() {
     try {
         const r = await fetch('/api/auth/admin-demo-login', {
             method: 'POST',
+            headers: { 'Accept': 'application/json' },
             credentials: 'same-origin'
         });
         const data = await r.json();
@@ -424,7 +423,7 @@ async function fillDemoAdmin() {
         }
     } catch (err) {
         switchTab('login');
-        showError('login', '네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+        showError('login', '관리자 데모 로그인에 실패했습니다. 다시 시도해주세요.');
     }
 }
 
