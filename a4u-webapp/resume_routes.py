@@ -4,6 +4,7 @@ Blueprint: /api
 """
 import json
 import os
+import re
 import uuid
 from datetime import datetime, timezone
 from flask import Blueprint, request, jsonify, session, current_app
@@ -15,6 +16,121 @@ resume_bp = Blueprint('resume_bp', __name__, url_prefix='/api')
 # ─────────────────────────────────────────────
 # 헬퍼
 # ─────────────────────────────────────────────
+
+# [수정 2026-06-25] 이력서 저장 시 HTML 파일 내보내기 + UploadedFile 버전 기록
+_HTML_EXPORT_TMPL = """<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<title>{full_name} 이력서</title>
+<style>
+  body{{font-family:'Noto Sans KR',sans-serif;margin:0;padding:32px;color:#1a1a1a;background:#fff;max-width:780px;margin-inline:auto;}}
+  h1{{font-size:26px;font-weight:700;margin:0 0 4px;}}
+  .subtitle{{font-size:14px;color:#555;margin-bottom:16px;}}
+  .contact{{font-size:13px;color:#444;display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;border-bottom:2px solid #3b4bdb;padding-bottom:12px;}}
+  section{{margin-bottom:28px;}}
+  h2{{font-size:15px;font-weight:700;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:12px;color:#3b4bdb;text-transform:uppercase;letter-spacing:.05em;}}
+  .summary{{font-size:13px;line-height:1.8;color:#333;}}
+  .exp-item{{margin-bottom:16px;}}
+  .exp-header{{display:flex;justify-content:space-between;align-items:baseline;}}
+  .exp-title{{font-weight:600;font-size:14px;}}
+  .exp-company{{font-size:13px;color:#555;}}
+  .exp-period{{font-size:12px;color:#888;white-space:nowrap;}}
+  .exp-desc{{font-size:13px;color:#444;line-height:1.7;margin-top:4px;white-space:pre-line;}}
+  .skills{{display:flex;flex-wrap:wrap;gap:8px;}}
+  .skill-tag{{background:#eef0ff;color:#3b4bdb;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;}}
+  .footer{{font-size:11px;color:#aaa;margin-top:40px;text-align:right;}}
+</style>
+</head>
+<body>
+<h1>{full_name}</h1>
+<div class="subtitle">{job_title}</div>
+<div class="contact">
+  {email_html}
+  {phone_html}
+  {location_html}
+</div>
+{summary_html}
+{experience_html}
+{skills_html}
+<div class="footer">생성일: {generated_at} · a4u Resume AI Coaching</div>
+</body></html>"""
+
+def _export_resume_html(resume: 'Resume', user: 'User'):
+    """이력서를 HTML 파일로 내보내고 UploadedFile 버전 레코드를 생성한다."""
+    try:
+        upload_folder = current_app.config.get('UPLOAD_FOLDER', '')
+        if not upload_folder or not os.path.isdir(upload_folder):
+            return
+
+        user_name = re.sub(r'[\\/:*?"<>|]', '', user.name) if user else '사용자'
+        existing_count = UploadedFile.query.filter_by(user_id=user.id).count()
+        next_ver = existing_count + 1
+        dt_str = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
+        display_name = f"{user_name}_이력서_{dt_str}({next_ver}).html"
+        import time as _time
+        saved_name = f"{int(_time.time()*1000)}_{display_name}"
+
+        # HTML 렌더링
+        skills = resume.get_skills()
+        experience = resume.get_experience()
+
+        email_html  = f'<span>✉ {resume.email}</span>' if resume.email else ''
+        phone_html  = f'<span>📞 {resume.phone}</span>' if resume.phone else ''
+        loc_html    = f'<span>📍 {resume.location}</span>' if resume.location else ''
+
+        summary_html = (f'<section><h2>전문가 요약</h2>'
+                        f'<p class="summary">{resume.summary}</p></section>') if resume.summary else ''
+
+        exp_items = []
+        for e in experience:
+            period = f"{e.get('start_date','')}" + (f" ~ {e.get('end_date','')}" if e.get('end_date') else ' ~ 현재')
+            exp_items.append(
+                f'<div class="exp-item">'
+                f'<div class="exp-header">'
+                f'<div><span class="exp-title">{e.get("title","")}</span> '
+                f'<span class="exp-company">· {e.get("company","")}</span></div>'
+                f'<span class="exp-period">{period}</span>'
+                f'</div>'
+                f'<div class="exp-desc">{e.get("description","")}</div>'
+                f'</div>'
+            )
+        experience_html = (f'<section><h2>경력 사항</h2>{"".join(exp_items)}</section>') if exp_items else ''
+
+        skill_tags = ''.join(f'<span class="skill-tag">{s}</span>' for s in skills)
+        skills_html = (f'<section><h2>보유 기술</h2><div class="skills">{skill_tags}</div></section>') if skills else ''
+
+        html_content = _HTML_EXPORT_TMPL.format(
+            full_name=resume.full_name or '',
+            job_title=resume.job_title or '',
+            email_html=email_html, phone_html=phone_html, location_html=loc_html,
+            summary_html=summary_html,
+            experience_html=experience_html,
+            skills_html=skills_html,
+            generated_at=datetime.now(timezone.utc).strftime('%Y년 %m월 %d일'),
+        )
+
+        file_path = os.path.join(upload_folder, saved_name)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+
+        rec = UploadedFile(
+            user_id=user.id,
+            original_name=display_name,
+            saved_name=saved_name,
+            size=os.path.getsize(file_path),
+            mime_type='text/html',
+            version_num=next_ver,
+            file_kind='export',
+            resume_id=resume.id,
+        )
+        db.session.add(rec)
+        db.session.commit()
+    except Exception as exc:
+        db.session.rollback()
+        print(f'[export_html] 실패: {exc}')
+
+
 def current_user():
     uid = session.get('user_id')
     if uid:
@@ -323,6 +439,10 @@ def create_resume():
     )
     db.session.add(resume)
     db.session.commit()
+    # [수정 2026-06-25] 저장 완료 후 HTML 내보내기 + 버전 파일 기록
+    user = current_user()
+    if user:
+        _export_resume_html(resume, user)
     return jsonify(success=True, resume=resume.to_dict()), 201
 
 
@@ -364,6 +484,10 @@ def update_resume(resume_id):
 
     resume.updated_at = datetime.now(timezone.utc)
     db.session.commit()
+    # [수정 2026-06-25] 수정 완료 후 HTML 내보내기 + 버전 파일 기록
+    user = current_user()
+    if user:
+        _export_resume_html(resume, user)
     return jsonify(success=True, resume=resume.to_dict())
 
 

@@ -203,7 +203,11 @@ class UploadedFile(db.Model):
     size = db.Column(db.Integer)
     mime_type = db.Column(db.String(100))
     uploaded_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    resume_analysis = db.Column(db.Text) # AI 코칭 결과 저장
+    resume_analysis = db.Column(db.Text)  # AI 코칭 결과 저장
+    # [수정 2026-06-25] 버전 관리 필드 추가
+    version_num = db.Column(db.Integer, default=1)        # 1=최초업로드, 2+=서비스저장
+    file_kind   = db.Column(db.String(20), default='upload')  # 'upload' | 'export'
+    resume_id   = db.Column(db.Integer, db.ForeignKey('resumes.id'), nullable=True)
 
     def to_dict(self):
         return {
@@ -216,7 +220,10 @@ class UploadedFile(db.Model):
             'size_kb': round(self.size / 1024, 1) if self.size else 0,
             'mime_type': self.mime_type,
             'uploaded_at': self.uploaded_at.isoformat() if self.uploaded_at else None,
-            'resume_analysis': self.resume_analysis
+            'resume_analysis': self.resume_analysis,
+            'version_num': self.version_num or 1,
+            'file_kind': self.file_kind or 'upload',
+            'resume_id': self.resume_id,
         }
 
 

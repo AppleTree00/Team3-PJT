@@ -296,18 +296,30 @@ def upload_resume():
         return jsonify(success=False, message='파일이 선택되지 않았습니다.'), 400
 
     if file and is_allowed_mimetype(file.mimetype):
-        sanitized_original = re.sub(r'[^a-zA-Z0-9._-]', '-', file.filename)
-        timestamp = int(time.time() * 1000)
-        filename = f"{timestamp}-{sanitized_original}"
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        # [수정 2026-06-25] 파일명: 이름_이력서_YYYYMMDDHHMMSS(n).확장자
+        user_id = session.get('user_id')
+        user = User.query.get(user_id) if user_id else None
+        user_name = re.sub(r'[\\/:*?"<>|]', '', user.name) if user else '사용자'
+        # 해당 사용자의 현재 버전 수 계산
+        existing_count = UploadedFile.query.filter_by(user_id=user_id).count() if user_id else 0
+        next_ver = existing_count + 1
+        dt_str = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
+        ext = os.path.splitext(file.filename)[1].lower() or '.pdf'
+        display_name = f"{user_name}_이력서_{dt_str}({next_ver}){ext}"
+        # 실제 저장명은 유니크 보장을 위해 타임스탬프 prefix 유지
+        saved_name = f"{int(time.time()*1000)}_{display_name}"
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], saved_name)
         file.save(file_path)
         file_size = os.path.getsize(file_path)
 
         uploaded = UploadedFile(
-            original_name=file.filename,
-            saved_name=filename,
+            user_id=user_id,
+            original_name=display_name,
+            saved_name=saved_name,
             size=file_size,
-            mime_type=file.mimetype
+            mime_type=file.mimetype,
+            version_num=next_ver,
+            file_kind='upload',
         )
         db.session.add(uploaded)
         db.session.commit()
@@ -363,6 +375,10 @@ def init_db():
             "ALTER TABLE resume_templates ADD COLUMN file_type VARCHAR(10)",
             "ALTER TABLE resume_templates ADD COLUMN original_filename VARCHAR(255)",
             "ALTER TABLE job_applications ADD COLUMN applied_date VARCHAR(20)",
+            # [수정 2026-06-25] 이력서 파일 버전 관리 필드
+            "ALTER TABLE uploaded_files ADD COLUMN version_num INTEGER DEFAULT 1",
+            "ALTER TABLE uploaded_files ADD COLUMN file_kind VARCHAR(20) DEFAULT 'upload'",
+            "ALTER TABLE uploaded_files ADD COLUMN resume_id INTEGER REFERENCES resumes(id)",
         ]
         for sql in migrations:
             try:
