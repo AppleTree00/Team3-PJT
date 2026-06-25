@@ -118,9 +118,11 @@ def require_login():
             if path == 'main.html':
                 return
             return redirect(f'/login.html?next={path}&reason=auth')
-        # 관리자가 사용자 페이지에 접근 시도 시 → 세션 유지하고 /admin으로 리다이렉트
+        # [수정 2026-06-25] 관리자가 사용자 페이지에 접근 시도 시 → 세션 클리어 후 로그인으로 이동
+        # [이전 코드] return redirect('/admin')
         if session.get('is_admin'):
-            return redirect('/admin')
+            session.clear()
+            return redirect(f'/login.html?next={path}&reason=auth')
         # 데모 사용자가 일반 dashboard에 접근 시 → demo_dashboard로 리다이렉트
         if path == 'dashboard.html' and session.get('mode') == 'DEMO':
             return redirect('/demo_dashboard.html')
