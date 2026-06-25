@@ -7,7 +7,9 @@
 <meta property="og:description" content="AI 기반 이력서 작성 및 경력 관리 솔루션">
 <meta property="og:image" content="/og-image.png">
 <meta property="og:type" content="website">
-<title>a4u - 관리자 대시보드</title>
+<!-- [수정 2026-06-25] 제목 오류 수정: '관리자 대시보드' → '대시보드' (일반 사용자 화면) -->
+<!-- [이전 코드 주석] <title>a4u - 관리자 대시보드</title> -->
+<title>a4u - 대시보드</title>
 {% include '_head.html' %}
 </head>
 <body class="bg-surface-gray text-on-surface font-body-md overflow-x-hidden">
@@ -28,22 +30,27 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-gutter">
             <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle flex flex-col gap-3">
                 <h3 class="font-label-md text-on-surface-variant uppercase tracking-wider">빠른 작업</h3>
-                <button class="w-full text-left p-4 bg-surface-container-low hover:bg-surface-container rounded-lg transition-colors flex items-center gap-4">
+                <button id="btn-new-resume" class="w-full text-left p-4 bg-surface-container-low hover:bg-surface-container rounded-lg transition-colors flex items-center gap-4">
                     <span class="material-symbols-outlined text-primary">add_circle</span>
                     <span class="font-label-md text-on-surface">새 이력서 작성</span>
                 </button>
-                <button class="w-full text-left p-4 bg-surface-container-low hover:bg-surface-container rounded-lg transition-colors flex items-center gap-4">
+                <a href="profile-menu.html" class="w-full text-left p-4 bg-surface-container-low hover:bg-surface-container rounded-lg transition-colors flex items-center gap-4">
                     <span class="material-symbols-outlined text-primary">person</span>
                     <span class="font-label-md text-on-surface">프로필 정보 업데이트</span>
-                </button>
+                </a>
             </div>
             <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle flex flex-col justify-center items-center text-center">
                 <div class="h-16 w-16 bg-primary-fixed text-primary flex items-center justify-center rounded-full mb-4">
                     <span class="material-symbols-outlined text-4xl">workspace_premium</span>
                 </div>
                 <h3 class="font-headline-md text-headline-md text-on-background">나의 이력서 경쟁력</h3>
+                <!-- [수정 2026-06-25] 통계 카드: 실제 API 데이터 표시 영역 추가 -->
+                <div id="stats-summary" class="mt-2 flex gap-4 text-sm text-on-surface-variant">
+                    <span>이력서 <strong id="stat-resumes" class="text-primary">-</strong>개</span>
+                    <span>지원 <strong id="stat-apps" class="text-primary">-</strong>건</span>
+                </div>
                 <p class="text-body-sm text-on-surface-variant mt-1">AI가 분석한 내 이력서의 강점을 확인하고 보완점을 찾아보세요.</p>
-                <button class="mt-4 px-6 py-2 bg-primary text-on-primary rounded-full font-label-md hover:opacity-90 transition-all">이력서 보완하기</button>
+                <button id="btn-improve-resume" class="mt-4 px-6 py-2 bg-primary text-on-primary rounded-full font-label-md hover:opacity-90 transition-all">이력서 보완하기</button>
             </div>
         </div>
 
@@ -53,12 +60,13 @@
                 <h2 class="font-headline-md text-headline-md text-on-background">지원 현황</h2>
                 <div class="flex items-center gap-2">
                     <button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors"><span class="material-symbols-outlined">filter_list</span></button>
-                    <button class="px-4 py-2 bg-primary text-on-primary rounded-full font-label-md text-sm hover:opacity-90 transition-all flex items-center gap-1"><span class="material-symbols-outlined text-base">add</span> 새로 추가</button>
+                    <button id="btn-add-application" class="px-4 py-2 bg-primary text-on-primary rounded-full font-label-md text-sm hover:opacity-90 transition-all flex items-center gap-1"><span class="material-symbols-outlined text-base">add</span> 새로 추가</button>
                 </div>
             </div>
-            <!-- Kanban-style board -->
+
+            <!-- [수정 2026-06-25] 지원현황 칸반 보드: 하드코딩 샘플 제거, API 연동으로 교체 -->
+            <!-- [이전 코드 주석 - 하드코딩 샘플 시작]
             <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-                <!-- Column: Applied -->
                 <div class="bg-surface-container-low rounded-xl p-4 space-y-4">
                     <h3 class="font-label-md text-on-surface-variant px-2">지원 완료 (1)</h3>
                     <div class="kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle">
@@ -67,7 +75,6 @@
                         <div class="mt-3 pt-3 border-t border-border-subtle text-xs text-on-surface-variant">5일 전 지원</div>
                     </div>
                 </div>
-                <!-- Column: Interview -->
                 <div class="bg-surface-container-low rounded-xl p-4 space-y-4">
                     <h3 class="font-label-md text-on-surface-variant px-2">면접 (2)</h3>
                     <div class="kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle">
@@ -81,7 +88,6 @@
                         <div class="mt-3 pt-3 border-t border-border-subtle text-xs text-on-surface-variant">2차 면접 대기</div>
                     </div>
                 </div>
-                <!-- Column: Offer -->
                 <div class="bg-surface-container-low rounded-xl p-4 space-y-4">
                     <h3 class="font-label-md text-on-surface-variant px-2">오퍼 (1)</h3>
                     <div class="kanban-card bg-success-mint rounded-lg p-4 shadow-sm border border-secondary-container">
@@ -91,10 +97,63 @@
                     </div>
                 </div>
             </div>
+            [이전 코드 주석 - 하드코딩 샘플 끝] -->
+
+            <!-- [신규 코드] API 연동 칸반 보드 -->
+            <div id="kanban-loading" class="flex items-center justify-center py-12 text-on-surface-variant">
+                <span class="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+                <span>지원 현황을 불러오는 중...</span>
+            </div>
+            <!-- 데이터 없을 때 빈 상태 -->
+            <div id="kanban-empty" class="hidden text-center py-12">
+                <span class="material-symbols-outlined text-5xl text-outline-variant mb-4 block">inbox</span>
+                <p class="font-label-md text-on-surface-variant mb-2">아직 등록된 지원 현황이 없습니다.</p>
+                <p class="text-body-sm text-on-surface-variant">이력서를 작성하고 지원을 시작해보세요!</p>
+            </div>
+            <!-- 데이터 있을 때 칸반 -->
+            <div id="kanban-board" class="hidden grid grid-cols-1 md:grid-cols-4 gap-gutter">
+                <div class="bg-surface-container-low rounded-xl p-4 space-y-3">
+                    <h3 class="font-label-md text-on-surface-variant px-2">초안 <span id="count-draft" class="ml-1">(0)</span></h3>
+                    <div id="col-draft" class="space-y-3 min-h-[60px]"></div>
+                </div>
+                <div class="bg-surface-container-low rounded-xl p-4 space-y-3">
+                    <h3 class="font-label-md text-on-surface-variant px-2">지원 완료 <span id="count-submitted" class="ml-1">(0)</span></h3>
+                    <div id="col-submitted" class="space-y-3 min-h-[60px]"></div>
+                </div>
+                <div class="bg-surface-container-low rounded-xl p-4 space-y-3">
+                    <h3 class="font-label-md text-on-surface-variant px-2">면접 <span id="count-interview" class="ml-1">(0)</span></h3>
+                    <div id="col-interview" class="space-y-3 min-h-[60px]"></div>
+                </div>
+                <div class="bg-surface-container-low rounded-xl p-4 space-y-3">
+                    <h3 class="font-label-md text-on-surface-variant px-2">결과 <span id="count-result" class="ml-1">(0)</span></h3>
+                    <div id="col-result" class="space-y-3 min-h-[60px]"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- [수정 2026-06-25] 내 이력서 최근 목록: 하드코딩 제거, API 연동 추가 -->
+        <section>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-headline-md text-headline-md text-on-background">내 이력서</h2>
+                <a href="resume.html" class="text-primary font-label-md text-sm hover:underline">전체 보기 →</a>
+            </div>
+            <div id="resume-loading" class="flex items-center gap-2 text-on-surface-variant py-6">
+                <span class="material-symbols-outlined animate-spin">progress_activity</span>
+                <span>이력서를 불러오는 중...</span>
+            </div>
+            <div id="resume-empty" class="hidden text-center py-8">
+                <span class="material-symbols-outlined text-4xl text-outline-variant mb-3 block">description</span>
+                <p class="font-label-md text-on-surface-variant mb-1">작성된 이력서가 없습니다.</p>
+                <a href="select.html" class="text-primary text-sm hover:underline">첫 이력서 작성하기 →</a>
+            </div>
+            <div id="resume-list" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
         </section>
     </div>
+
     <!-- Right Column -->
     <div class="space-y-gutter">
+        <!-- [수정 2026-06-25] 다가오는 인터뷰: 하드코딩 제거, API 연동 추가 -->
+        <!-- [이전 코드 주석 - 하드코딩 인터뷰 시작]
         <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle">
             <h3 class="font-label-md text-on-surface-variant uppercase tracking-wider mb-4">다가오는 인터뷰</h3>
             <div class="space-y-4">
@@ -122,118 +181,265 @@
                 </div>
             </div>
         </section>
+        [이전 코드 주석 - 하드코딩 인터뷰 끝] -->
+
+        <!-- [신규 코드] 면접 일정 (API 연동) -->
+        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle">
+            <h3 class="font-label-md text-on-surface-variant uppercase tracking-wider mb-4">면접 일정</h3>
+            <div id="interview-list" class="space-y-4">
+                <p class="text-body-sm text-on-surface-variant text-center py-4" id="interview-empty">면접 일정이 없습니다.</p>
+            </div>
+        </section>
+
+        <!-- 빠른 링크 -->
+        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle">
+            <h3 class="font-label-md text-on-surface-variant uppercase tracking-wider mb-4">바로가기</h3>
+            <div class="space-y-2">
+                <a href="select.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined text-primary">note_add</span>
+                    <span class="text-sm font-medium text-on-surface">새 이력서 등록</span>
+                </a>
+                <a href="resume.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined text-primary">folder_open</span>
+                    <span class="text-sm font-medium text-on-surface">이력서 관리</span>
+                </a>
+                <a href="timeline.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined text-primary">timeline</span>
+                    <span class="text-sm font-medium text-on-surface">커리어 관리</span>
+                </a>
+                <a href="profile-menu.html" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined text-primary">person</span>
+                    <span class="text-sm font-medium text-on-surface">내 프로필</span>
+                </a>
+            </div>
+        </section>
     </div>
-</section>
+</div>
 </main>
 <!-- Footer -->
 {% include '_footer.html' %}
 <script src="common.js"></script>
 <script>
-        // Simple mock for "Accept Offer" interaction
-        function acceptOffer(e) {
-            const btn = e.target;
-            btn.innerHTML = '수락됨!';
-            btn.classList.add('bg-secondary');
-            btn.disabled = true;
+    // ── 네비게이션 인증 상태 + 웰컴 이름 동적 표시 ───────────────
+    (async function updateNavAuth() {
+        try {
+            const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
+            if (r.status === 401) {
+                window.location.href = 'login.html?next=dashboard.html';
+                return;
+            }
+            const data = await r.json();
+            if (data.success && data.user) {
+                const u = data.user;
+                // 웰컴 메시지 이름 삽입
+                const welcomeNameEl = document.getElementById('dashboard-user-name');
+                if (welcomeNameEl) welcomeNameEl.textContent = u.name + '님';
+                // 네비게이션 프로필 이름 삽입
+                const profileLink = document.querySelector('a[href="profile-menu.html"]');
+                if (profileLink) {
+                    const nameEl = document.createElement('span');
+                    nameEl.className = 'hidden sm:block text-sm font-semibold text-on-surface truncate max-w-[80px]';
+                    nameEl.textContent = u.name;
+                    profileLink.parentNode.insertBefore(nameEl, profileLink);
+                }
+                // 네비게이션 아바타 적용
+                if (u.avatar_url) {
+                    const img  = document.getElementById('nav-avatar-img');
+                    const icon = document.getElementById('nav-avatar-icon');
+                    if (img)  { img.src = u.avatar_url; img.classList.remove('hidden'); }
+                    if (icon) icon.classList.add('hidden');
+                }
+            }
+        } catch (_) {}
+    })();
+
+    // ── 알림 버튼 ──────────────────────────────────────────────────
+    document.querySelectorAll('button').forEach(btn => {
+        const icon = btn.querySelector('.material-symbols-outlined');
+        if (icon && icon.textContent.trim() === 'notifications') {
+            btn.addEventListener('click', handleUnavailableFeature);
         }
+        if (icon && icon.textContent.trim() === 'filter_list') {
+            btn.addEventListener('click', handleUnavailableFeature);
+        }
+    });
 
-        // ── 네비게이션 인증 상태 + 웰컴 이름 동적 표시 ───────────────
-        (async function updateNavAuth() {
-            try {
-                const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
-                if (r.status === 401) {
-                    window.location.href = 'login.html?next=dashboard.html';
-                    return;
-                }
-                const data = await r.json();
-                if (data.success && data.user) {
-                    const u = data.user;
-                    // 웰컴 메시지 이름 삽입
-                    const welcomeNameEl = document.getElementById('dashboard-user-name');
-                    if (welcomeNameEl) welcomeNameEl.textContent = u.name + '님';
-                    // 네비게이션 프로필 이름 삽입
-                    const profileLink = document.querySelector('a[href="profile-menu.html"]');
-                    if (profileLink) {
-                        const nameEl = document.createElement('span');
-                        nameEl.className = 'hidden sm:block text-sm font-semibold text-on-surface truncate max-w-[80px]';
-                        nameEl.textContent = u.name;
-                        profileLink.parentNode.insertBefore(nameEl, profileLink);
-                    }
-                    // 네비게이션 아바타 적용
-                    if (u.avatar_url) {
-                        const img  = document.getElementById('nav-avatar-img');
-                        const icon = document.getElementById('nav-avatar-icon');
-                        if (img)  { img.src = u.avatar_url; img.classList.remove('hidden'); }
-                        if (icon) icon.classList.add('hidden');
-                    }
-                }
-            } catch (_) {}
-        })();
-
-        // ── 알림 버튼 ──────────────────────────────────────────────────
-        document.querySelectorAll('button').forEach(btn => {
-            const icon = btn.querySelector('.material-symbols-outlined');
-            if (icon && icon.textContent.trim() === 'notifications') {
-                btn.addEventListener('click', handleUnavailableFeature);
-            }
-            if (icon && icon.textContent.trim() === 'filter_list') {
-                btn.addEventListener('click', handleUnavailableFeature);
-            }
+    // ── 빠른 작업 버튼 ─────────────────────────────────────────────
+    const btnNewResume = document.getElementById('btn-new-resume');
+    if (btnNewResume) {
+        btnNewResume.addEventListener('click', () => {
+            window.location.href = 'select.html';
         });
+    }
 
-        // ── 빠른 작업 버튼 ─────────────────────────────────────────────
-        document.querySelectorAll('.flex.flex-col.gap-3 button').forEach(btn => {
-            const label = btn.querySelector('.font-label-md');
-            if (!label) return;
-            const text = label.textContent.trim();
-            if (text === '새 이력서 작성') {
-                btn.addEventListener('click', () => {
-                    if (blockIfDemo()) return;
-                    window.location.href = 'builder.html';
+    // ── "새로 추가" 버튼 ───────────────────────────────────────────
+    const btnAddApp = document.getElementById('btn-add-application');
+    if (btnAddApp) {
+        btnAddApp.addEventListener('click', handleUnavailableFeature);
+    }
+
+    // ── 이력서 보완하기 ────────────────────────────────────────────
+    const btnImprove = document.getElementById('btn-improve-resume');
+    if (btnImprove) {
+        btnImprove.addEventListener('click', () => { window.location.href = 'builder.html'; });
+    }
+
+    // ── 풋터 링크 ──────────────────────────────────────────────────
+    document.querySelectorAll('footer a[href="#"]').forEach(a => {
+        a.addEventListener('click', e => { e.preventDefault(); handleUnavailableFeature(); });
+    });
+
+    // ── [수정 2026-06-25] 대시보드 통계 API 연동 ──────────────────
+    // 일반사용자 본인 데이터만 표시 (샘플 포함 안 함)
+    (async function loadStats() {
+        try {
+            const r = await fetch('/api/stats', { credentials: 'same-origin' });
+            const data = await r.json();
+            if (!data.success) return;
+            const s = data.stats;
+            const elResumes = document.getElementById('stat-resumes');
+            const elApps    = document.getElementById('stat-apps');
+            if (elResumes) elResumes.textContent = s.total_resumes ?? 0;
+            if (elApps)    elApps.textContent    = s.total_applications ?? 0;
+        } catch (_) {}
+    })();
+
+    // ── [수정 2026-06-25] 내 이력서 목록 API 연동 ─────────────────
+    // 본인 이력서만 (is_sample=false), 샘플 데이터 절대 미포함
+    (async function loadResumes() {
+        const loadingEl = document.getElementById('resume-loading');
+        const emptyEl   = document.getElementById('resume-empty');
+        const listEl    = document.getElementById('resume-list');
+        try {
+            // include_samples 파라미터 없이 호출 → 본인 이력서만 반환
+            const r = await fetch('/api/resumes', { credentials: 'same-origin' });
+            const data = await r.json();
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (!data.success) return;
+            // 혹시라도 샘플 데이터가 섞이지 않도록 프론트에서도 필터링
+            const myResumes = (data.resumes || []).filter(rv => !rv.is_sample);
+            if (!myResumes.length) {
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                return;
+            }
+            if (listEl) listEl.classList.remove('hidden');
+            myResumes.slice(0, 4).forEach(rv => {
+                const card = document.createElement('a');
+                card.href = 'resume.html';
+                card.className = 'block bg-surface-container-lowest rounded-xl p-4 shadow-sm border border-border-subtle hover:shadow-md hover:border-primary transition-all group';
+                const updatedDate = rv.updated_at
+                    ? new Date(rv.updated_at).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })
+                    : '';
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <h3 class="font-label-md text-on-surface group-hover:text-primary transition-colors truncate">${rv.title || '(제목 없음)'}</h3>
+                        <span class="material-symbols-outlined text-sm text-primary group-hover:translate-x-1 transition-transform shrink-0">arrow_forward</span>
+                    </div>
+                    <p class="text-sm text-on-surface-variant truncate">${rv.job_title || '직군 미입력'}</p>
+                    ${updatedDate ? `<p class="text-xs text-outline mt-2">${updatedDate} 수정</p>` : ''}
+                `;
+                listEl.appendChild(card);
+            });
+        } catch (_) {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (emptyEl) emptyEl.classList.remove('hidden');
+        }
+    })();
+
+    // ── [수정 2026-06-25] 지원 현황 칸반 API 연동 ─────────────────
+    // 본인 지원 데이터만 표시 (샘플 없음)
+    (async function loadApplications() {
+        const loadingEl = document.getElementById('kanban-loading');
+        const emptyEl   = document.getElementById('kanban-empty');
+        const boardEl   = document.getElementById('kanban-board');
+        try {
+            const r = await fetch('/api/applications', { credentials: 'same-origin' });
+            const data = await r.json();
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (!data.success) return;
+            const apps = data.applications || [];
+            if (!apps.length) {
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            // 상태별 분류
+            const STATUS_MAP = {
+                'draft':     'draft',
+                'submitted': 'submitted',
+                'interview': 'interview',
+                'accepted':  'result',
+                'rejected':  'result',
+                'offer':     'result',
+            };
+            const buckets = { draft: [], submitted: [], interview: [], result: [] };
+            apps.forEach(app => {
+                const bucket = STATUS_MAP[app.status] || 'draft';
+                buckets[bucket].push(app);
+            });
+
+            // 카운트 업데이트
+            document.getElementById('count-draft').textContent     = `(${buckets.draft.length})`;
+            document.getElementById('count-submitted').textContent = `(${buckets.submitted.length})`;
+            document.getElementById('count-interview').textContent = `(${buckets.interview.length})`;
+            document.getElementById('count-result').textContent    = `(${buckets.result.length})`;
+
+            // 카드 렌더링
+            const STATUS_LABELS = {
+                draft: '초안', submitted: '지원 완료', interview: '면접', accepted: '합격', rejected: '불합격', offer: '오퍼'
+            };
+            function renderCard(app) {
+                const statusLabel = STATUS_LABELS[app.status] || app.status;
+                const isOffer     = app.status === 'offer' || app.status === 'accepted';
+                const cardClass   = isOffer
+                    ? 'kanban-card bg-green-50 rounded-lg p-4 shadow-sm border border-green-200'
+                    : 'kanban-card bg-surface-container-lowest rounded-lg p-4 shadow-sm border border-border-subtle';
+                const div = document.createElement('div');
+                div.className = cardClass;
+                div.innerHTML = `
+                    <h4 class="font-label-md text-on-background truncate">${app.position || '직책 미입력'}</h4>
+                    <p class="text-body-sm text-on-surface-variant">${app.company || '회사 미입력'}</p>
+                    <div class="mt-2 pt-2 border-t border-border-subtle flex items-center justify-between">
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-surface-container font-semibold text-on-surface-variant">${statusLabel}</span>
+                        ${app.applied_date ? `<span class="text-xs text-outline">${app.applied_date}</span>` : ''}
+                    </div>
+                `;
+                return div;
+            }
+
+            if (boardEl) boardEl.classList.remove('hidden');
+            Object.entries(buckets).forEach(([key, list]) => {
+                const col = document.getElementById('col-' + key);
+                if (!col) return;
+                list.forEach(app => col.appendChild(renderCard(app)));
+            });
+
+            // 면접 일정 (interview 상태인 항목만 오른쪽 패널에 표시)
+            const interviewListEl = document.getElementById('interview-list');
+            const interviewEmptyEl = document.getElementById('interview-empty');
+            const interviews = apps.filter(a => a.status === 'interview');
+            if (interviewListEl && interviews.length) {
+                if (interviewEmptyEl) interviewEmptyEl.classList.add('hidden');
+                interviews.forEach(app => {
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center gap-3 p-3 bg-surface-container-low rounded-lg';
+                    item.innerHTML = `
+                        <div class="w-10 h-10 bg-primary-fixed text-primary rounded-lg flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-sm">work</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-label-md text-on-background truncate">${app.company} 면접</p>
+                            <p class="text-body-sm text-on-surface-variant truncate">${app.position || ''}</p>
+                        </div>
+                    `;
+                    interviewListEl.appendChild(item);
                 });
-            } else if (text === '프로필 정보 업데이트') {
-                btn.addEventListener('click', handleUnavailableFeature);
             }
-        });
 
-        // ── "새로 추가" 버튼 ───────────────────────────────────────────
-        document.querySelectorAll('button').forEach(btn => {
-            if (btn.textContent.trim().includes('새로 추가')) {
-                btn.addEventListener('click', handleUnavailableFeature);
-            }
-        });
-
-        // ── 이력서 보완하기 ────────────────────────────────────────────
-        document.querySelectorAll('button').forEach(btn => {
-            if (btn.textContent.trim() === '이력서 보완하기') {
-                btn.addEventListener('click', () => { window.location.href = 'builder.html'; });
-            }
-        });
-
-        // ── 인터뷰 카드 화살표 ─────────────────────────────────────────
-        document.querySelectorAll('.material-symbols-outlined').forEach(icon => {
-            if (icon.textContent.trim() === 'arrow_forward_ios') {
-                icon.style.cursor = 'pointer';
-                icon.addEventListener('click', handleUnavailableFeature);
-            }
-        });
-
-        // ── 풋터 링크 ──────────────────────────────────────────────────
-        document.querySelectorAll('footer a[href="#"]').forEach(a => {
-            a.addEventListener('click', e => { e.preventDefault(); handleUnavailableFeature(); });
-        });
-
-        // ── 대시보드 통계 API 연동 ─────────────────────────────────────
-        fetch('/api/stats')
-            .then(r => r.json())
-            .then(data => {
-                if (!data.success) return;
-                const s = data.stats;
-                // 이력서 경쟁력 카드 아래 요약 업데이트
-                const summaryEl = document.querySelector('.kanban-card ~ *') ;
-                // 상단 통계 요약 (있는 경우)
-                console.log('[a4u stats]', s);
-            })
-            .catch(() => {});
-    </script>
+        } catch (_) {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            if (emptyEl) emptyEl.classList.remove('hidden');
+        }
+    })();
+</script>
 </body></html>
