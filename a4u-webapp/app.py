@@ -3,6 +3,8 @@ import re
 import json
 import time
 from datetime import datetime, timezone, timedelta
+# [수정 2026-06-25] PDF/DOCX 파싱 + AI 분석 추가
+import io
 from flask import Flask, request, jsonify, redirect, send_from_directory, session, render_template
 from flask_cors import CORS
 from werkzeug.exceptions import RequestEntityTooLarge, HTTPException
@@ -183,6 +185,99 @@ def public_templates():
     templates = ResumeTemplate.query.filter_by(is_active=True).all()
     return jsonify(templates=[t.to_dict() for t in templates])
 
+# ── [수정 2026-06-25] 파일에서 텍스트 추출 ──────────────────────────
+def _extract_text_from_file(file_path, mime_type):
+    text = ''
+    try:
+        if mime_type == 'application/pdf':
+            # pypdf 우선 시도
+            try:
+                import pypdf
+                reader = pypdf.PdfReader(file_path)
+                for page in reader.pages:
+                    text += (page.extract_text() or '') + '\n'
+            except Exception as e1:
+                print(f"[upload] pypdf 실패({e1}), pdfminer 시도")
+            # pypdf 결과 없으면 pdfminer.six 폴백
+            if not text.strip():
+                try:
+                    from pdfminer.high_level import extract_text as pm_extract
+                    text = pm_extract(file_path) or ''
+                except Exception as e2:
+                    print(f"[upload] pdfminer 도 실패: {e2}")
+        elif mime_type in ('application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                           'application/msword'):
+            import docx as docxlib
+            doc = docxlib.Document(file_path)
+            for para in doc.paragraphs:
+                text += para.text + '\n'
+    except Exception as e:
+        print(f"[upload] 텍스트 추출 실패: {e}")
+    return text.strip()
+
+
+# ── [수정 2026-06-25] 추출 텍스트 AI 분석 ───────────────────────────
+def _analyze_resume_with_ai(text):
+    """OpenAI → Gemini → 기본값 순서로 이력서 텍스트를 분석해 구조화된 JSON 반환"""
+    if not text:
+        return None
+
+    system_prompt = (
+        "당신은 이력서 파싱 전문가입니다. 주어진 이력서 텍스트에서 정보를 추출해 "
+        "반드시 아래 JSON 형식으로만 응답하세요. 없는 정보는 빈 문자열 또는 빈 배열로 두세요.\n"
+        '{"name":"","job_title":"","email":"","phone":"","location":"","summary":"","skills":[]}'
+    )
+    user_msg = f"이력서:\n{text[:4000]}"
+
+    openai_key = os.environ.get('OPENAI_API_KEY', '')
+    gemini_key = os.environ.get('GEMINI_API_KEY', '')
+
+    raw = None
+
+    if openai_key:
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=openai_key)
+            resp = client.chat.completions.create(
+                model='gpt-4o-mini',
+                messages=[
+                    {'role': 'system', 'content': system_prompt},
+                    {'role': 'user', 'content': user_msg}
+                ],
+                temperature=0,
+                max_tokens=600,
+                response_format={"type": "json_object"}
+            )
+            raw = resp.choices[0].message.content
+            print(f"[upload] OpenAI 분석 성공")
+        except Exception as e:
+            print(f"[upload] OpenAI 분석 실패: {e}")
+
+    if raw is None and gemini_key:
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=gemini_key)
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            prompt = f"{system_prompt}\n\n{user_msg}"
+            resp = model.generate_content(prompt)
+            raw = resp.text
+            print(f"[upload] Gemini 분석 성공")
+        except Exception as e:
+            print(f"[upload] Gemini 분석 실패: {e}")
+
+    if raw:
+        try:
+            # JSON 블록 추출
+            import re as _re
+            m = _re.search(r'\{.*\}', raw, _re.DOTALL)
+            if m:
+                return json.loads(m.group())
+        except Exception as e:
+            print(f"[upload] JSON 파싱 실패: {e}, raw={raw[:200]}")
+
+    return None
+
+
 # ── 파일 업로드 API ───────────────────────────────────────────────────
 @app.route('/upload-resume', methods=['POST'])
 def upload_resume():
@@ -212,13 +307,21 @@ def upload_resume():
         db.session.add(uploaded)
         db.session.commit()
 
+        # [수정 2026-06-25] 텍스트 추출 + AI 분석
+        extracted_text = _extract_text_from_file(file_path, file.mimetype)
+        analysis = _analyze_resume_with_ai(extracted_text) if extracted_text else None
+        has_analysis = analysis is not None
+        print(f"[upload] 텍스트 길이={len(extracted_text)}, AI 분석={'성공' if has_analysis else '실패/미수행'}")
+
         return jsonify({
             "success": True,
             "originalName": file.filename,
             "savedName": filename,
             "size": file_size,
             "mimeType": file.mimetype,
-            "uploadedAt": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+            "uploadedAt": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+            "analysis": analysis,
+            "textLength": len(extracted_text)
         })
     else:
         return jsonify(

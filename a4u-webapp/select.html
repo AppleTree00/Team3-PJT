@@ -442,6 +442,7 @@
     const parsedPhonePreview = document.getElementById('parsedPhonePreview');
     const parsedLocationPreview = document.getElementById('parsedLocationPreview');
     let selectedResumeFile = null;
+    let _lastParsed = null; // [수정 2026-06-25] 업로드 AI 분석 결과 저장 (상위 스코프)
 
     /* [수정 2026-06-25] saveResumeState: localStorage 보조 저장 유지 (syncPreview용) */
     function saveResumeState() {
@@ -594,6 +595,9 @@
             }
         });
 
+        // [수정 2026-06-25] 하드코딩 제거 → 실제 AI 분석 결과 표시
+        // [이전 코드] parsedSkills.innerHTML 하드코딩 (Java/Spring/Oracle/PM), parsedName='홍길동'
+
         xhr.onreadystatechange = () => {
             if (xhr.readyState !== XMLHttpRequest.DONE) {
                 return;
@@ -601,19 +605,40 @@
             uploadButton.disabled = false;
             if (xhr.status === 200) {
                 const response = JSON.parse(xhr.responseText);
+                const ai = response.analysis || null;
+                _lastParsed = ai;
+
                 uploadStatusText.textContent = `업로드 완료: ${response.originalName}`;
                 uploadResultCard.classList.remove('hidden');
                 document.getElementById('parsedFileName').textContent = response.originalName;
-                document.getElementById('parsedSummary').textContent = 'AI가 업로드된 이력서를 분석하여 주력 역량, 경력 요약, 기술 스택을 자동 생성했습니다.';
-                document.getElementById('parsedSkills').innerHTML = `
-                    <span class="px-3 py-2 rounded-full bg-surface-gray text-[12px] font-bold text-on-surface-variant">Java</span>
-                    <span class="px-3 py-2 rounded-full bg-surface-gray text-[12px] font-bold text-on-surface-variant">Spring</span>
-                    <span class="px-3 py-2 rounded-full bg-surface-gray text-[12px] font-bold text-on-surface-variant">Oracle</span>
-                    <span class="px-3 py-2 rounded-full bg-surface-gray text-[12px] font-bold text-on-surface-variant">시스템 아키텍처</span>
-                    <span class="px-3 py-2 rounded-full bg-surface-gray text-[12px] font-bold text-on-surface-variant">PM</span>
-                `;
-                document.getElementById('parsedName').textContent = '홍길동';
-                document.getElementById('parsedTitle').textContent = '시니어 Java 개발자 / SI 전문가';
+
+                // 이름 / 직함
+                const nameEl  = document.getElementById('parsedName');
+                const titleEl = document.getElementById('parsedTitle');
+                if (ai && ai.name)      { nameEl.textContent  = ai.name;      nameEl.classList.remove('hidden'); }
+                if (ai && ai.job_title) { titleEl.textContent = ai.job_title; titleEl.classList.remove('hidden'); }
+
+                // 요약
+                const summaryEl = document.getElementById('parsedSummary');
+                if (ai && ai.summary) {
+                    summaryEl.textContent = ai.summary;
+                } else if (!ai || !response.textLength) {
+                    summaryEl.textContent = '텍스트를 추출할 수 없는 파일입니다. 직접 내용을 입력해주세요.';
+                } else {
+                    summaryEl.textContent = 'AI 분석을 완료했습니다. 빌더에서 상세 내용을 확인하세요.';
+                }
+
+                // 스킬
+                const skillsEl = document.getElementById('parsedSkills');
+                const skills = (ai && Array.isArray(ai.skills) && ai.skills.length > 0) ? ai.skills : [];
+                if (skills.length > 0) {
+                    skillsEl.innerHTML = skills.map(s =>
+                        `<span class="px-3 py-2 rounded-full bg-surface-gray text-[12px] font-bold text-on-surface-variant">${s}</span>`
+                    ).join('');
+                } else {
+                    skillsEl.innerHTML = '<span class="text-body-sm text-on-surface-variant">스킬 정보를 추출하지 못했습니다.</span>';
+                }
+
                 uploadContinueButton.disabled = false;
                 uploadContinueButton.textContent = '분석 내용을 빌더로 적용';
             } else {
@@ -650,16 +675,43 @@
         });
     }
 
+    // [수정 2026-06-25] AI 분석 결과(_lastParsed) 기반으로 폼 채우기
+    // [이전 코드] 홍길동/hong.gildong@example.com 하드코딩
     function applyParsedResumeData() {
-        personalFullName.value = '홍길동';
-        personalSummary.value = '25년 이상의 SI 경력을 바탕으로 Java 기반 아키텍처 설계 및 운영, 대규모 프로젝트 PM 역량을 전문적으로 보유하고 있습니다.';
-        personalEmail.value = 'hong.gildong@example.com';
-        personalPhone.value = '+82 10-1234-5678';
-        parsedNamePreview.textContent = '홍길동';
-        parsedTitlePreview.textContent = '시니어 Java 개발자 / SI 전문가';
-        parsedEmailPreview.textContent = personalEmail.value;
-        parsedPhonePreview.textContent = personalPhone.value;
-        parsedLocationPreview.textContent = '서울, 대한민국';
+        const ai = _lastParsed;
+        if (!ai) return; // 분석 데이터 없으면 적용 안 함
+
+        if (ai.name)      { personalFullName.value = ai.name;    if (parsedNamePreview) parsedNamePreview.textContent = ai.name; }
+        if (ai.summary)   { personalSummary.value  = ai.summary; }
+        if (ai.email)     { personalEmail.value    = ai.email;   if (parsedEmailPreview) parsedEmailPreview.textContent = ai.email; }
+        if (ai.phone)     { personalPhone.value    = ai.phone;   if (parsedPhonePreview) parsedPhonePreview.textContent = ai.phone; }
+        if (ai.job_title && parsedTitlePreview) parsedTitlePreview.textContent = ai.job_title;
+        if (ai.location  && parsedLocationPreview) parsedLocationPreview.textContent = ai.location;
+
+        // 요약 미리보기 동기화
+        const previewSummary = document.getElementById('previewSummary');
+        if (previewSummary && ai.summary) {
+            previewSummary.textContent = ai.summary;
+            previewSummary.classList.remove('text-outline-variant');
+        }
+
+        // 스킬 목록 적용
+        const skillsList = document.getElementById('skills-list');
+        const previewSkills = document.getElementById('previewSkills');
+        const skills = Array.isArray(ai.skills) ? ai.skills : [];
+        if (skillsList && skills.length > 0) {
+            skillsList.innerHTML = skills.map(s =>
+                `<span data-skill="${s}" class="px-4 py-2 rounded-full bg-success-mint text-secondary font-label-md text-label-md flex items-center gap-2">
+                    ${s} <span class="material-symbols-outlined text-[16px] cursor-pointer">close</span>
+                </span>`
+            ).join('');
+        }
+        if (previewSkills && skills.length > 0) {
+            previewSkills.innerHTML = skills.map(s =>
+                `<span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">${s}</span>`
+            ).join('');
+        }
+
         saveResumeState();
     }
 
