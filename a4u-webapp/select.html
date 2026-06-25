@@ -424,13 +424,35 @@
 </div>`;
     }
 
+    // [수정 2026-06-25] 경력 데이터 배열 → 미리보기 직접 렌더 (DOM 재읽기 없음)
+    function _renderExpToPreview(experiences) {
+        const preview = document.getElementById('previewExperience');
+        if (!preview) return;
+        const items = (Array.isArray(experiences) ? experiences : []).filter(e => e && (e.title || e.company));
+        if (items.length === 0) {
+            preview.innerHTML = '경력 사항을 입력하면 여기에 표시됩니다.';
+            preview.className = 'space-y-6 text-body-sm font-body-sm text-outline-variant';
+            return;
+        }
+        preview.className = 'space-y-3 text-body-sm font-body-sm text-on-surface';
+        preview.innerHTML = items.map(e => {
+            const desc = e.description || (Array.isArray(e.bullets) ? e.bullets.join('\n') : '');
+            const period = (e.start_date || e.end_date) ? `${e.start_date || ''}${e.end_date ? ' ~ ' + e.end_date : ''}` : '';
+            return `<div class="mb-3">
+                <div class="font-semibold text-on-surface">${_escHtml(e.title)}</div>
+                <div class="text-xs text-outline">${_escHtml(e.company)}${period ? ' · ' + period : ''}</div>
+                ${desc ? `<div class="mt-1 text-xs whitespace-pre-line">${_escHtml(desc)}</div>` : ''}
+            </div>`;
+        }).join('');
+    }
+
     function renderExperienceCards(experiences) {
         const list = document.getElementById('experience-list');
         if (!list) return;
         const entries = (Array.isArray(experiences) && experiences.length > 0) ? experiences : [{}];
         list.innerHTML = entries.map(_makeExpCardHtml).join('');
         updateProgressBar();
-        syncExperiencePreview(); // [수정 2026-06-25] 카드 렌더 후 미리보기 동기화
+        _renderExpToPreview(experiences); // [수정 2026-06-25] 데이터 배열 직접 렌더
     }
 
     function addExperienceCard() {
