@@ -45,40 +45,76 @@
     <!-- [수정 2026-06-25] 카드별 "지원하기" + "AI 코칭" 버튼 2개로 변경
          data-job-key 속성으로 JS에서 선발기준 딕셔너리 참조 -->
 
-    <!-- 샘플 1: 네이버 -->
+    <!-- [이전 코드] 샘플 1: 네이버(백엔드) / 샘플 2: 카카오(AI엔지니어) / 샘플 3: 토스(프론트) — IT 직군 3개 -->
+    <!-- [수정 2026-06-25] IT·디자인·세일즈 혼합으로 다양성 확보 -->
+
+    <!-- 샘플 1: 무신사 — UX 디자이너 (Design) -->
     <div class="bg-white rounded-xl p-5 shadow-sm border border-border-subtle flex flex-col gap-3">
       <div class="flex items-start justify-between gap-2">
-        <div class="w-10 h-10 rounded-lg bg-[#03C75A]/10 flex items-center justify-center shrink-0">
-          <span class="font-bold text-[#03C75A] text-sm">N</span>
+        <div class="w-10 h-10 rounded-lg bg-[#1A1A1A]/[0.07] flex items-center justify-center shrink-0">
+          <span class="font-bold text-[#1A1A1A] text-sm">M</span>
         </div>
-        <span class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">채용중</span>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 font-semibold">채용중</span>
       </div>
       <div>
-        <p class="font-label-md text-label-md text-on-background">백엔드 서버 개발자</p>
-        <p class="text-body-sm font-body-sm text-on-surface-variant">네이버(주)</p>
+        <p class="font-label-md text-label-md text-on-background">프로덕트 UX 디자이너</p>
+        <p class="text-body-sm font-body-sm text-on-surface-variant">무신사(주)</p>
       </div>
       <div class="flex flex-wrap gap-2 text-xs text-outline">
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">location_on</span>성남 분당</span>
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">payments</span>5,000~8,000만원</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">location_on</span>성수</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">payments</span>4,500~7,500만원</span>
       </div>
       <div class="flex flex-wrap gap-1 mt-1">
-        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">Java</span>
-        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">Spring</span>
-        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">MySQL</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">Figma</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">UX Research</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">Design System</span>
       </div>
       <div class="mt-auto flex gap-2">
-        <button onclick="applyToJob('네이버(주)', '백엔드 서버 개발자')"
+        <button onclick="applyToJob('무신사(주)', '프로덕트 UX 디자이너')"
           class="flex-1 py-2 rounded-lg border border-primary text-primary font-label-md text-sm hover:bg-primary/5 transition-all">
           지원하기
         </button>
-        <button onclick="openJobCoachingModal('naver')"
+        <button onclick="openJobCoachingModal('musinsa')"
           class="flex-1 py-2 rounded-lg bg-primary text-white font-label-md text-sm hover:opacity-90 transition-all flex items-center justify-center gap-1">
           <span class="material-symbols-outlined text-[15px]">psychology</span>AI 코칭
         </button>
       </div>
     </div>
 
-    <!-- 샘플 2: 카카오 -->
+    <!-- 샘플 2: CJ제일제당 — B2B 영업기획 매니저 (Sales) -->
+    <div class="bg-white rounded-xl p-5 shadow-sm border border-border-subtle flex flex-col gap-3">
+      <div class="flex items-start justify-between gap-2">
+        <div class="w-10 h-10 rounded-lg bg-[#E31837]/10 flex items-center justify-center shrink-0">
+          <span class="font-bold text-[#E31837] text-[10px] leading-tight text-center">CJ</span>
+        </div>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 font-semibold">채용중</span>
+      </div>
+      <div>
+        <p class="font-label-md text-label-md text-on-background">B2B 영업기획 매니저</p>
+        <p class="text-body-sm font-body-sm text-on-surface-variant">CJ제일제당(주)</p>
+      </div>
+      <div class="flex flex-wrap gap-2 text-xs text-outline">
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">location_on</span>중구</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">payments</span>4,000~6,500만원</span>
+      </div>
+      <div class="flex flex-wrap gap-1 mt-1">
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">B2B영업</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">유통채널관리</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">SAP</span>
+      </div>
+      <div class="mt-auto flex gap-2">
+        <button onclick="applyToJob('CJ제일제당(주)', 'B2B 영업기획 매니저')"
+          class="flex-1 py-2 rounded-lg border border-primary text-primary font-label-md text-sm hover:bg-primary/5 transition-all">
+          지원하기
+        </button>
+        <button onclick="openJobCoachingModal('cj')"
+          class="flex-1 py-2 rounded-lg bg-primary text-white font-label-md text-sm hover:opacity-90 transition-all flex items-center justify-center gap-1">
+          <span class="material-symbols-outlined text-[15px]">psychology</span>AI 코칭
+        </button>
+      </div>
+    </div>
+
+    <!-- 샘플 3: 카카오 — AI 서비스 엔지니어 (IT) -->
     <div class="bg-white rounded-xl p-5 shadow-sm border border-border-subtle flex flex-col gap-3">
       <div class="flex items-start justify-between gap-2">
         <div class="w-10 h-10 rounded-lg bg-[#FAE100]/20 flex items-center justify-center shrink-0">
@@ -105,39 +141,6 @@
           지원하기
         </button>
         <button onclick="openJobCoachingModal('kakao')"
-          class="flex-1 py-2 rounded-lg bg-primary text-white font-label-md text-sm hover:opacity-90 transition-all flex items-center justify-center gap-1">
-          <span class="material-symbols-outlined text-[15px]">psychology</span>AI 코칭
-        </button>
-      </div>
-    </div>
-
-    <!-- 샘플 3: 토스 -->
-    <div class="bg-white rounded-xl p-5 shadow-sm border border-border-subtle flex flex-col gap-3">
-      <div class="flex items-start justify-between gap-2">
-        <div class="w-10 h-10 rounded-lg bg-[#4D4DFF]/10 flex items-center justify-center shrink-0">
-          <span class="font-bold text-[#4D4DFF] text-sm">T</span>
-        </div>
-        <span class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">채용중</span>
-      </div>
-      <div>
-        <p class="font-label-md text-label-md text-on-background">프론트엔드 엔지니어</p>
-        <p class="text-body-sm font-body-sm text-on-surface-variant">비바리퍼블리카(토스)</p>
-      </div>
-      <div class="flex flex-wrap gap-2 text-xs text-outline">
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">location_on</span>강남</span>
-        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">payments</span>7,000~1.2억원</span>
-      </div>
-      <div class="flex flex-wrap gap-1 mt-1">
-        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">React</span>
-        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">TypeScript</span>
-        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">Next.js</span>
-      </div>
-      <div class="mt-auto flex gap-2">
-        <button onclick="applyToJob('비바리퍼블리카(토스)', '프론트엔드 엔지니어')"
-          class="flex-1 py-2 rounded-lg border border-primary text-primary font-label-md text-sm hover:bg-primary/5 transition-all">
-          지원하기
-        </button>
-        <button onclick="openJobCoachingModal('toss')"
           class="flex-1 py-2 rounded-lg bg-primary text-white font-label-md text-sm hover:opacity-90 transition-all flex items-center justify-center gap-1">
           <span class="material-symbols-outlined text-[15px]">psychology</span>AI 코칭
         </button>
@@ -417,21 +420,38 @@
 
     // ── AI 코칭 모달 (회사별 선발 기준 기반) ────────────────────────
     // [수정 2026-06-25] 임의 선발 기준 하드코딩 — 가상 채용 공고 3건에 대응
+    // [이전 코드] naver(백엔드) / kakao(AI엔지니어) / toss(프론트) — IT 직군 3개
+    // [수정 2026-06-25] IT·디자인·세일즈 혼합으로 직군 다양성 확보
     const JOB_CRITERIA = {
-        naver: {
-            company:      '네이버(주)',
-            position:     '백엔드 서버 개발자',
-            target_job:   '백엔드 서버 개발자',
-            target_industry: '인터넷/플랫폼 (검색·광고·커머스)',
+        musinsa: {
+            company:      '무신사(주)',
+            position:     '프로덕트 UX 디자이너',
+            target_job:   'UX/UI 프로덕트 디자이너',
+            target_industry: '패션이커머스 / 온라인 리테일',
+            career_level: '중급(4~7년)',
+            criteria: [
+                'Figma 기반 UI/UX 설계 4년 이상 실무 경험 필수',
+                '이커머스·앱 서비스 사용자 경험 설계 및 개선 경험',
+                '디자인 시스템 구축 및 컴포넌트 라이브러리 운영 경험',
+                '사용자 인터뷰·UT 등 리서치 기반 의사결정 경험',
+                '개발팀과의 협업 및 디자인 스펙 전달 능력',
+            ],
+            focus: 'Figma 활용 능력과 이커머스 UX 경험이 이력서에서 명확히 드러나는지, 무신사의 패션·스타일 도메인에 맞는 디자인 철학과 포트폴리오 연계 서사를 어떻게 구성할지 구체적으로 코칭해주세요.',
+        },
+        cj: {
+            company:      'CJ제일제당(주)',
+            position:     'B2B 영업기획 매니저',
+            target_job:   'B2B 영업기획 / 세일즈 매니저',
+            target_industry: '식품·FMCG / B2B 유통',
             career_level: '중급(5~8년)',
             criteria: [
-                'Java / Spring Boot 5년 이상 실무 경험 필수',
-                '월 수천만 건 이상 대용량 트래픽 서비스 운영 경험',
-                'MSA 설계 및 전환 경험 우대',
-                'MySQL · Redis 기반 데이터 모델링 능력',
-                '코드 품질·테스트 문화에 대한 높은 이해도',
+                'B2B 영업 또는 영업기획 5년 이상 경험 필수',
+                '대형마트·편의점·이커머스 등 유통채널 관리 경험',
+                '매출 목표 수립 및 KPI 달성 실적 보유',
+                'SAP 또는 ERP 시스템 활용 능력',
+                '영업 데이터 분석 및 경영진 보고 경험',
             ],
-            focus: 'Java/Spring 경력과 대용량 트래픽 처리 경험이 이력서에 잘 드러나는지, 네이버 기술 스택(Kafka·Redis·Kubernetes)과의 연관성을 어떻게 강조할지 구체적으로 코칭해주세요.',
+            focus: '영업 성과를 수치로 표현한 경험이 이력서에 잘 드러나는지, CJ제일제당의 FMCG 유통 도메인에 맞는 채널 전략 경험과 리더십 서사를 어떻게 강조할지 구체적으로 코칭해주세요.',
         },
         kakao: {
             company:      '카카오(주)',
@@ -447,21 +467,6 @@
                 '모델 성능 지표 설계·모니터링 경험',
             ],
             focus: 'Python 및 LLM/ML 프로덕션 경험이 이력서에서 명확히 보이는지, 카카오의 AI 서비스 도메인(카카오톡 AI·생성AI)과 연결되는 서사가 있는지 코칭해주세요.',
-        },
-        toss: {
-            company:      '비바리퍼블리카(토스)',
-            position:     '프론트엔드 엔지니어',
-            target_job:   '프론트엔드 엔지니어',
-            target_industry: '핀테크·금융 서비스',
-            career_level: '중급(5~8년)',
-            criteria: [
-                'React · TypeScript 3년 이상 실무 경험 필수',
-                '금융·핀테크 서비스에서 사용자 경험(UX) 개선 경험',
-                'Next.js SSR·SSG 및 성능 최적화(Core Web Vitals) 역량',
-                '디자인 시스템 구축 또는 컴포넌트 라이브러리 기여 경험 우대',
-                '보안·컴플라이언스를 고려한 프론트 구현 능력',
-            ],
-            focus: 'React/TypeScript 실력과 사용자 경험 중심 사고가 이력서에 드러나는지, 토스의 고성능·고신뢰 금융 서비스 문화에 맞는 스토리텔링을 어떻게 구성할지 코칭해주세요.',
         },
     };
 
