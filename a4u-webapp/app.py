@@ -338,7 +338,7 @@ def upload_resume():
         return jsonify({
             "success": True,
             "originalName": file.filename,
-            "savedName": filename,
+            "savedName": saved_name,
             "size": file_size,
             "mimeType": file.mimetype,
             "uploadedAt": datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
