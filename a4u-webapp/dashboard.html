@@ -119,6 +119,58 @@
 </div>
 -->
 
+<!-- [수정 2026-06-25] 지원 추가 모달 — POST /api/applications 연동 -->
+<div id="modal-add-app" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeAddAppModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 z-10">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-headline-sm text-headline-sm text-on-background">지원 추가</h2>
+      <button onclick="closeAddAppModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-gray transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant">close</span>
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block font-label-md text-label-md text-on-surface mb-1">회사명 <span class="text-error">*</span></label>
+        <input id="app-company" type="text" placeholder="예) 카카오엔터프라이즈(주)"
+          class="w-full px-4 py-2.5 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
+      </div>
+      <div>
+        <label class="block font-label-md text-label-md text-on-surface mb-1">포지션 <span class="text-error">*</span></label>
+        <input id="app-position" type="text" placeholder="예) 백엔드 개발자"
+          class="w-full px-4 py-2.5 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-label-md text-label-md text-on-surface mb-1">지원 상태</label>
+          <select id="app-status"
+            class="w-full px-4 py-2.5 rounded-lg border border-border-subtle focus:border-primary outline-none transition-all bg-white">
+            <option value="draft">초안</option>
+            <option value="submitted">지원 완료</option>
+            <option value="interview">면접</option>
+            <option value="accepted">합격</option>
+            <option value="rejected">불합격</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-label-md text-label-md text-on-surface mb-1">지원일</label>
+          <input id="app-date" type="date"
+            class="w-full px-4 py-2.5 rounded-lg border border-border-subtle focus:border-primary outline-none transition-all">
+        </div>
+      </div>
+      <div>
+        <label class="block font-label-md text-label-md text-on-surface mb-1">메모</label>
+        <textarea id="app-notes" rows="3" placeholder="전형 일정, 담당자 연락처 등 메모를 남겨두세요."
+          class="w-full px-4 py-2.5 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all resize-none"></textarea>
+      </div>
+    </div>
+    <div class="flex gap-3 mt-6">
+      <button onclick="closeAddAppModal()" class="flex-1 px-4 py-2.5 rounded-lg border border-border-subtle text-on-surface-variant font-label-md hover:bg-surface-gray transition-all">취소</button>
+      <button id="btn-submit-app" onclick="submitAddApp()" class="flex-1 px-4 py-2.5 rounded-lg bg-primary text-white font-label-md hover:opacity-90 transition-all">저장</button>
+    </div>
+  </div>
+</div>
+
 </main>
 <!-- Footer -->
 {% include '_footer.html' %}
@@ -168,11 +220,70 @@
         }
     });
 
-    // ── "새로 추가" 버튼 ───────────────────────────────────────────
+    // ── "새로 추가" 버튼 — [수정 2026-06-25] handleUnavailableFeature → 모달 연결
+    // [이전 코드] btnAddApp.addEventListener('click', handleUnavailableFeature);
     const btnAddApp = document.getElementById('btn-add-application');
     if (btnAddApp) {
-        btnAddApp.addEventListener('click', handleUnavailableFeature);
+        btnAddApp.addEventListener('click', openAddAppModal);
     }
+
+    // ── 지원 추가 모달 함수들 ────────────────────────────────────────
+    function openAddAppModal() {
+        document.getElementById('app-company').value  = '';
+        document.getElementById('app-position').value = '';
+        document.getElementById('app-status').value   = 'draft';
+        document.getElementById('app-date').value     = new Date().toISOString().slice(0, 10);
+        document.getElementById('app-notes').value    = '';
+        document.getElementById('modal-add-app').classList.remove('hidden');
+        setTimeout(() => document.getElementById('app-company').focus(), 100);
+    }
+    window.openAddAppModal  = openAddAppModal;
+
+    function closeAddAppModal() {
+        document.getElementById('modal-add-app').classList.add('hidden');
+    }
+    window.closeAddAppModal = closeAddAppModal;
+
+    async function submitAddApp() {
+        const company  = document.getElementById('app-company').value.trim();
+        const position = document.getElementById('app-position').value.trim();
+        if (!company || !position) {
+            showToast('회사명과 포지션은 필수 입력 항목입니다.', 'warning');
+            return;
+        }
+        const btn = document.getElementById('btn-submit-app');
+        btn.disabled = true;
+        btn.textContent = '저장 중...';
+        try {
+            const r = await fetch('/api/applications', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    company,
+                    position,
+                    status:       document.getElementById('app-status').value,
+                    applied_date: document.getElementById('app-date').value,
+                    notes:        document.getElementById('app-notes').value.trim(),
+                })
+            });
+            const data = await r.json();
+            if (data.success) {
+                closeAddAppModal();
+                showToast('지원 현황이 추가되었습니다.', 'success');
+                await loadApplications();
+            } else {
+                if (handleDemoBlock && handleDemoBlock(data)) return;
+                showToast(data.message || '저장에 실패했습니다.', 'error');
+            }
+        } catch (e) {
+            showToast('네트워크 오류가 발생했습니다.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '저장';
+        }
+    }
+    window.submitAddApp = submitAddApp;
 
     // ── 풋터 링크 ──────────────────────────────────────────────────
     document.querySelectorAll('footer a[href="#"]').forEach(a => {
@@ -186,8 +297,9 @@
     // loadResumes() → /api/resumes (이력서 목록, 이력서 관리 메뉴로 이동)
 
     // ── [수정 2026-06-25] 지원 현황 칸반 API 연동 ─────────────────
-    // 본인 지원 데이터만 표시 (샘플 없음)
-    (async function loadApplications() {
+    // [수정 2026-06-25] IIFE → 명명 함수로 변경 (모달 저장 후 재호출 지원)
+    // [이전 코드] (async function loadApplications() { ... })();
+    async function loadApplications() {
         const loadingEl = document.getElementById('kanban-loading');
         const emptyEl   = document.getElementById('kanban-empty');
         const boardEl   = document.getElementById('kanban-board');
@@ -246,6 +358,12 @@
                 return div;
             }
 
+            // [수정 2026-06-25] 재호출 시 중복 카드 방지 — 컬럼 비운 뒤 렌더
+            ['draft','submitted','interview','result'].forEach(k => {
+                const col = document.getElementById('col-' + k);
+                if (col) col.innerHTML = '';
+            });
+            if (emptyEl) emptyEl.classList.add('hidden');
             if (boardEl) boardEl.classList.remove('hidden');
             Object.entries(buckets).forEach(([key, list]) => {
                 const col = document.getElementById('col-' + key);
@@ -279,6 +397,9 @@
             if (loadingEl) loadingEl.classList.add('hidden');
             if (emptyEl) emptyEl.classList.remove('hidden');
         }
-    })();
+    }
+    // 페이지 로드 시 즉시 실행 + 모달 저장 후 window.loadApplications 로 재호출 가능
+    window.loadApplications = loadApplications;
+    loadApplications();
 </script>
 </body></html>

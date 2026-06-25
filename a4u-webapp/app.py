@@ -498,6 +498,34 @@ def init_db():
                 db.session.add(r)
 
         db.session.commit()
+
+        # [수정 2026-06-25] 데모 사용자 가상 지원 현황 3건 — 칸반 보드 시연용 하드코딩 시드
+        # 조건: 데모 계정이 확정된 뒤, 아직 지원 기록이 없을 때만 삽입
+        if demo and demo.id and JobApplication.query.filter_by(user_id=demo.id).count() == 0:
+            sample_apps = [
+                JobApplication(
+                    user_id=demo.id, company='카카오엔터프라이즈(주)',
+                    position='AI 서비스 엔지니어', status='submitted',
+                    applied_date='2026-06-10',
+                    notes='서류 제출 완료. AI 플랫폼팀 JD 확인 후 지원. 코딩테스트 대기 중.'
+                ),
+                JobApplication(
+                    user_id=demo.id, company='라인플러스(주)',
+                    position='백엔드 개발자 (Server-Side)', status='interview',
+                    applied_date='2026-06-05',
+                    notes='1차 코딩테스트 통과. 2차 기술 면접 2026-06-28 오후 2시 예정.'
+                ),
+                JobApplication(
+                    user_id=demo.id, company='쿠팡(주)',
+                    position='Senior Software Engineer', status='draft',
+                    applied_date='',
+                    notes='지원서 작성 중. 이력서 최종 검토 후 제출 예정.'
+                ),
+            ]
+            for a in sample_apps:
+                db.session.add(a)
+            db.session.commit()
+
         print("DB initialized.")
 
 
