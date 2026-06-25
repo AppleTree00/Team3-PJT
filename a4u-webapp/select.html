@@ -26,10 +26,12 @@
 {% include '_demo_banner.html' %}
 <!-- [수정 2026-06-25] 오버레이를 <main> 밖 <body> 직계로 이동 — 스태킹 컨텍스트 격리 문제 해결 -->
 <!-- [이전 코드] 오버레이가 <main> 안에 있었음 -->
-<div id="start-selection-overlay" class="fixed inset-x-0 bottom-0 bg-surface-gray flex items-center justify-center" style="top:64px;z-index:45;">
+<!-- [이전 코드] flex items-center justify-center — 모바일 스크롤 불가 -->
+<!-- [수정 2026-06-25] overflow-y-auto + items-start(모바일)/items-center(PC) 적용 -->
+<div id="start-selection-overlay" class="fixed inset-x-0 bottom-0 bg-surface-gray flex items-start md:items-center justify-center overflow-y-auto" style="top:64px;z-index:45;">
 <!-- 오버레이 내용 시작 -->
-    <div class="max-w-4xl w-full mx-auto px-4">
-        <div class="text-center mb-12">
+    <div class="max-w-4xl w-full mx-auto px-4 py-8 md:py-0">
+        <div class="text-center mb-8 md:mb-12">
             <h1 class="font-display-lg text-display-lg text-on-background mb-4">어떻게 시작할까요?</h1>
             <p class="font-body-lg text-body-lg text-on-surface-variant">AI를 통해 기존 이력서를 분석하거나, 완전히 새로운 이력서를 작성해보세요.</p>
         </div>
