@@ -1,10 +1,12 @@
 // ── 토스트 알림 (Toast) ──────────────────────────────────────────
+// [수정 2026-06-25] 모바일: 하단 중앙 / 데스크탑: 우하단 고정
 function showToast(message, type = 'info') {
     let container = document.getElementById('toast-container');
     if (!container) {
         container = document.createElement('div');
         container.id = 'toast-container';
-        container.className = 'fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none';
+        // [이전 코드] 'fixed bottom-5 right-5 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none'
+        container.className = 'fixed bottom-5 z-[100] flex flex-col gap-2 pointer-events-none left-4 right-4 md:left-auto md:right-5 md:w-80';
         document.body.appendChild(container);
     }
 
