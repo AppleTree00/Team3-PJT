@@ -256,14 +256,20 @@
 </div>
 
 <!-- Navigation buttons -->
-<div class="mt-12 flex justify-between items-center">
+<!-- [이전 코드] <div class="mt-12 flex justify-between items-center"> — 모바일 3열 구조 -->
+<!-- [수정 2026-06-25] 모바일: flex-col 3행 중앙 정렬 / PC(md+): flex-row justify-between 유지 -->
+<div class="mt-12 flex flex-col md:flex-row md:justify-between items-center gap-3 md:gap-0">
 <!-- [수정 2026-06-25] onclick 누락 수정 + 미저장 이탈 경고 연결 -->
-<button onclick="goToDashboard()" class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
-                    대시보드로 돌아가기
-                </button>
-<button class="px-8 py-3 rounded-lg bg-primary text-white font-label-md text-label-md shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
-                    다음 섹션
-                    <span class="material-symbols-outlined">arrow_forward</span>
+<button onclick="goToDashboard()" class="w-full md:w-auto px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
+    대시보드로 돌아가기
+</button>
+<button class="w-full md:w-auto px-8 py-3 rounded-lg border border-border-subtle text-on-surface font-label-md text-label-md hover:bg-white transition-all flex items-center justify-center gap-2">
+    다음 섹션
+    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="w-full md:w-auto px-8 py-3 rounded-lg bg-primary text-white font-label-md text-label-md shadow-sm hover:opacity-90 transition-all flex items-center justify-center gap-2">
+    <span class="material-symbols-outlined">save</span>
+    이력서 저장
 </button>
 </div>
 </div>
