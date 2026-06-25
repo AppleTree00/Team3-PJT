@@ -207,8 +207,8 @@
 </div>
 </div>
 </div>
-<!-- Preview Side -->
-<div class="w-1/2 bg-surface-container h-[calc(100vh-120px)] p-12 overflow-y-auto">
+<!-- Preview Side — [수정 2026-06-25] 모바일에서 숨김, md+ 에서만 표시 -->
+<div class="hidden md:block md:w-1/2 bg-surface-container md:h-[calc(100vh-120px)] p-12 overflow-y-auto">
 <div class="max-w-[210mm] mx-auto bg-white shadow-xl min-h-[297mm] p-12 flex flex-col relative group">
 <!-- Overlay indicator -->
 <div class="absolute top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-on-background text-white px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest z-10">
@@ -270,6 +270,62 @@
 </div>
 </div>
 </main>
+
+<!-- [수정 2026-06-25] 모바일 FAB: 미리보기 버튼 (md 미만에서만 표시) -->
+<button id="mobile-preview-fab" class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-label-md text-label-md shadow-lg hover:opacity-90 active:scale-95 transition-all" onclick="openPreviewModal()">
+    <span class="material-symbols-outlined text-[20px]">visibility</span>
+    미리보기
+</button>
+
+<!-- [수정 2026-06-25] 모바일 전체화면 미리보기 모달 -->
+<div id="preview-modal" class="hidden fixed inset-0 z-50 bg-surface-container overflow-y-auto">
+    <div class="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-white border-b border-border-subtle shadow-sm">
+        <span class="font-label-md text-label-md text-on-surface">이력서 미리보기</span>
+        <button onclick="closePreviewModal()" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-gray transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant">close</span>
+        </button>
+    </div>
+    <div class="p-4">
+        <div class="max-w-[210mm] mx-auto bg-white shadow-xl min-h-[297mm] p-8 flex flex-col relative">
+            <div class="border-b-4 border-primary pb-8 mb-8 flex justify-between items-start">
+                <div>
+                    <h1 id="modalParsedNamePreview" class="font-display-lg text-display-lg uppercase tracking-tight text-outline-variant">이름을 입력하세요</h1>
+                    <p id="modalParsedTitlePreview" class="font-headline-md text-headline-md text-primary mt-2"></p>
+                    <div class="flex flex-wrap gap-3 mt-4 text-label-sm text-outline font-label-sm">
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mail</span> <span id="modalParsedEmailPreview" class="text-outline-variant">이메일</span></span>
+                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">phone</span> <span id="modalParsedPhonePreview" class="text-outline-variant">전화번호</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-6 flex-grow">
+                <div class="col-span-2 space-y-8">
+                    <section>
+                        <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">소개</h3>
+                        <p id="modalPreviewSummary" class="text-body-sm font-body-sm leading-relaxed text-outline-variant">전문가 요약을 입력하면 여기에 표시됩니다.</p>
+                    </section>
+                    <section>
+                        <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">경력</h3>
+                        <div id="modalPreviewExperience" class="space-y-4 text-outline-variant text-body-sm">경력 사항을 입력하면 여기에 표시됩니다.</div>
+                    </section>
+                </div>
+                <div class="space-y-8 border-l border-border-subtle pl-6">
+                    <section>
+                        <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">기술</h3>
+                        <div id="modalPreviewSkills" class="flex flex-wrap gap-2 text-outline-variant text-[10px]">기술을 추가하면 여기에 표시됩니다.</div>
+                    </section>
+                    <section>
+                        <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">학력</h3>
+                        <div id="modalPreviewEducation" class="space-y-4 text-outline-variant text-[10px]">학력 사항을 입력하면 여기에 표시됩니다.</div>
+                    </section>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-border-subtle flex justify-between items-center text-[10px] text-outline uppercase tracking-tighter">
+                <span>a4u 에서 생성됨</span><span>페이지 1 / 1</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Footer -->
 {% include '_footer.html' %}
 <script>
@@ -303,6 +359,40 @@
                 section.classList.add('active');
             }
         });
+    }
+
+    // ── 모바일 미리보기 모달 열기/닫기 ─────────────────────────────────
+    function openPreviewModal() {
+        const modal = document.getElementById('preview-modal');
+        if (!modal) return;
+        // 열릴 때 데스크탑 미리보기 값을 모달로 복사
+        const copy = (fromId, toId) => {
+            const from = document.getElementById(fromId);
+            const to   = document.getElementById(toId);
+            if (from && to) to.textContent = from.textContent;
+        };
+        copy('parsedNamePreview',  'modalParsedNamePreview');
+        copy('parsedTitlePreview', 'modalParsedTitlePreview');
+        copy('parsedEmailPreview', 'modalParsedEmailPreview');
+        copy('parsedPhonePreview', 'modalParsedPhonePreview');
+        copy('previewSummary',     'modalPreviewSummary');
+        // innerHTML 복사 (기술 목록 등)
+        const copyHtml = (fromId, toId) => {
+            const from = document.getElementById(fromId);
+            const to   = document.getElementById(toId);
+            if (from && to) to.innerHTML = from.innerHTML;
+        };
+        copyHtml('previewSkills',    'modalPreviewSkills');
+        copyHtml('previewExperience','modalPreviewExperience');
+        copyHtml('previewEducation', 'modalPreviewEducation');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePreviewModal() {
+        const modal = document.getElementById('preview-modal');
+        if (modal) modal.classList.add('hidden');
+        document.body.style.overflow = '';
     }
 
     // Add some subtle interaction to the preview
