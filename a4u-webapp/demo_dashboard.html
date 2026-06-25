@@ -43,6 +43,165 @@
 <section> 이력서 경쟁력 카드 / 샘플 이력서 목록 (id: sample-resume-loading, sample-resume-list) </section>
 -->
 
+<!-- [수정 2026-06-25] 지원가능 목록 — dashboard.html과 동일, 데모 모드에서도 AI 코칭 체험 가능 -->
+<section class="mb-8">
+  <h2 class="font-label-md text-on-surface-variant uppercase tracking-widest mb-4 flex items-center gap-2">
+    <span class="material-symbols-outlined text-[16px] text-primary">business_center</span>
+    지원가능 목록
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+
+    <!-- 네이버 -->
+    <div class="bg-white rounded-xl p-5 shadow-sm border border-border-subtle flex flex-col gap-3">
+      <div class="flex items-start justify-between gap-2">
+        <div class="w-10 h-10 rounded-lg bg-[#03C75A]/10 flex items-center justify-center shrink-0">
+          <span class="font-bold text-[#03C75A] text-sm">N</span>
+        </div>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">채용중</span>
+      </div>
+      <div>
+        <p class="font-label-md text-label-md text-on-background">백엔드 서버 개발자</p>
+        <p class="text-body-sm font-body-sm text-on-surface-variant">네이버(주)</p>
+      </div>
+      <div class="flex flex-wrap gap-2 text-xs text-outline">
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">location_on</span>성남 분당</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">payments</span>5,000~8,000만원</span>
+      </div>
+      <div class="flex flex-wrap gap-1 mt-1">
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">Java</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">Spring</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">MySQL</span>
+      </div>
+      <div class="mt-auto flex gap-2">
+        <button onclick="showToast('데모 모드에서는 지원이 제한됩니다.', 'warning')"
+          class="flex-1 py-2 rounded-lg border border-primary text-primary font-label-md text-sm hover:bg-primary/5 transition-all">
+          지원하기
+        </button>
+        <button onclick="openJobCoachingModal('naver')"
+          class="flex-1 py-2 rounded-lg bg-primary text-white font-label-md text-sm hover:opacity-90 transition-all flex items-center justify-center gap-1">
+          <span class="material-symbols-outlined text-[15px]">psychology</span>AI 코칭
+        </button>
+      </div>
+    </div>
+
+    <!-- 카카오 -->
+    <div class="bg-white rounded-xl p-5 shadow-sm border border-border-subtle flex flex-col gap-3">
+      <div class="flex items-start justify-between gap-2">
+        <div class="w-10 h-10 rounded-lg bg-[#FAE100]/20 flex items-center justify-center shrink-0">
+          <span class="font-bold text-[#3A1D1D] text-sm">K</span>
+        </div>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">채용중</span>
+      </div>
+      <div>
+        <p class="font-label-md text-label-md text-on-background">AI 서비스 엔지니어</p>
+        <p class="text-body-sm font-body-sm text-on-surface-variant">카카오(주)</p>
+      </div>
+      <div class="flex flex-wrap gap-2 text-xs text-outline">
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">location_on</span>판교</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">payments</span>6,000~1억원</span>
+      </div>
+      <div class="flex flex-wrap gap-1 mt-1">
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">Python</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">LLM</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">MLOps</span>
+      </div>
+      <div class="mt-auto flex gap-2">
+        <button onclick="showToast('데모 모드에서는 지원이 제한됩니다.', 'warning')"
+          class="flex-1 py-2 rounded-lg border border-primary text-primary font-label-md text-sm hover:bg-primary/5 transition-all">
+          지원하기
+        </button>
+        <button onclick="openJobCoachingModal('kakao')"
+          class="flex-1 py-2 rounded-lg bg-primary text-white font-label-md text-sm hover:opacity-90 transition-all flex items-center justify-center gap-1">
+          <span class="material-symbols-outlined text-[15px]">psychology</span>AI 코칭
+        </button>
+      </div>
+    </div>
+
+    <!-- 토스 -->
+    <div class="bg-white rounded-xl p-5 shadow-sm border border-border-subtle flex flex-col gap-3">
+      <div class="flex items-start justify-between gap-2">
+        <div class="w-10 h-10 rounded-lg bg-[#4D4DFF]/10 flex items-center justify-center shrink-0">
+          <span class="font-bold text-[#4D4DFF] text-sm">T</span>
+        </div>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">채용중</span>
+      </div>
+      <div>
+        <p class="font-label-md text-label-md text-on-background">프론트엔드 엔지니어</p>
+        <p class="text-body-sm font-body-sm text-on-surface-variant">비바리퍼블리카(토스)</p>
+      </div>
+      <div class="flex flex-wrap gap-2 text-xs text-outline">
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">location_on</span>강남</span>
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">payments</span>7,000~1.2억원</span>
+      </div>
+      <div class="flex flex-wrap gap-1 mt-1">
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">React</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">TypeScript</span>
+        <span class="px-2 py-0.5 bg-surface-gray rounded text-[11px] text-on-surface-variant">Next.js</span>
+      </div>
+      <div class="mt-auto flex gap-2">
+        <button onclick="showToast('데모 모드에서는 지원이 제한됩니다.', 'warning')"
+          class="flex-1 py-2 rounded-lg border border-primary text-primary font-label-md text-sm hover:bg-primary/5 transition-all">
+          지원하기
+        </button>
+        <button onclick="openJobCoachingModal('toss')"
+          class="flex-1 py-2 rounded-lg bg-primary text-white font-label-md text-sm hover:opacity-90 transition-all flex items-center justify-center gap-1">
+          <span class="material-symbols-outlined text-[15px]">psychology</span>AI 코칭
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- AI 코칭 모달 -->
+<div id="modal-job-coaching" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeJobCoachingModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl z-10 flex flex-col max-h-[90vh]">
+    <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-border-subtle shrink-0">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary">psychology</span>
+        <div>
+          <h2 class="font-headline-sm text-headline-sm text-on-background" id="coaching-modal-title">AI 코칭</h2>
+          <p class="text-body-sm font-body-sm text-on-surface-variant" id="coaching-modal-company"></p>
+        </div>
+      </div>
+      <button onclick="closeJobCoachingModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-gray transition-colors">
+        <span class="material-symbols-outlined text-on-surface-variant">close</span>
+      </button>
+    </div>
+    <div class="px-6 py-4 bg-surface-gray/60 shrink-0">
+      <p class="text-label-sm font-label-sm text-on-surface-variant mb-2 uppercase tracking-widest">선발 기준</p>
+      <ul id="coaching-modal-criteria" class="space-y-1 text-body-sm font-body-sm text-on-surface"></ul>
+    </div>
+    <div class="px-6 py-4 flex-1 overflow-y-auto">
+      <div id="coaching-modal-idle" class="text-center py-8 text-on-surface-variant">
+        <span class="material-symbols-outlined text-4xl block mb-3 text-outline-variant">psychology</span>
+        <p class="font-label-md">내 이력서와 선발 기준을 비교 분석합니다.</p>
+        <p class="text-body-sm mt-1">이력서 빌더에 작성한 내용을 바탕으로 코칭이 제공됩니다.</p>
+      </div>
+      <div id="coaching-modal-loading" class="hidden text-center py-8 text-on-surface-variant">
+        <span class="material-symbols-outlined animate-spin text-3xl block mb-3 text-primary">progress_activity</span>
+        <p class="font-label-md">AI가 분석 중입니다...</p>
+      </div>
+      <div id="coaching-modal-result" class="hidden">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
+          <span class="font-label-md text-on-surface">코칭 결과</span>
+          <span id="coaching-modal-badge" class="hidden ml-auto text-[11px] px-2 py-0.5 rounded-full bg-secondary/10 text-secondary font-semibold"></span>
+        </div>
+        <pre id="coaching-modal-text" class="whitespace-pre-wrap text-body-sm font-body-sm text-on-surface leading-relaxed bg-surface-gray rounded-lg p-4"></pre>
+      </div>
+    </div>
+    <div class="px-6 pb-6 pt-3 border-t border-border-subtle shrink-0">
+      <button id="btn-run-job-coaching" onclick="runJobCoaching()"
+        class="w-full py-3 rounded-lg bg-primary text-white font-label-md hover:opacity-90 transition-all flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[18px]">psychology</span>
+        이 회사 기준으로 코칭 받기
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ 지원 · 면접 (샘플) ════════════════════════════════════════════════ -->
 <section>
     <h2 class="font-label-md text-on-surface-variant uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -283,5 +442,143 @@
             if (loadingEl) loadingEl.classList.add('hidden');
         }
     })();
+
+    // ── AI 코칭 모달 (회사별 선발 기준) ──────────────────────────────
+    // [수정 2026-06-25] dashboard.html과 동일한 선발 기준 — 데모 모드에서도 코칭 체험
+    const JOB_CRITERIA = {
+        naver: {
+            company: '네이버(주)', position: '백엔드 서버 개발자',
+            target_job: '백엔드 서버 개발자', target_industry: '인터넷/플랫폼 (검색·광고·커머스)', career_level: '중급(5~8년)',
+            criteria: [
+                'Java / Spring Boot 5년 이상 실무 경험 필수',
+                '월 수천만 건 이상 대용량 트래픽 서비스 운영 경험',
+                'MSA 설계 및 전환 경험 우대',
+                'MySQL · Redis 기반 데이터 모델링 능력',
+                '코드 품질·테스트 문화에 대한 높은 이해도',
+            ],
+            focus: 'Java/Spring 경력과 대용량 트래픽 처리 경험이 이력서에 잘 드러나는지, 네이버 기술 스택(Kafka·Redis·Kubernetes)과의 연관성을 어떻게 강조할지 구체적으로 코칭해주세요.',
+        },
+        kakao: {
+            company: '카카오(주)', position: 'AI 서비스 엔지니어',
+            target_job: 'AI 서비스 엔지니어 / MLOps', target_industry: 'AI·인터넷 플랫폼 (LLM·생성 AI 서비스)', career_level: '중급(5~8년)',
+            criteria: [
+                'Python 3년 이상, 딥러닝 프레임워크(PyTorch·TF) 실사용 경험',
+                'LLM 기반 서비스를 프로덕션에 배포·운영한 경험',
+                'MLflow·Kubeflow 등 MLOps 파이프라인 구축 경험 우대',
+                'API 서버(FastAPI) 개발 및 모델 서빙 최적화 능력',
+                '모델 성능 지표 설계·모니터링 경험',
+            ],
+            focus: 'Python 및 LLM/ML 프로덕션 경험이 이력서에서 명확히 보이는지, 카카오의 AI 서비스 도메인과 연결되는 서사가 있는지 코칭해주세요.',
+        },
+        toss: {
+            company: '비바리퍼블리카(토스)', position: '프론트엔드 엔지니어',
+            target_job: '프론트엔드 엔지니어', target_industry: '핀테크·금융 서비스', career_level: '중급(5~8년)',
+            criteria: [
+                'React · TypeScript 3년 이상 실무 경험 필수',
+                '금융·핀테크 서비스에서 사용자 경험(UX) 개선 경험',
+                'Next.js SSR·SSG 및 성능 최적화(Core Web Vitals) 역량',
+                '디자인 시스템 구축 또는 컴포넌트 라이브러리 기여 경험 우대',
+                '보안·컴플라이언스를 고려한 프론트 구현 능력',
+            ],
+            focus: 'React/TypeScript 실력과 사용자 경험 중심 사고가 이력서에 드러나는지, 토스의 고성능·고신뢰 금융 서비스 문화에 맞는 스토리텔링을 어떻게 구성할지 코칭해주세요.',
+        },
+    };
+
+    let _currentJobKey = null;
+
+    function openJobCoachingModal(jobKey) {
+        const job = JOB_CRITERIA[jobKey];
+        if (!job) return;
+        _currentJobKey = jobKey;
+        document.getElementById('coaching-modal-title').textContent   = job.position + ' 코칭';
+        document.getElementById('coaching-modal-company').textContent = job.company;
+        const ul = document.getElementById('coaching-modal-criteria');
+        ul.innerHTML = job.criteria.map(c =>
+            `<li class="flex items-start gap-2"><span class="material-symbols-outlined text-[14px] text-primary mt-0.5 shrink-0">check_small</span>${c}</li>`
+        ).join('');
+        document.getElementById('coaching-modal-idle').classList.remove('hidden');
+        document.getElementById('coaching-modal-loading').classList.add('hidden');
+        document.getElementById('coaching-modal-result').classList.add('hidden');
+        const btn = document.getElementById('btn-run-job-coaching');
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">psychology</span>이 회사 기준으로 코칭 받기';
+        document.getElementById('modal-job-coaching').classList.remove('hidden');
+    }
+    window.openJobCoachingModal = openJobCoachingModal;
+
+    function closeJobCoachingModal() {
+        document.getElementById('modal-job-coaching').classList.add('hidden');
+        _currentJobKey = null;
+    }
+    window.closeJobCoachingModal = closeJobCoachingModal;
+
+    async function runJobCoaching() {
+        const job = JOB_CRITERIA[_currentJobKey];
+        if (!job) return;
+        let resumeText = '';
+        try {
+            const rr = await fetch('/api/resumes?include_samples=true', { credentials: 'same-origin' });
+            const rd = await rr.json();
+            if (rd.success && rd.resumes && rd.resumes.length) {
+                const r = rd.resumes[0];
+                const parts = [];
+                if (r.full_name)  parts.push('이름: ' + r.full_name);
+                if (r.job_title)  parts.push('직책: ' + r.job_title);
+                if (r.summary)    parts.push('\n[소개]\n' + r.summary);
+                if (Array.isArray(r.experience)) {
+                    r.experience.forEach(e => {
+                        const desc = e.description || (Array.isArray(e.bullets) ? e.bullets.join('\n') : '');
+                        parts.push(`\n[경력] ${e.title || ''} / ${e.company || ''}\n${desc}`);
+                    });
+                }
+                if (Array.isArray(r.skills) && r.skills.length)
+                    parts.push('\n[기술] ' + r.skills.join(', '));
+                resumeText = parts.join('\n').trim();
+            }
+        } catch (_) {}
+        if (!resumeText) resumeText = '(데모 이력서 — 샘플 데이터 기준으로 코칭을 제공합니다.)';
+
+        document.getElementById('coaching-modal-idle').classList.add('hidden');
+        document.getElementById('coaching-modal-result').classList.add('hidden');
+        document.getElementById('coaching-modal-loading').classList.remove('hidden');
+        const btn = document.getElementById('btn-run-job-coaching');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>분석 중...';
+
+        try {
+            const r = await fetch('/api/coaching', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    resume_text:     resumeText,
+                    sample_type:     'it',
+                    target_job:      job.target_job,
+                    target_industry: job.target_industry,
+                    career_level:    job.career_level,
+                    focus:           job.focus,
+                })
+            });
+            const data = await r.json();
+            document.getElementById('coaching-modal-loading').classList.add('hidden');
+            if (data.success) {
+                document.getElementById('coaching-modal-text').textContent = data.coaching;
+                const badge = document.getElementById('coaching-modal-badge');
+                if (data.provider) { badge.textContent = data.provider.toUpperCase(); badge.classList.remove('hidden'); }
+                document.getElementById('coaching-modal-result').classList.remove('hidden');
+            } else {
+                showToast(data.message || 'AI 코칭 요청에 실패했습니다.', 'error');
+                document.getElementById('coaching-modal-idle').classList.remove('hidden');
+            }
+        } catch (e) {
+            document.getElementById('coaching-modal-loading').classList.add('hidden');
+            document.getElementById('coaching-modal-idle').classList.remove('hidden');
+            showToast('네트워크 오류가 발생했습니다.', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">psychology</span>다시 코칭 받기';
+        }
+    }
+    window.runJobCoaching = runJobCoaching;
 </script>
 </body></html>
