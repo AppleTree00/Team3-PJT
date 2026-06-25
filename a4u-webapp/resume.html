@@ -161,7 +161,9 @@
             <h1 class="font-headline-md sm:font-headline-lg text-headline-md sm:text-headline-lg text-on-background mb-1">이력서 관리</h1>
             <p class="font-body-md text-body-md text-on-surface-variant" id="resume-subtitle">내 이력서를 관리하고 AI 코칭을 받아보세요.</p>
         </div>
-        <a id="new-resume-btn" href="select.html?new=true"
+        <!-- [이전 코드] href="select.html?new=true" -->
+        <!-- [수정 2026-06-25] ?new=true 제거 → 업로드/직접입력 선택 화면 표시 -->
+        <a id="new-resume-btn" href="select.html"
            class="hidden shrink-0 px-5 py-2.5 bg-primary text-white rounded-xl font-label-md hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
             <span class="material-symbols-outlined text-[18px]">add</span>
             새 이력서 만들기
@@ -201,7 +203,9 @@
                     </div>
                 </div>
             </div>
-            <a href="select.html?new=true"
+            <!-- [이전 코드] href="select.html?new=true" -->
+            <!-- [수정 2026-06-25] ?new=true 제거 → 선택 화면 표시 -->
+            <a href="select.html"
                onclick="if(typeof blockIfDemo==='function'&&blockIfDemo())return false;"
                class="inline-flex items-center gap-2 px-8 py-3 bg-white text-primary rounded-xl font-label-md hover:bg-surface-container-low transition-all shadow-md">
                 <span class="material-symbols-outlined text-[18px]">add_circle</span>
@@ -383,7 +387,9 @@
 
                     // 마지막에 "새 이력서 만들기" 점선 카드
                     const addCard = document.createElement('a');
-                    addCard.href = 'select.html?new=true';
+                    // [이전 코드] addCard.href = 'select.html?new=true';
+                    // [수정 2026-06-25] ?new=true 제거 → 선택 화면 표시
+                    addCard.href = 'select.html';
                     addCard.className = 'border-2 border-dashed border-border-subtle rounded-xl flex flex-col items-center justify-center gap-2 text-on-surface-variant hover:border-primary hover:text-primary hover:bg-surface-container-low transition-all min-h-[240px]';
                     addCard.innerHTML = `<span class="material-symbols-outlined text-4xl">add_circle</span><span class="font-label-md">새 이력서 만들기</span>`;
                     addCard.addEventListener('click', e => { if (typeof blockIfDemo === 'function' && blockIfDemo()) e.preventDefault(); });
