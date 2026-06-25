@@ -1079,13 +1079,14 @@ async function generateSQL() {
         document.getElementById('migration-desc').value = desc;
         document.getElementById('generated-sql-wrapper').classList.remove('hidden');
         const badge = document.getElementById('ai-used-badge');
-        if (d.ai_used) {
-            badge.className = 'badge badge-green';
-            badge.textContent = 'AI 생성';
-        } else {
-            badge.className = 'badge badge-yellow';
-            badge.textContent = 'Mock 생성';
-        }
+        const methodLabel = {
+            'gemini':     { cls: 'badge badge-green',  text: '✦ Gemini AI 생성' },
+            'openai':     { cls: 'badge badge-green',  text: '✦ GPT AI 생성' },
+            'rule-based': { cls: 'badge badge-blue',   text: '⚙ 규칙 기반 생성' },
+        };
+        const info = methodLabel[d.method] || { cls: 'badge badge-yellow', text: d.method || '생성됨' };
+        badge.className = info.cls;
+        badge.textContent = info.text;
     } catch (e) { toast('SQL 생성 실패: ' + e.message, 'error'); }
 }
 

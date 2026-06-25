@@ -429,20 +429,40 @@ def generate_migration():
     data = request.get_json()
     natural_language = data.get('description', '')
 
-    # AI 미연동 상태: 자연어 → SQL 변환 플레이스홀더
-    # TODO: OpenAI / Claude API 키 설정 후 실제 AI 연동
-    ai_available = bool(os.environ.get('OPENAI_API_KEY') or os.environ.get('GEMINI_API_KEY'))
+    gemini_key = os.environ.get('GEMINI_API_KEY')
+    openai_key = os.environ.get('OPENAI_API_KEY')
 
-    if ai_available:
-        sql = _call_ai_for_sql(natural_language, db)
+    method = 'rule-based'
+    sql = ''
+
+    if gemini_key:
+        sql = _call_gemini_for_sql(natural_language, db)
+        if not sql.startswith('-- Gemini 오류'):
+            method = 'gemini'
+        else:
+            error_comment = sql
+            sql = _rule_based_sql_parser(natural_language, db)
+            sql = f"-- Gemini 호출 실패, 규칙 기반 생성으로 전환\n{error_comment}\n\n{sql}"
+            method = 'rule-based'
+    elif openai_key:
+        sql = _call_openai_for_sql(natural_language, db)
+        if not sql.startswith('-- OpenAI 오류'):
+            method = 'openai'
+        else:
+            error_comment = sql
+            sql = _rule_based_sql_parser(natural_language, db)
+            sql = f"-- OpenAI 호출 실패, 규칙 기반 생성으로 전환\n{error_comment}\n\n{sql}"
+            method = 'rule-based'
     else:
-        sql = _mock_sql_from_description(natural_language)
+        sql = _rule_based_sql_parser(natural_language, db)
+        method = 'rule-based'
 
     return jsonify(
         success=True,
         natural_language=natural_language,
         suggested_sql=sql,
-        ai_used=ai_available
+        ai_used=(method in ('gemini', 'openai')),
+        method=method
     )
 
 
@@ -492,70 +512,254 @@ def list_migrations():
     return jsonify(migrations=[m.to_dict() for m in migrations])
 
 
-def _mock_sql_from_description(description: str) -> str:
-    desc_lower = description.lower()
-    if '컬럼' in description or 'column' in desc_lower or '추가' in description:
-        return "-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 GEMINI_API_KEY 환경변수를 설정하세요.\n-- 예시:\nALTER TABLE users ADD COLUMN phone VARCHAR(20);"
-    elif '테이블' in description or 'table' in desc_lower or '생성' in description:
-        return "-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 GEMINI_API_KEY 환경변수를 설정하세요.\n-- 예시:\nCREATE TABLE new_table (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n  name VARCHAR(100) NOT NULL,\n  created_at DATETIME DEFAULT CURRENT_TIMESTAMP\n);"
-    elif '인덱스' in description or 'index' in desc_lower:
-        return "-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 GEMINI_API_KEY 환경변수를 설정하세요.\n-- 예시:\nCREATE INDEX idx_users_email ON users(email);"
-    else:
-        return f"-- AI 미연동 상태입니다. OPENAI_API_KEY 또는 GEMINI_API_KEY 환경변수를 설정하세요.\n-- 입력: {description}\n-- 여기에 SQL을 직접 작성하세요."
+def _get_schema_str(db_instance) -> str:
+    """현재 DB 스키마를 문자열로 반환"""
+    try:
+        inspector_obj = inspect(db_instance.engine)
+        schema_info = {}
+        for table_name in inspector_obj.get_table_names():
+            cols = [f"{c['name']} {c['type']}" for c in inspector_obj.get_columns(table_name)]
+            schema_info[table_name] = cols
+        return json.dumps(schema_info, ensure_ascii=False, indent=2)
+    except Exception:
+        return '{}'
 
 
-def _call_ai_for_sql(description: str, db_instance) -> str:
-    openai_key = os.environ.get('OPENAI_API_KEY')
-    gemini_key = os.environ.get('GEMINI_API_KEY')
-
-    inspector = inspect(db_instance.engine)
-    schema_info = {}
-    for table_name in inspector.get_table_names():
-        cols = [f"{c['name']} {c['type']}" for c in inspector.get_columns(table_name)]
-        schema_info[table_name] = cols
-
-    schema_str = json.dumps(schema_info, ensure_ascii=False, indent=2)
-    prompt = f"""현재 SQLite 데이터베이스 스키마:
+def _build_ai_prompt(description: str, schema_str: str) -> str:
+    return f"""현재 SQLite 데이터베이스 스키마:
 {schema_str}
 
-다음 요청을 SQL DDL/DML 문으로 변환해주세요 (SQLite 문법 사용):
+다음 요청을 SQLite DDL/DML 문으로 변환해주세요:
 "{description}"
 
-SQL만 반환하고 다른 설명은 생략하세요."""
+규칙:
+- SQLite 문법을 사용하세요 (ALTER TABLE ... ADD COLUMN, CREATE TABLE, CREATE INDEX 등)
+- SQL 문만 반환하고 설명 텍스트는 생략하세요
+- 세미콜론(;)으로 끝내세요
+- 여러 문장이면 줄바꿈으로 구분하세요"""
 
-    if openai_key:
+
+def _call_gemini_for_sql(description: str, db_instance) -> str:
+    gemini_key = os.environ.get('GEMINI_API_KEY')
+    if not gemini_key:
+        return '-- Gemini 오류: GEMINI_API_KEY 없음'
+    try:
+        from google import genai
+        from google.genai import types
+        schema_str = _get_schema_str(db_instance)
+        prompt = _build_ai_prompt(description, schema_str)
+        client = genai.Client(api_key=gemini_key)
+        models_to_try = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash']
+        last_error = None
+        for model_name in models_to_try:
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(max_output_tokens=600, temperature=0.2)
+                )
+                sql = response.text.strip()
+                # 마크다운 코드블록 제거
+                if sql.startswith('```'):
+                    sql = '\n'.join(sql.split('\n')[1:])
+                if sql.endswith('```'):
+                    sql = '\n'.join(sql.split('\n')[:-1])
+                return sql.strip()
+            except Exception as e:
+                last_error = e
+                continue
+        return f'-- Gemini 오류: {last_error}'
+    except Exception as e:
+        return f'-- Gemini 오류: {e}'
+
+
+def _call_openai_for_sql(description: str, db_instance) -> str:
+    openai_key = os.environ.get('OPENAI_API_KEY')
+    if not openai_key:
+        return '-- OpenAI 오류: OPENAI_API_KEY 없음'
+    try:
+        import openai
+        schema_str = _get_schema_str(db_instance)
+        prompt = _build_ai_prompt(description, schema_str)
+        client = openai.OpenAI(api_key=openai_key)
+        response = client.chat.completions.create(
+            model='gpt-4o-mini',
+            messages=[{'role': 'user', 'content': prompt}],
+            max_tokens=600,
+            temperature=0.2
+        )
+        sql = response.choices[0].message.content.strip()
+        if sql.startswith('```'):
+            sql = '\n'.join(sql.split('\n')[1:])
+        if sql.endswith('```'):
+            sql = '\n'.join(sql.split('\n')[:-1])
+        return sql.strip()
+    except Exception as e:
+        return f'-- OpenAI 오류: {e}'
+
+
+def _rule_based_sql_parser(description: str, db_instance=None) -> str:
+    """
+    한국어 자연어 → SQLite DDL 규칙 기반 파서
+    지원: ADD COLUMN / DROP COLUMN / RENAME COLUMN / CREATE TABLE / DROP TABLE / CREATE INDEX
+    """
+    import re
+
+    text = description.strip()
+
+    # ── 현재 DB 테이블 목록 로드 ─────────────────────────────────────
+    known_tables = []
+    if db_instance:
         try:
-            import openai
-            client = openai.OpenAI(api_key=openai_key)
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
-            )
-            return response.choices[0].message.content.strip()
-        except Exception as e:
-            return f"-- OpenAI 오류: {e}"
+            insp = inspect(db_instance.engine)
+            known_tables = insp.get_table_names()
+        except Exception:
+            pass
 
-    if gemini_key:
-        try:
-            from google import genai
-            from google.genai import types
-            client = genai.Client(api_key=gemini_key)
-            models_to_try = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-flash-latest']
-            last_error = None
-            for model_name in models_to_try:
-                try:
-                    response = client.models.generate_content(
-                        model=model_name,
-                        contents=prompt,
-                        config=types.GenerateContentConfig(max_output_tokens=500, temperature=0.3)
-                    )
-                    return response.text
-                except Exception as e:
-                    last_error = e
-                    continue
-            return f"-- Gemini 오류: {last_error}"
-        except Exception as e:
-            return f"-- Gemini 오류: {e}"
+    # re.ASCII 사용: \w = [a-zA-Z0-9_] 만 매칭, 한글 제외
+    ASCII = re.ASCII
 
-    return _mock_sql_from_description(description)
+    # ── 테이블명 추출 ─────────────────────────────────────────────────
+    found_table = None
+    # 1) 알려진 테이블명과 직접 매칭 (ASCII 모드: 한글 suffix 분리)
+    for t in known_tables:
+        if re.search(rf'\b{re.escape(t)}\b', text, re.IGNORECASE | ASCII):
+            found_table = t
+            break
+    # 2) "X 테이블", "X에", "X의" 패턴 (한글 경계를 ASCII \b로 처리)
+    if not found_table:
+        m = re.search(r'\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:테이블|에|의)', text, ASCII)
+        if m:
+            found_table = m.group(1)
+
+    table = found_table or 'TABLE_NAME'
+
+    # ── SQL 타입 추출 ─────────────────────────────────────────────────
+    # VARCHAR(...) 는 \b가 ) 뒤에서 작동 안 하므로 분리 처리
+    type_rx = re.compile(
+        r'(VARCHAR\s*\(\s*\d+\s*\))'                              # VARCHAR(n)
+        r'|\b(TEXT|INTEGER|INT|REAL|FLOAT|DOUBLE|'
+        r'BOOLEAN|BOOL|DATETIME|DATE|TIMESTAMP|BLOB|NUMERIC)\b',
+        re.IGNORECASE | ASCII
+    )
+    type_match = type_rx.search(text)
+    sql_type = None
+    if type_match:
+        sql_type = (type_match.group(1) or type_match.group(2)).upper()
+
+    # 한국어 타입 키워드
+    if not sql_type:
+        if any(k in text for k in ['문자열', '문자', '텍스트', '스트링']):
+            sql_type = 'TEXT'
+        elif any(k in text for k in ['정수형', '정수', '숫자', '번호', '카운트']):
+            sql_type = 'INTEGER'
+        elif any(k in text for k in ['실수', '소수', '부동']):
+            sql_type = 'REAL'
+        elif any(k in text for k in ['날짜시간', '타임스탬프', '일시']):
+            sql_type = 'DATETIME'
+        elif '날짜' in text:
+            sql_type = 'DATE'
+        elif any(k in text for k in ['불리언', '불린', '논리', '참거짓']):
+            sql_type = 'BOOLEAN'
+        else:
+            sql_type = 'TEXT'
+
+    # ── 제약조건 추출 ─────────────────────────────────────────────────
+    not_null = bool(re.search(r'NOT\s*NULL|필수|NULL\s*불가|NULL\s*아님', text, re.IGNORECASE))
+    unique   = bool(re.search(r'\bUNIQUE\b|고유|유일|중복\s*불가', text, re.IGNORECASE | ASCII))
+
+    default_val = None
+    dm = re.search(r'\bDEFAULT\s+([^\s,;]+)', text, re.IGNORECASE | ASCII)
+    if dm:
+        default_val = dm.group(1)
+    else:
+        dm2 = re.search(r'기본\s*값?\s*[:=]?\s*(\S+)', text)
+        if dm2:
+            raw = dm2.group(1)
+            # 숫자나 따옴표로 시작하는 경우만 기본값으로 인정
+            if re.match(r'^[\d\'"]', raw):
+                default_val = raw
+
+    constraints = ''
+    if not_null:
+        constraints += ' NOT NULL'
+    if unique:
+        constraints += ' UNIQUE'
+    if default_val:
+        constraints += f' DEFAULT {default_val}'
+
+    # ── 컬럼명 추출 ──────────────────────────────────────────────────
+    SQL_KW = {
+        'ALTER', 'TABLE', 'ADD', 'COLUMN', 'DROP', 'CREATE', 'INDEX', 'ON',
+        'NOT', 'NULL', 'DEFAULT', 'UNIQUE', 'PRIMARY', 'KEY', 'INTEGER',
+        'TEXT', 'VARCHAR', 'REAL', 'BOOLEAN', 'DATETIME', 'DATE', 'INT',
+        'FLOAT', 'BLOB', 'TIMESTAMP', 'NUMERIC', 'DOUBLE', 'SELECT', 'FROM',
+        'WHERE', 'RENAME', 'TO', 'IF', 'EXISTS', 'AUTOINCREMENT',
+        'CURRENT_TIMESTAMP', 'BOOL',
+    }
+    # 타입 매칭된 단어들도 제외
+    type_words = set()
+    if type_match:
+        type_words = {w.upper() for w in re.split(r'[\s()]', (type_match.group(1) or type_match.group(2))) if re.match(r'[A-Za-z]', w)}
+
+    exclude = SQL_KW | type_words | {t.upper() for t in known_tables}
+
+    # 테이블명 이후 텍스트에서 컬럼명 추출 (더 정확한 위치 기반)
+    table_pos = text.lower().find(found_table.lower()) if found_table else 0
+    search_text = text[table_pos + len(found_table):] if found_table and table_pos >= 0 else text
+
+    candidates = [w for w in re.findall(r'\b([a-zA-Z_][a-zA-Z0-9_]*)\b', search_text, ASCII)
+                  if w.upper() not in exclude]
+    # 전체 텍스트에서도 시도 (테이블 뒤에 없을 경우 대비)
+    if not candidates:
+        candidates = [w for w in re.findall(r'\b([a-zA-Z_][a-zA-Z0-9_]*)\b', text, ASCII)
+                      if w.upper() not in exclude]
+
+    found_col = candidates[0] if candidates else 'column_name'
+
+    # ── 두 번째 컬럼명 (RENAME용) ────────────────────────────────────
+    new_col = candidates[1] if len(candidates) > 1 else 'new_column_name'
+    # "full_name으로" 패턴: 컬럼명이 한글 조사에 붙어있는 경우
+    rename_m = re.search(r'\b([a-zA-Z_][a-zA-Z0-9_]*)(?:으로|로)\b', text, ASCII)
+    if rename_m:
+        new_col = rename_m.group(1)
+    else:
+        rename_m2 = re.search(r'(?:->|to\s+)([a-zA-Z_][a-zA-Z0-9_]*)\b', text, re.IGNORECASE | ASCII)
+        if rename_m2:
+            new_col = rename_m2.group(1)
+
+    # ── 동작 판별 ─────────────────────────────────────────────────────
+    is_drop_col    = bool(re.search(r'컬럼\s*삭제|컬럼\s*제거|필드\s*삭제|열\s*삭제|DROP\s+COLUMN', text, re.IGNORECASE))
+    is_drop_table  = bool(re.search(r'테이블\s*삭제|테이블\s*제거|DROP\s+TABLE', text, re.IGNORECASE)) and not is_drop_col
+    is_rename_col  = bool(re.search(r'이름\s*변경|컬럼명\s*변경|컬럼\s*이름|RENAME', text, re.IGNORECASE))
+    is_create_idx  = bool(re.search(r'인덱스|INDEX', text, re.IGNORECASE))
+    is_create_tbl  = bool(re.search(r'테이블\s*생성|테이블\s*만들|새\s*테이블|CREATE\s+TABLE', text, re.IGNORECASE)) and not is_drop_col
+
+    # ── SQL 생성 ──────────────────────────────────────────────────────
+    header = f'-- 규칙 기반 생성 | 입력: "{description}"\n'
+
+    if is_create_idx:
+        idx_name = f'idx_{table}_{found_col}'
+        return f'{header}CREATE INDEX {idx_name} ON {table}({found_col});'
+
+    if is_create_tbl:
+        return (
+            f'{header}'
+            f'CREATE TABLE {table} (\n'
+            f'  id INTEGER PRIMARY KEY AUTOINCREMENT,\n'
+            f'  -- 필요한 컬럼을 추가하세요\n'
+            f'  created_at DATETIME DEFAULT CURRENT_TIMESTAMP\n'
+            f');'
+        )
+
+    if is_drop_table:
+        return f'{header}DROP TABLE IF EXISTS {table};'
+
+    if is_drop_col:
+        return f'{header}ALTER TABLE {table} DROP COLUMN {found_col};'
+
+    if is_rename_col:
+        return f'{header}ALTER TABLE {table} RENAME COLUMN {found_col} TO {new_col};'
+
+    # 기본: ADD COLUMN
+    return f'{header}ALTER TABLE {table} ADD COLUMN {found_col} {sql_type}{constraints};'
