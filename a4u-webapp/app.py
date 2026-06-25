@@ -8,7 +8,7 @@ import io
 from flask import Flask, request, jsonify, redirect, send_from_directory, session, render_template
 from flask_cors import CORS
 from werkzeug.exceptions import RequestEntityTooLarge, HTTPException
-from models import db, User, UploadedFile, Resume, ResumeTemplate, JobApplication
+from models import db, User, UploadedFile, Resume, ResumeTemplate, JobApplication, DailyUsage
 
 def load_env():
     env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
@@ -92,6 +92,59 @@ ADMIN_DEMO_LOGOUT_PATHS = {
     # [이전 코드] 'timeline.html',
     'profile-menu.html', 'select.html'
 }
+
+# [수정 2026-06-25] 일일 API 사용량 제한 ───────────────────────────────
+# 환경변수 DAILY_API_LIMIT 으로 조정 (기본 100). 0 이하면 무제한.
+DAILY_API_LIMIT = int(os.environ.get('DAILY_API_LIMIT', '100'))
+
+# 카운트 대상 경로 prefix (POST/PUT/DELETE 요청에만 적용)
+_RATE_LIMITED_PREFIXES = ('/api/',)
+# 카운트 제외 경로 (읽기성 API, 인증 등)
+_RATE_LIMIT_EXCLUDE = {
+    '/api/auth/login', '/api/auth/logout', '/api/auth/register',
+    '/api/auth/me', '/api/templates', '/api/resumes', '/api/applications',
+}
+
+def _is_rate_limited_request():
+    """현재 요청이 사용량 카운트 대상인지 판별."""
+    if DAILY_API_LIMIT <= 0:
+        return False
+    if request.method not in ('POST', 'PUT', 'DELETE', 'PATCH'):
+        return False
+    path = request.path
+    if path in _RATE_LIMIT_EXCLUDE:
+        return False
+    if not any(path.startswith(p) for p in _RATE_LIMITED_PREFIXES):
+        return False
+    return True
+
+@app.before_request
+def check_daily_api_limit():
+    """일일 전체 API 사용량 제한 — 관리자는 제외."""
+    if not _is_rate_limited_request():
+        return
+    # 관리자 세션은 제한 없음
+    if session.get('is_admin'):
+        return
+    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    try:
+        row = DailyUsage.query.filter_by(date=today).first()
+        current = row.count if row else 0
+        if current >= DAILY_API_LIMIT:
+            return jsonify(
+                success=False,
+                message=f'오늘의 서비스 사용량 한도({DAILY_API_LIMIT}회)에 도달했습니다. 내일 다시 이용해 주세요.',
+                error_code='DAILY_LIMIT_EXCEEDED'
+            ), 429
+        # 카운트 증가 (응답 후가 아닌 요청 시점에 선점 — 동시 요청 방어)
+        if row:
+            row.count += 1
+        else:
+            row = DailyUsage(date=today, count=1)
+            db.session.add(row)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
 
 @app.before_request
 def require_login():

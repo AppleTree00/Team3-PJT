@@ -2,7 +2,7 @@ import os
 import json
 from datetime import datetime, timezone
 from flask import Blueprint, request, jsonify, session, current_app
-from models import db, User, ResumeTemplate, UploadedFile, SchemaMigration
+from models import db, User, ResumeTemplate, UploadedFile, SchemaMigration, DailyUsage
 from sqlalchemy import text, inspect
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
@@ -72,6 +72,14 @@ def get_stats():
 
     recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
 
+    # [수정 2026-06-25] 일일 사용량 현황 추가
+    import os as _os
+    daily_limit = int(_os.environ.get('DAILY_API_LIMIT', '100'))
+    today_str = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    today_row = DailyUsage.query.filter_by(date=today_str).first()
+    today_count = today_row.count if today_row else 0
+    recent_usage = [u.to_dict() for u in DailyUsage.query.order_by(DailyUsage.date.desc()).limit(7).all()]
+
     return jsonify(
         total_users=total_users,
         active_users=active_users,
@@ -80,7 +88,8 @@ def get_stats():
         total_migrations=total_migrations,
         new_users_week=new_users_week,
         new_files_week=new_files_week,
-        recent_users=[u.to_dict() for u in recent_users]
+        recent_users=[u.to_dict() for u in recent_users],
+        daily_usage=dict(today=today_count, limit=daily_limit, recent=recent_usage)
     )
 
 

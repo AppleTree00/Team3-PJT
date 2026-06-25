@@ -227,6 +227,17 @@ class UploadedFile(db.Model):
         }
 
 
+# [수정 2026-06-25] 일일 API 사용량 카운터 — 전체 서비스 합산, DB 영속
+class DailyUsage(db.Model):
+    __tablename__ = 'daily_usage'
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(10), nullable=False, unique=True)  # 'YYYY-MM-DD'
+    count = db.Column(db.Integer, default=0, nullable=False)
+
+    def to_dict(self):
+        return {'date': self.date, 'count': self.count}
+
+
 class SchemaMigration(db.Model):
     __tablename__ = 'schema_migrations'
     id = db.Column(db.Integer, primary_key=True)
