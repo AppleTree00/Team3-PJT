@@ -621,6 +621,12 @@
         });
         // [수정 2026-06-25] 스테퍼 동기화
         updateStepper(tabId);
+        // [수정 2026-06-25] 마지막 섹션(기술)에서 '다음 섹션' 버튼 숨김
+        const btnNext = document.getElementById('btnNextSection');
+        if (btnNext) {
+            const isLast = (tabId === STEP_ORDER[STEP_ORDER.length - 1]);
+            btnNext.style.display = isLast ? 'none' : '';
+        }
         // 섹션 상단으로 스크롤 (모바일)
         const stepperEl = document.getElementById('section-stepper');
         if (stepperEl) stepperEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
