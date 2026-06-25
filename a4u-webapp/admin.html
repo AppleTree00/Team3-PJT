@@ -993,6 +993,10 @@ async function loadTemplates() {
         const grid = document.getElementById('templates-grid');
         grid.innerHTML = (d.templates || []).map(t => {
             const cs = catStyle[t.category] || catStyle.general;
+            // [수정 2026-06-25] html_content·file_path 등 단따옴표 포함 필드가 onclick 속성을 탈출하여
+            // 카드 내부에 HTML이 렌더링되는 버그 수정: 필요한 필드만 slim 객체로 전달
+            // [이전 코드] onclick='openTemplateModal(${JSON.stringify(t).replace(/"/g,"&quot;")})'
+            const slim = { id: t.id, name: t.name, description: t.description || '', category: t.category, thumbnail_url: t.thumbnail_url || '', is_active: t.is_active };
             return `
           <div class="card p-0 overflow-hidden flex flex-col" style="border-radius:14px">
             <div class="flex items-center justify-center" style="height:120px;${cs.bg}">
@@ -1006,13 +1010,13 @@ async function loadTemplates() {
                 ${t.is_active ? '<span class="badge badge-green shrink-0">활성</span>' : '<span class="badge badge-gray shrink-0">비활성</span>'}
               </div>
               <span class="text-xs text-on-surface-variant mb-2">${catLabel[t.category] || t.category}</span>
-              <p class="text-xs text-on-surface-variant line-clamp-2 flex-1 leading-relaxed">${esc(t.description || '설명 없음')}</p>
+              <p class="text-xs text-on-surface-variant line-clamp-2 leading-relaxed">${esc(t.description || '설명 없음')}</p>
             </div>
             <div class="px-4 pb-4 pt-2 border-t border-border-subtle flex gap-2">
               <button class="btn btn-outline btn-sm flex-1" onclick="openTemplatePreview(${t.id}, '${esc(t.name)}')">
                 <span class="ms" style="font-size:15px">visibility</span> 미리보기
               </button>
-              <button class="btn btn-outline btn-sm" title="수정" onclick='openTemplateModal(${JSON.stringify(t).replace(/"/g,"&quot;")})'>
+              <button class="btn btn-outline btn-sm" title="수정" onclick='openTemplateModal(${JSON.stringify(slim).replace(/'/g, "&#39;")})'>
                 <span class="ms" style="font-size:15px">edit</span>
               </button>
               <button class="btn btn-danger btn-sm" title="삭제" onclick="deleteTemplate(${t.id})">
