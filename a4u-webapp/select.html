@@ -25,7 +25,9 @@
 <!-- Main Content Shell -->
 <main class="flex min-h-screen pt-24">
 <!-- Start Selection Overlay -->
-<div id="start-selection-overlay" class="fixed inset-0 z-[60] bg-surface-gray flex items-center justify-center">
+<!-- [수정 2026-06-25] 네비바(z-50) 위에 오버레이가 덮이는 문제 수정: z-[60]→z-[40], inset-0→inset-x-0 bottom-0 top-16 -->
+<!-- [이전 코드] <div id="start-selection-overlay" class="fixed inset-0 z-[60] bg-surface-gray flex items-center justify-center"> -->
+<div id="start-selection-overlay" class="fixed inset-x-0 bottom-0 top-16 z-[40] bg-surface-gray flex items-center justify-center">
     <div class="max-w-4xl w-full mx-auto px-4">
         <div class="text-center mb-12">
             <h1 class="font-display-lg text-display-lg text-on-background mb-4">어떻게 시작할까요?</h1>
