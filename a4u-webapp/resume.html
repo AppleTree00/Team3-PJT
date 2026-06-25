@@ -378,6 +378,15 @@
             if (resumes.length === 0) {
                 // [수정 2026-06-25] 이력서 없음 → 진입 차단, select.html 이동
                 // [이전 코드] if (onboardEl) onboardEl.classList.remove('hidden');
+                // [수정 2026-06-25] DEMO 모드는 가드 제외 (개인 이력서 없어도 진입 허용)
+                try {
+                    const mr = await fetch('/api/auth/me', { credentials: 'same-origin' });
+                    const md = await mr.json();
+                    if (md.success && md.mode === 'DEMO') {
+                        if (onboardEl) onboardEl.classList.remove('hidden');
+                        return;
+                    }
+                } catch(_) {}
                 sessionStorage.setItem('resume_guard_msg', '이력서를 먼저 등록해 주세요.');
                 window.location.href = 'select.html';
                 return;

@@ -17,7 +17,18 @@
         .then(function(d) {
             if (d.success && d.mode === 'DEMO') {
                 var el = document.getElementById('demo-mode-banner');
-                if (el) el.classList.remove('hidden');
+                if (el) {
+                    el.classList.remove('hidden');
+                    // [수정 2026-06-25] select.html 오버레이(top:64px)가 배너를 가리는 문제 수정
+                    // 배너가 보일 때 오버레이 top을 navbar+배너 높이로 조정
+                    var overlay = document.getElementById('start-selection-overlay');
+                    if (overlay) {
+                        // offsetHeight는 렌더 후 계산되므로 requestAnimationFrame 사용
+                        requestAnimationFrame(function() {
+                            overlay.style.top = (64 + el.offsetHeight) + 'px';
+                        });
+                    }
+                }
             }
         })
         .catch(function() {});
