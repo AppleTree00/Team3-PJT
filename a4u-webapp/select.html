@@ -1119,6 +1119,17 @@
         }
     })();
 </script><script src="common.js"></script>
+<!-- [수정 2026-06-25] 이력서 가드 메시지: resume.html/dashboard.html 에서 리다이렉트 시 toast 표시 -->
+<script>
+(function() {
+    var msg = sessionStorage.getItem('resume_guard_msg');
+    if (msg) {
+        sessionStorage.removeItem('resume_guard_msg');
+        // common.js의 showToast가 로드된 직후 실행
+        setTimeout(function() { showToast(msg, 'warning'); }, 300);
+    }
+})();
+</script>
 <!-- [수정 2026-06-25] 미저장 이탈 경고 커스텀 모달 -->
 <div id="unsaved-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-black/40">
     <div class="bg-white rounded-2xl shadow-xl w-[340px] p-6 flex flex-col gap-4">

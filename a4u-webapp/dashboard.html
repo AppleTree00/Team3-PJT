@@ -399,6 +399,19 @@
         } catch (_) {}
     })();
 
+    // [수정 2026-06-25] 이력서 없는 사용자 → 제출관리 진입 차단, select.html 이동
+    (async function resumeGuard() {
+        try {
+            const r = await fetch('/api/resumes', { credentials: 'same-origin' });
+            if (!r.ok) return;
+            const d = await r.json();
+            if (d.success && d.resumes && d.resumes.length === 0) {
+                sessionStorage.setItem('resume_guard_msg', '이력서를 먼저 등록해 주세요.');
+                window.location.href = 'select.html';
+            }
+        } catch(_) {}
+    })();
+
     // ── 알림 버튼 ──────────────────────────────────────────────────
     document.querySelectorAll('button').forEach(btn => {
         const icon = btn.querySelector('.material-symbols-outlined');

@@ -376,8 +376,11 @@
             if (loadingEl) loadingEl.classList.add('hidden');
 
             if (resumes.length === 0) {
-                // ── 빈 상태: 온보딩 UI ─────────────────────────────────
-                if (onboardEl) onboardEl.classList.remove('hidden');
+                // [수정 2026-06-25] 이력서 없음 → 진입 차단, select.html 이동
+                // [이전 코드] if (onboardEl) onboardEl.classList.remove('hidden');
+                sessionStorage.setItem('resume_guard_msg', '이력서를 먼저 등록해 주세요.');
+                window.location.href = 'select.html';
+                return;
             } else {
                 // ── 이력서 있음: 그리드 ────────────────────────────────
                 if (subtitleEl) subtitleEl.textContent = `총 ${resumes.length}개의 이력서 · AI 코칭으로 완성도를 높여보세요.`;

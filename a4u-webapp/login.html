@@ -337,7 +337,18 @@ async function handleLogin(e) {
             } else if (data.mode === 'DEMO') {
                 window.location.href = 'demo_dashboard.html';
             } else {
-                window.location.href = 'dashboard.html';
+                // [수정 2026-06-25] 이력서 없는 사용자 → select.html(이력서 등록) 우선 이동
+                try {
+                    const rr = await fetch('/api/resumes', { credentials: 'same-origin' });
+                    const rd = await rr.json();
+                    if (rd.success && rd.resumes && rd.resumes.length === 0) {
+                        window.location.href = 'select.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } catch(_) {
+                    window.location.href = 'dashboard.html';
+                }
             }
         } else {
             document.getElementById('login-email').classList.add('error');
@@ -383,7 +394,9 @@ async function handleRegister(e) {
         });
         const data = await r.json();
         if (data.success) {
-            window.location.href = 'dashboard.html';
+            // [수정 2026-06-25] 신규 가입 → 이력서 없음 → select.html 바로 이동
+            // [이전 코드] window.location.href = 'dashboard.html';
+            window.location.href = 'select.html';
         } else {
             showError('reg', data.message || '회원가입에 실패했습니다.');
             document.getElementById('reg-btn').disabled = false;
