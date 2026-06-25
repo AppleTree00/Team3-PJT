@@ -229,6 +229,32 @@ header .w-7 {
   transform: translateY(-1px);
 }
 
+.btn-warning {
+  background: #fffbf0;
+  color: #b45309;
+  border: 1.5px solid #fed7aa;
+  box-shadow: 0 1px 3px rgba(180,83,9,0.06);
+}
+
+.btn-warning:hover {
+  background: #fed7aa;
+  box-shadow: 0 2px 8px rgba(180,83,9,0.18);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1.5px solid #bbf7d0;
+  box-shadow: 0 1px 3px rgba(22,101,52,0.06);
+}
+
+.btn-success:hover {
+  background: #bbf7d0;
+  box-shadow: 0 2px 8px rgba(22,101,52,0.18);
+  transform: translateY(-1px);
+}
+
 .btn-sm {
   padding: 5px 11px;
   font-size: 12px;
