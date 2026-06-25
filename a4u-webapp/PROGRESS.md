@@ -264,3 +264,18 @@
   | common.js injectDemoBanner | found ✅ |
   | common.js showDemoBlockModal | found ✅ |
   | common.js handleDemoBlock | found ✅ |
+
+### [T022] 3-계정 시연 시나리오 갭 분석 및 수정 ✅ (2026-06-25)
+- **역할 담당:** QA 에이전트 (C) + Dev 에이전트 (B)
+- **분석 대상:** 일반사용자 / 사용자데모 / 관리자데모 3계정 시나리오 전체
+- **식별 갭 및 조치:**
+
+  | 갭 ID | 심각도 | 현상 | 조치 | 상태 |
+  |---|---|---|---|---|
+  | GAP-001 | HIGH | `demo_dashboard.html` "새 이력서 작성" 클릭 시 `builder.html`로 무조건 이동 (차단 없음) | `<a>` → `<button onclick="blockNewResume()">` 변경, 토스트 출력 함수 추가 | ✅ 완료 |
+  | GAP-003 | MEDIUM | `admin.html` `openTemplateModal()` 에서 기존 템플릿 편집도 `blockIfAdminDemo()`로 차단 (스펙: 추가만 차단) | `if (!t && blockIfAdminDemo()) return;` 조건 분리 | ✅ 완료 |
+  | GAP-004 | MEDIUM | `admin_routes.py` `update_template`에 `@demo_mode_blocked` 데코레이터 불필요 적용 (스펙: 편집은 허용) | 데코레이터 제거 | ✅ 완료 |
+
+- **GAP-002 재검토:** "이력서 보완하기" → `builder.html` 이동 — `builder.html` 자체에 샘플 데이터가 하드코딩(홍길동)되어 있어 사양 충족. 별도 수정 불필요.
+- **서버 재시작:** 완료 후 Flask 재기동 필요
+- **잔여 검증 항목 (통합 QA):** 아래 QA_REPORT.md 참조

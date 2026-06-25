@@ -39,10 +39,10 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-gutter">
             <div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-border-subtle flex flex-col gap-3">
                 <h3 class="font-label-md text-on-surface-variant uppercase tracking-wider">빠른 작업</h3>
-                <a href="builder.html" class="w-full text-left p-4 bg-surface-container-low hover:bg-surface-container rounded-lg transition-colors flex items-center gap-4">
+                <button onclick="blockNewResume()" class="w-full text-left p-4 bg-surface-container-low hover:bg-surface-container rounded-lg transition-colors flex items-center gap-4">
                     <span class="material-symbols-outlined text-primary">add_circle</span>
                     <span class="font-label-md text-on-surface">새 이력서 작성</span>
-                </a>
+                </button>
                 <a href="profile-menu.html" class="w-full text-left p-4 bg-surface-container-low hover:bg-surface-container rounded-lg transition-colors flex items-center gap-4">
                     <span class="material-symbols-outlined text-primary">person</span>
                     <span class="font-label-md text-on-surface">프로필 정보 보기</span>
@@ -201,6 +201,11 @@
             }
         } catch (_) {}
     })();
+
+    // ── 데모 모드: 새 이력서 작성 차단 ──────────────────────────
+    function blockNewResume() {
+        showToast('데모 모드에서는 새 이력서를 작성할 수 없습니다. 일반 계정으로 전환해 주세요.', 'warning');
+    }
 
     // ── 미구현 버튼 연결 ──────────────────────────────────────────
     document.querySelectorAll('button').forEach(btn => {

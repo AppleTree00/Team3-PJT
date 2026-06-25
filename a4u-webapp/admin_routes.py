@@ -215,7 +215,6 @@ def create_template():
 
 @admin_bp.route('/templates/<int:template_id>', methods=['PUT'])
 @admin_required
-@demo_mode_blocked
 def update_template(template_id):
     t = ResumeTemplate.query.get_or_404(template_id)
     data = request.get_json()

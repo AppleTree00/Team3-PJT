@@ -1026,7 +1026,8 @@ async function loadTemplates() {
 }
 
 function openTemplateModal(t = null) {
-    if (blockIfAdminDemo()) return;
+    // 관리자 데모: 새 템플릿 추가만 차단, 기존 편집은 허용
+    if (!t && blockIfAdminDemo()) return;
     document.getElementById('template-modal-title').textContent = t ? '템플릿 수정' : '템플릿 추가';
     document.getElementById('template-modal-id').value = t ? t.id : '';
     document.getElementById('template-modal-name').value = t ? t.name : '';
