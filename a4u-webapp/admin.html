@@ -257,63 +257,154 @@
 
       <!-- ── AI 스키마 콘솔 ──────────────────────────────────────────── -->
       <div id="section-schema" class="section">
-        <div class="mb-6">
-          <p class="text-xs text-on-surface-variant">자연어로 DB 스키마 변경 SQL을 생성하고 직접 적용합니다</p>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <!-- 현재 스키마 -->
-          <div class="card p-5">
-            <div class="flex items-center justify-between mb-4">
-              <h2 class="text-sm font-bold text-on-surface">현재 DB 스키마</h2>
-              <button class="btn btn-outline btn-sm" onclick="loadSchema()">
-                <span class="ms" style="font-size:16px">refresh</span> 새로고침
-              </button>
-            </div>
-            <div id="schema-display" class="bg-slate-900 text-green-400 rounded-xl p-4 text-xs font-mono overflow-auto max-h-80 leading-relaxed"></div>
+        <!-- ① 기능 소개 가이드 -->
+        <div class="rounded-2xl border border-border-subtle bg-gradient-to-br from-slate-50 to-slate-100 p-6 mb-7">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="ms text-primary" style="font-size:22px">terminal</span>
+            <h2 class="text-base font-bold text-on-surface">AI 스키마 콘솔이란?</h2>
           </div>
-
-          <!-- AI SQL 생성 -->
-          <div class="card p-5">
-            <div class="flex items-center justify-between mb-3">
-              <h2 class="text-sm font-bold text-on-surface">자연어 → SQL 생성</h2>
-              <span id="ai-status-badge" class="badge badge-yellow">
-                <span class="ms" style="font-size:13px">smart_toy</span>&nbsp;AI 확인 중
-              </span>
-            </div>
-            <textarea id="schema-description" class="input mb-3" rows="3" placeholder="예: users 테이블에 phone 컬럼 추가, VARCHAR(20), nullable&#10;예: 새로운 notifications 테이블 생성"></textarea>
-            <button class="btn btn-primary w-full justify-center mb-4" onclick="generateSQL()">
-              <span class="ms" style="font-size:17px">auto_awesome</span> SQL 생성
-            </button>
-            <div id="generated-sql-wrapper" class="hidden">
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="text-xs font-semibold text-on-surface-variant">생성된 SQL (수정 가능)</label>
-                <span id="ai-used-badge" class="badge"></span>
+          <p class="text-sm text-on-surface-variant mb-5 leading-relaxed">
+            데이터베이스 스키마를 <strong class="text-on-surface">코드 없이</strong> 변경할 수 있는 관리자 전용 도구입니다.<br>
+            운영 DB에 직접 반영되므로 신중하게 사용하세요. 모든 실행 이력은 자동 기록됩니다.
+          </p>
+          <!-- 두 방식 소개 카드 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="rounded-xl bg-white border border-primary/20 p-4 cursor-pointer hover:shadow-md transition-all schema-guide-card" onclick="switchSchemaMode('ai')">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="ms text-primary" style="font-size:20px">auto_awesome</span>
+                <span class="text-sm font-bold text-primary">방식 ① AI 자연어 모드</span>
               </div>
-              <textarea id="generated-sql" class="input font-mono text-xs mb-3" rows="8"></textarea>
-              <input id="migration-desc" type="text" class="input text-xs mb-3" placeholder="마이그레이션 설명 (선택)"/>
-              <button class="btn btn-primary w-full justify-center" onclick="applyMigration()">
-                <span class="ms" style="font-size:17px">play_arrow</span> 마이그레이션 적용
-              </button>
+              <p class="text-xs text-on-surface-variant leading-relaxed">
+                원하는 변경사항을 <strong>한국어로 설명</strong>하면 AI가 SQL을 자동 생성합니다.<br>
+                생성된 SQL을 검토한 뒤 직접 적용할 수 있어 안전합니다.
+              </p>
+              <ul class="mt-3 space-y-1 text-xs text-on-surface-variant">
+                <li class="flex items-center gap-1.5"><span class="ms text-success" style="font-size:14px">check_circle</span> SQL 몰라도 사용 가능</li>
+                <li class="flex items-center gap-1.5"><span class="ms text-success" style="font-size:14px">check_circle</span> 적용 전 SQL 미리보기·수정 가능</li>
+                <li class="flex items-center gap-1.5"><span class="ms text-success" style="font-size:14px">check_circle</span> OpenAI / Gemini / 규칙 기반 자동 선택</li>
+              </ul>
+              <div class="mt-3 pt-3 border-t border-border-subtle">
+                <span class="text-xs font-semibold text-primary">예시: "users 테이블에 phone 컬럼 추가, VARCHAR(20)"</span>
+              </div>
+            </div>
+            <div class="rounded-xl bg-white border border-amber-300/60 p-4 cursor-pointer hover:shadow-md transition-all schema-guide-card" onclick="switchSchemaMode('direct')">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="ms text-amber-600" style="font-size:20px">code</span>
+                <span class="text-sm font-bold text-amber-700">방식 ② SQL 직접 실행 모드</span>
+              </div>
+              <p class="text-xs text-on-surface-variant leading-relaxed">
+                <strong>SQL 구문을 직접 입력</strong>하여 즉시 실행합니다.<br>
+                정확한 SQL을 알고 있을 때 빠르게 적용할 수 있습니다.
+              </p>
+              <ul class="mt-3 space-y-1 text-xs text-on-surface-variant">
+                <li class="flex items-center gap-1.5"><span class="ms text-amber-500" style="font-size:14px">warning</span> SQL 지식 필요</li>
+                <li class="flex items-center gap-1.5"><span class="ms text-success" style="font-size:14px">check_circle</span> 즉시 실행 — 빠른 적용</li>
+                <li class="flex items-center gap-1.5"><span class="ms text-success" style="font-size:14px">check_circle</span> DDL · DML 모두 지원</li>
+              </ul>
+              <div class="mt-3 pt-3 border-t border-border-subtle">
+                <span class="text-xs font-semibold text-amber-700">예시: ALTER TABLE users ADD COLUMN phone VARCHAR(20);</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- 직접 SQL 실행 -->
-        <div class="card p-5 mb-6">
-          <h2 class="text-sm font-bold text-on-surface mb-3">SQL 직접 실행</h2>
-          <textarea id="direct-sql" class="input font-mono text-xs mb-3" rows="4" placeholder="ALTER TABLE users ADD COLUMN phone VARCHAR(20);"></textarea>
-          <div class="flex gap-3 items-center">
-            <input id="direct-desc" type="text" class="input text-xs" placeholder="마이그레이션 설명 (선택)"/>
-            <button class="btn btn-primary whitespace-nowrap" onclick="applyDirectSQL()">
-              <span class="ms" style="font-size:17px">terminal</span> 직접 실행
-            </button>
+        <!-- ② 방식 탭 선택 -->
+        <div class="flex items-center gap-2 mb-5">
+          <button id="tab-ai" onclick="switchSchemaMode('ai')"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all
+                   bg-primary text-white border-primary shadow-sm">
+            <span class="ms" style="font-size:16px">auto_awesome</span> AI 자연어 모드
+          </button>
+          <button id="tab-direct" onclick="switchSchemaMode('direct')"
+            class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all
+                   bg-white text-on-surface-variant border-border-subtle hover:bg-slate-50">
+            <span class="ms" style="font-size:16px">code</span> SQL 직접 실행 모드
+          </button>
+          <span id="ai-status-badge" class="badge badge-yellow ml-auto">
+            <span class="ms" style="font-size:13px">smart_toy</span>&nbsp;AI 확인 중
+          </span>
+        </div>
+
+        <!-- ③ AI 자연어 모드 패널 -->
+        <div id="panel-ai" class="mb-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 현재 스키마 -->
+            <div class="card p-5">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-bold text-on-surface">현재 DB 스키마</h2>
+                <button class="btn btn-outline btn-sm" onclick="loadSchema()">
+                  <span class="ms" style="font-size:16px">refresh</span> 새로고침
+                </button>
+              </div>
+              <div id="schema-display" class="bg-slate-900 text-green-400 rounded-xl p-4 text-xs font-mono overflow-auto max-h-72 leading-relaxed">로딩 중...</div>
+            </div>
+            <!-- AI SQL 생성 -->
+            <div class="card p-5">
+              <h2 class="text-sm font-bold text-on-surface mb-3">자연어로 변경사항 설명</h2>
+              <textarea id="schema-description" class="input mb-3" rows="3"
+                placeholder="예: users 테이블에 phone 컬럼 추가, VARCHAR(20), nullable&#10;예: 새로운 notifications 테이블 생성"></textarea>
+              <button class="btn btn-primary w-full justify-center mb-4" onclick="generateSQL()">
+                <span class="ms" style="font-size:17px">auto_awesome</span> AI로 SQL 생성
+              </button>
+              <div id="generated-sql-wrapper" class="hidden">
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="text-xs font-semibold text-on-surface-variant">생성된 SQL (수정 가능)</label>
+                  <span id="ai-used-badge" class="badge"></span>
+                </div>
+                <textarea id="generated-sql" class="input font-mono text-xs mb-3" rows="7"></textarea>
+                <input id="migration-desc" type="text" class="input text-xs mb-3" placeholder="마이그레이션 설명 (선택)"/>
+                <button class="btn btn-primary w-full justify-center" onclick="applyMigration()">
+                  <span class="ms" style="font-size:17px">play_arrow</span> 마이그레이션 적용
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- 마이그레이션 이력 -->
+        <!-- ④ SQL 직접 실행 모드 패널 -->
+        <div id="panel-direct" class="hidden mb-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- 현재 스키마 (공유) -->
+            <div class="card p-5">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-sm font-bold text-on-surface">현재 DB 스키마</h2>
+                <button class="btn btn-outline btn-sm" onclick="loadSchema()">
+                  <span class="ms" style="font-size:16px">refresh</span> 새로고침
+                </button>
+              </div>
+              <div class="bg-slate-900 text-green-400 rounded-xl p-4 text-xs font-mono overflow-auto max-h-72 leading-relaxed"
+                   id="schema-display-direct">로딩 중...</div>
+            </div>
+            <!-- 직접 SQL -->
+            <div class="card p-5">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="ms text-amber-600" style="font-size:18px">warning</span>
+                <h2 class="text-sm font-bold text-on-surface">SQL 직접 실행</h2>
+              </div>
+              <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3">
+                운영 DB에 즉시 반영됩니다. 실행 전 반드시 스키마를 확인하세요.
+              </p>
+              <textarea id="direct-sql" class="input font-mono text-xs mb-3" rows="7"
+                placeholder="-- 예시: 컬럼 추가&#10;ALTER TABLE users ADD COLUMN phone VARCHAR(20);&#10;&#10;-- 예시: 테이블 생성&#10;CREATE TABLE notifications (&#10;  id INTEGER PRIMARY KEY,&#10;  user_id INTEGER,&#10;  message TEXT&#10;);"></textarea>
+              <div class="flex gap-3 items-center">
+                <input id="direct-desc" type="text" class="input text-xs flex-1" placeholder="변경 설명 (이력에 기록됨)"/>
+                <button class="btn btn-primary whitespace-nowrap" onclick="applyDirectSQL()">
+                  <span class="ms" style="font-size:17px">terminal</span> 실행
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑤ 마이그레이션 이력 (공통) -->
         <div class="card p-5">
-          <h2 class="text-sm font-bold text-on-surface mb-4">마이그레이션 이력</h2>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-bold text-on-surface">마이그레이션 이력</h2>
+            <button class="btn btn-outline btn-sm" onclick="loadMigrations()">
+              <span class="ms" style="font-size:15px">refresh</span>
+            </button>
+          </div>
           <div id="migrations-list" class="space-y-2"></div>
         </div>
       </div>
@@ -569,12 +660,11 @@ function showSection(name) {
     if (name === 'templates') loadTemplates();
     if (name === 'files') loadFiles();
     if (name === 'schema') {
-        // AI 키가 없어 섹션 내용이 대체된 경우, load 함수를 호출하지 않음
-        if (document.getElementById('schema-display')) {
-            loadSchema(); loadMigrations();
+        if (document.getElementById('panel-ai')) {
+            switchSchemaMode('ai');
+            loadMigrations();
         }
     }
-    if (name === 'schema') { loadSchema(); loadMigrations(); }
 }
 
 // ── 대시보드 ──────────────────────────────────────────────────────────
@@ -1044,9 +1134,37 @@ async function deleteFile(id, name) {
 }
 
 // ── AI 스키마 콘솔 ────────────────────────────────────────────────────
+
+// 모드 전환 (ai | direct)
+function switchSchemaMode(mode) {
+    const panelAi     = document.getElementById('panel-ai');
+    const panelDirect = document.getElementById('panel-direct');
+    const tabAi       = document.getElementById('tab-ai');
+    const tabDirect   = document.getElementById('tab-direct');
+    if (!panelAi) return;
+
+    const isAi = mode === 'ai';
+    panelAi.classList.toggle('hidden', !isAi);
+    panelDirect.classList.toggle('hidden', isAi);
+
+    // 탭 활성 스타일
+    if (isAi) {
+        tabAi.className    = 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all bg-primary text-white border-primary shadow-sm';
+        tabDirect.className = 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all bg-white text-on-surface-variant border-border-subtle hover:bg-slate-50';
+    } else {
+        tabDirect.className = 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all bg-amber-500 text-white border-amber-500 shadow-sm';
+        tabAi.className     = 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-all bg-white text-on-surface-variant border-border-subtle hover:bg-slate-50';
+    }
+
+    // 스키마 동기화
+    loadSchema();
+}
+
 async function loadSchema() {
-    const el = document.getElementById('schema-display');
-    el.textContent = '로딩 중...';
+    const el1 = document.getElementById('schema-display');
+    const el2 = document.getElementById('schema-display-direct');
+    if (el1) el1.textContent = '로딩 중...';
+    if (el2) el2.textContent = '로딩 중...';
     try {
         const r = await fetch(`${API}/schema/tables`, { credentials: 'same-origin' });
         const d = await r.json();
@@ -1059,9 +1177,13 @@ async function loadSchema() {
             });
             output += '\n';
         }
-        el.textContent = output || '테이블 없음';
+        const text = output || '테이블 없음';
+        if (el1) el1.textContent = text;
+        if (el2) el2.textContent = text;
     } catch (e) {
-        el.textContent = `오류: ${e.message}`;
+        const msg = `오류: ${e.message}`;
+        if (el1) el1.textContent = msg;
+        if (el2) el2.textContent = msg;
     }
 }
 
