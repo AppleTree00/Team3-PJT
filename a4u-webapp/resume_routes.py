@@ -186,12 +186,18 @@ def me():
 
 @resume_bp.route('/auth/admin-demo-login', methods=['POST'])
 def admin_demo_login():
-    """관리자 데모 전용 로그인 — mode='DEMO'로 세션을 설정해 어드민 페이지에만 격리된다."""
+    """관리자 데모 전용 로그인 — mode='DEMO'로 세션 설정 후 /admin으로 redirect."""
+    from flask import redirect as flask_redirect
     user = User.query.filter_by(email='admin@a4u.com').first()
-    if not user or not user.check_password('admin1234'):
-        return jsonify(success=False, message='관리자 데모 계정을 찾을 수 없습니다.'), 401
+    if not user:
+        # fetch 호출인지 form POST인지 구분
+        if request.accept_mimetypes.accept_json:
+            return jsonify(success=False, message='관리자 계정이 존재하지 않습니다.'), 404
+        return flask_redirect('/login.html?error=no_admin')
     if user.status != 'active':
-        return jsonify(success=False, message='정지된 계정입니다.'), 403
+        if request.accept_mimetypes.accept_json:
+            return jsonify(success=False, message='정지된 계정입니다.'), 403
+        return flask_redirect('/login.html?error=suspended')
 
     session.permanent = True
     session['user_id'] = user.id
@@ -199,7 +205,16 @@ def admin_demo_login():
     session['is_admin'] = True
     session['mode'] = 'DEMO'
 
-    return jsonify(success=True, user=user.to_dict())
+    # form POST(브라우저) 방식 → 302 redirect로 쿠키를 안정적으로 전달
+    # fetch 방식(Accept: application/json) → JSON 반환 (하위 호환)
+    wants_json = (
+        request.content_type == 'application/json'
+        or request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        or 'application/json' in request.headers.get('Accept', '')
+    )
+    if wants_json:
+        return jsonify(success=True, user=user.to_dict())
+    return flask_redirect('/admin')
 
 
 ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}

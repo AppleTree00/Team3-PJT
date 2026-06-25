@@ -265,10 +265,12 @@ tailwind.config = {
               <span class="material-symbols-outlined text-[13px]">person</span>
               사용자 데모
             </button>
-            <button type="button" onclick="fillDemoAdmin()" class="py-2 border border-secondary/30 text-secondary text-xs rounded-lg hover:bg-surface-container transition-colors font-medium flex items-center justify-center gap-1">
-              <span class="material-symbols-outlined text-[13px]">admin_panel_settings</span>
-              관리자 데모
-            </button>
+            <form method="POST" action="/api/auth/admin-demo-login" style="display:contents">
+              <button type="submit" class="py-2 border border-secondary/30 text-secondary text-xs rounded-lg hover:bg-surface-container transition-colors font-medium flex items-center justify-center gap-1">
+                <span class="material-symbols-outlined text-[13px]">admin_panel_settings</span>
+                관리자 데모
+              </button>
+            </form>
           </div>
         </div>
 
