@@ -42,21 +42,28 @@
 </div>
 <div class="space-y-6">
 <div>
+<!-- [수정 2026-06-25] 하드코딩 더미 데이터 제거: 신규 작성 시 빈 상태로 시작해야 함 -->
+<!-- [이전 코드]
+<label ...>이름</label><input ... value="홍길동">
+<textarea ...>25년 경력의 Java 전문 개발자...</textarea>
+<input type="email" value="alex.r@design.com">
+<input type="text" value="+1 (555) 000-1234">
+-->
 <label class="block font-label-md text-label-md text-on-surface mb-2">이름</label>
-<input id="personalFullName" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="홍길동">
+<input id="personalFullName" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" placeholder="이름을 입력하세요">
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">전문가 요약</label>
-<textarea class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="4">25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있으며, 현재는 은퇴를 앞두고 후배 개발자 양성과 기술 고도화에 전념하고 있습니다.</textarea>
+<textarea id="personalSummary" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" rows="4" placeholder="본인의 경력과 강점을 간략히 소개해 주세요."></textarea>
 </div>
 <div class="grid grid-cols-2 gap-4">
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">이메일</label>
-<input class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="email" value="alex.r@design.com">
+<input id="personalEmail" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="email" placeholder="email@example.com">
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">전화번호</label>
-<input class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" value="+1 (555) 000-1234">
+<input id="personalPhone" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" type="text" placeholder="010-0000-0000">
 </div>
 </div>
 </div>
@@ -72,15 +79,17 @@
 <button class="absolute top-4 right-4 text-outline hover:text-error transition-colors">
 <span class="material-symbols-outlined">delete</span>
 </button>
+<!-- [수정 2026-06-25] 경력 더미 데이터 제거 -->
+<!-- [이전 코드] value="시니어 프로덕트 디자이너", value="InnovateTech Inc.", textarea 내 하드코딩 성과 -->
 <div class="space-y-4">
 <div class="grid grid-cols-2 gap-4">
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">직책</label>
-<input class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="시니어 프로덕트 디자이너">
+<input class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" placeholder="예) 시니어 개발자">
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">회사명</label>
-<input class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="InnovateTech Inc.">
+<input class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" placeholder="예) (주)회사명">
 </div>
 </div>
 <div class="grid grid-cols-2 gap-4">
@@ -95,7 +104,7 @@
 </div>
 <div>
 <label class="block font-label-md text-label-md text-on-surface mb-2">주요 성과</label>
-<textarea class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" rows="3">• 200만 명의 사용자가 이용하는 결제 플랫폼 디자인 주도.&lt;br&gt;• UX 오딧을 통해 이탈률 15% 감소.</textarea>
+<textarea class="w-full px-4 py-2 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" rows="3" placeholder="• 주요 성과나 담당 업무를 입력하세요."></textarea>
 </div>
 </div>
 </div>
@@ -103,19 +112,10 @@
 <div class="form-section" id="Skills">
 <h1 class="font-headline-lg text-headline-lg mb-8">보유 기술 및 전문성</h1>
 <div class="bg-white rounded-xl p-8 shadow-sm border border-border-subtle">
-<div class="flex flex-wrap gap-2 mb-6">
-<span class="px-4 py-2 rounded-full bg-success-mint text-secondary font-label-md text-label-md flex items-center gap-2">
-                            UI 디자인 <span class="material-symbols-outlined text-[16px] cursor-pointer">close</span>
-</span>
-<span class="px-4 py-2 rounded-full bg-success-mint text-secondary font-label-md text-label-md flex items-center gap-2">
-                            Figma <span class="material-symbols-outlined text-[16px] cursor-pointer">close</span>
-</span>
-<span class="px-4 py-2 rounded-full bg-success-mint text-secondary font-label-md text-label-md flex items-center gap-2">
-                            프로토타이핑 <span class="material-symbols-outlined text-[16px] cursor-pointer">close</span>
-</span>
-<span class="px-4 py-2 rounded-full bg-success-mint text-secondary font-label-md text-label-md flex items-center gap-2">
-                            디자인 시스템 <span class="material-symbols-outlined text-[16px] cursor-pointer">close</span>
-</span>
+<!-- [수정 2026-06-25] 하드코딩 스킬 태그 제거 (UI 디자인, Figma, 프로토타이핑, 디자인 시스템) -->
+<!-- [이전 코드] UI 디자인 / Figma / 프로토타이핑 / 디자인 시스템 하드코딩 태그 -->
+<div id="skills-list" class="flex flex-wrap gap-2 mb-6">
+<p class="text-sm text-outline">아래에서 기술을 추가하세요.</p>
 </div>
 <div class="relative">
 <input class="w-full pl-4 pr-12 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="기술 추가..." type="text">
@@ -143,15 +143,16 @@
 <div class="absolute top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-on-background text-white px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest z-10">
                     실시간 미리보기
                 </div>
+<!-- [수정 2026-06-25] 미리보기 헤더 하드코딩 제거 (홍길동, alex.r@design.com 등) -->
+<!-- [이전 코드] 홍길동 / 시니어 Java 개발자 / PM / alex.r@design.com / +1(555)000-1234 / 미국 뉴욕 -->
 <!-- Resume Header -->
 <div class="border-b-4 border-primary pb-8 mb-8 flex justify-between items-start">
 <div>
-<h1 class="font-display-lg text-display-lg uppercase tracking-tight text-on-background">홍길동</h1>
-<p class="font-headline-md text-headline-md text-primary mt-2">시니어 Java 개발자 / PM</p>
+<h1 class="preview-name font-display-lg text-display-lg uppercase tracking-tight text-on-background text-outline-variant">이름을 입력하세요</h1>
+<p class="preview-job-title font-headline-md text-headline-md text-primary mt-2"></p>
 <div class="flex gap-4 mt-4 text-label-sm text-outline font-label-sm">
-<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mail</span> alex.r@design.com</span>
-<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">phone</span> +1 (555) 000-1234</span>
-<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> 미국, 뉴욕</span>
+<span class="preview-email flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mail</span> <span class="preview-email-text text-outline-variant">이메일</span></span>
+<span class="preview-phone flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">phone</span> <span class="preview-phone-text text-outline-variant">전화번호</span></span>
 </div>
 </div>
 <div class="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md bg-surface-gray flex items-center justify-center shrink-0">
@@ -163,29 +164,28 @@
 <div class="grid grid-cols-3 gap-8 flex-grow">
 <!-- Main Column -->
 <div class="col-span-2 space-y-8">
+<!-- [수정 2026-06-25] 미리보기 소개·경력 하드코딩 완전 제거 -->
+<!-- [이전 코드] 25년 경력의 Java 개발자... / 수석개발자/PM / (주)한국시스템통합 / 미래정보기술 등 -->
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">소개</h3>
-<p class="text-body-sm font-body-sm leading-relaxed text-on-surface-variant">25년 경력의 Java 전문 개발자로서, 다수의 공공 및 금융 SI 프로젝트를 성공적으로 수행해 왔습니다. 대규모 시스템 아키텍처 설계부터 유지보수까지 전 과정을 아우르는 풍부한 경험을 보유하고 있으며, 현재는 은퇴를 앞두고 후배 개발자 양성과 기술 고도화에 전념하고 있습니다.</p>
+<p class="preview-summary text-body-sm font-body-sm leading-relaxed text-on-surface-variant text-outline-variant">전문가 요약을 입력하면 여기에 표시됩니다.</p>
 </section>
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">경력</h3>
-<div class="space-y-6"><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">수석 개발자 / 프로젝트 매니저 (PM)</h4><span class="text-[11px] font-bold text-outline">2010 — 현재</span></div><p class="text-label-sm font-label-sm text-primary mb-2">(주)한국시스템통합 (SI 중소기업)</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li class="">차세대 금융 시스템 구축 프로젝트 총괄 PM 수행.</li><li class="">Java 기반 프레임워크 고도화 및 표준 가이드 수립.</li><li class="">50명 규모의 개발팀 리딩 및 기술 멘토링.</li></ul></div><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">선임 개발자</h4><span class="text-[11px] font-bold text-outline">2000 — 2010</span></div><p class="text-label-sm font-label-sm text-primary mb-2">미래정보기술</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-2 list-disc list-inside"><li class="">공공기관 행정망 통합 시스템 개발 참여.</li><li class="">Spring Framework 기반 웹 서비스 아키텍처 설계.</li></ul></div></div>
+<div id="preview-experience" class="space-y-6 text-body-sm font-body-sm text-outline-variant">경력 사항을 입력하면 여기에 표시됩니다.</div>
 </section>
 </div>
 <!-- Sidebar Column -->
 <div class="space-y-8 border-l border-border-subtle pl-8">
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">기술</h3>
-<div class="flex flex-wrap gap-2"><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">JAVA / J2EE</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">SPRING FRAMEWORK</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">ORACLE / MYSQL</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">PM / PL</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">SYSTEM ARCHITECTURE</span></div>
+<!-- [수정 2026-06-25] 미리보기 기술·학력 하드코딩 제거 (JAVA/J2EE, SPRING FRAMEWORK 등) -->
+<!-- [이전 코드] JAVA/J2EE, SPRING FRAMEWORK, ORACLE/MYSQL, PM/PL, SYSTEM ARCHITECTURE 하드코딩 태그 / 인터랙션 디자인 학사 / School of Visual Arts -->
+<div id="preview-skills" class="flex flex-wrap gap-2 text-outline-variant text-[10px]">기술을 추가하면 여기에 표시됩니다.</div>
 </section>
 <section>
 <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">학력</h3>
-<div class="space-y-4">
-<div>
-<p class="font-label-md text-label-md text-on-background">인터랙션 디자인 학사 (BFA)</p>
-<p class="text-label-sm font-label-sm text-outline">School of Visual Arts</p>
-</div>
-</div>
+<div id="preview-education" class="space-y-4 text-outline-variant text-[10px]">학력 사항을 입력하면 여기에 표시됩니다.</div>
 </section>
 </div>
 </div>
@@ -371,30 +371,77 @@
     });
 
     // ── 빌더 ↔ 미리보기 실시간 동기화 ──────────────────────────────
+    // [수정 2026-06-25] 새 input ID·preview selector에 맞게 매핑 업데이트
     function syncPreview() {
-        const mappings = {
-            'personalFullName': '.preview-name',
-            'personalSummary': '.preview-summary',
-            'personalEmail': '.preview-email',
-            'personalPhone': '.preview-phone',
-            'personalLocation': '.preview-location',
-            'jobTitle': '.preview-job-title'
-        };
+        const mappings = [
+            { inputId: 'personalFullName', selector: '.preview-name', placeholder: '이름을 입력하세요' },
+            { inputId: 'personalSummary',  selector: '.preview-summary', placeholder: '전문가 요약을 입력하면 여기에 표시됩니다.' },
+            { inputId: 'personalEmail',    selector: '.preview-email-text', placeholder: '이메일' },
+            { inputId: 'personalPhone',    selector: '.preview-phone-text', placeholder: '전화번호' },
+        ];
 
-        for (const [inputId, previewSelector] of Object.entries(mappings)) {
+        for (const { inputId, selector, placeholder } of mappings) {
             const inputEl = document.getElementById(inputId);
-            const previewEl = document.querySelector(previewSelector);
+            const previewEl = document.querySelector(selector);
+            if (!inputEl || !previewEl) continue;
 
-            if (inputEl && previewEl) {
-                // 초기 값 설정
-                previewEl.textContent = inputEl.value;
-                // 이벤트 리스너 추가
-                inputEl.addEventListener('input', (e) => {
-                    previewEl.textContent = e.target.value;
-                });
-            }
+            const update = (val) => {
+                previewEl.textContent = val.trim() || placeholder;
+                previewEl.classList.toggle('text-outline-variant', !val.trim());
+            };
+            update(inputEl.value);
+            inputEl.addEventListener('input', (e) => update(e.target.value));
         }
     }
+
+    // ── 스킬 태그 추가 기능 ────────────────────────────────────────
+    (function initSkillInput() {
+        const skillInput = document.querySelector('input[placeholder="기술 추가..."]');
+        const addBtn = skillInput ? skillInput.nextElementSibling : null;
+        const skillsList = document.getElementById('skills-list');
+        const previewSkills = document.getElementById('preview-skills');
+
+        function addSkill() {
+            const val = skillInput.value.trim();
+            if (!val) return;
+
+            // 입력 폼에 태그 추가
+            const placeholder = skillsList.querySelector('p');
+            if (placeholder) placeholder.remove();
+
+            const tag = document.createElement('span');
+            tag.className = 'px-4 py-2 rounded-full bg-success-mint text-secondary font-label-md text-label-md flex items-center gap-2';
+            tag.innerHTML = `${val} <span class="material-symbols-outlined text-[16px] cursor-pointer">close</span>`;
+            tag.querySelector('span').addEventListener('click', () => {
+                tag.remove();
+                updatePreviewSkills();
+                if (!skillsList.children.length) {
+                    const p = document.createElement('p');
+                    p.className = 'text-sm text-outline';
+                    p.textContent = '아래에서 기술을 추가하세요.';
+                    skillsList.appendChild(p);
+                }
+            });
+            skillsList.appendChild(tag);
+
+            skillInput.value = '';
+            updatePreviewSkills();
+        }
+
+        function updatePreviewSkills() {
+            const tags = [...skillsList.querySelectorAll('span')].map(s => s.childNodes[0].textContent.trim()).filter(Boolean);
+            if (tags.length === 0) {
+                previewSkills.textContent = '기술을 추가하면 여기에 표시됩니다.';
+            } else {
+                previewSkills.innerHTML = tags.map(t =>
+                    `<span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">${t}</span>`
+                ).join('');
+            }
+        }
+
+        if (addBtn) addBtn.addEventListener('click', addSkill);
+        if (skillInput) skillInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } });
+    })();
 
     // 페이지 로드 시 동기화 시작
     syncPreview();
