@@ -80,10 +80,13 @@ UNAVAILABLE_SAMPLE_MSG = (
 
 
 def _build_prompt(sample_type: str, resume_text: str, focus: str,
-                  target_job: str = '', target_industry: str = '', career_level: str = '') -> tuple[str, str]:
+                  target_job: str = '', target_industry: str = '', career_level: str = '',
+                  work_narrative: str = '', motivation: str = '', aspiration: str = '') -> tuple[str, str]:
     """system prompt + user message 반환
     [수정 2026-06-25] Phase 1: target_job·target_industry·career_level 맥락 주입
     — DB 변경 없이 이미 학습된 모델 역량을 최대 활용
+    [수정 2026-06-25] Phase 2: 자기소개 3필드(직무수행경험·지원동기·향후포부) 추가
+    — extra_json 활용, DB 변경 없음
     """
     config = FEW_SHOT_EXAMPLES.get(sample_type)
     if not config:
@@ -107,6 +110,19 @@ def _build_prompt(sample_type: str, resume_text: str, focus: str,
         if context_lines else ""
     )
 
+    # [수정 2026-06-25] 자기소개 블록 — 작성된 항목만 포함, 코치에게 핵심 맥락 제공
+    cover_parts = []
+    if work_narrative:
+        cover_parts.append(f"[직무 수행 경험]\n{work_narrative}")
+    if motivation:
+        cover_parts.append(f"[지원 동기]\n{motivation}")
+    if aspiration:
+        cover_parts.append(f"[향후 포부]\n{aspiration}")
+    cover_block = (
+        "\n=== 자기소개 (지원자 작성) ===\n" + "\n\n".join(cover_parts) + "\n"
+        if cover_parts else ""
+    )
+
     system_prompt = f"""{config['system']}
 {context_block}
 === Few-shot 예시 ===
@@ -118,12 +134,13 @@ def _build_prompt(sample_type: str, resume_text: str, focus: str,
 - 3~5개의 구체적 개선 포인트를 제시하세요.
 - 수치가 없는 경우 추정 수치를 제안해주세요.
 - 목표 직무·업종이 명시된 경우 해당 분야 채용공고 키워드와 트렌드를 반영하세요.
+- 자기소개(지원동기·향후포부)가 제공된 경우, 이를 이력서 서사와 연결해 일관성 있는 스토리텔링을 코칭하세요.
 """
     user_msg = f"""다음 이력서 내용을 코칭해주세요.
 
 [이력서 내용]
 {resume_text}
-
+{cover_block}
 [코칭 중점 사항]
 {focus or '전체적인 표현 개선 및 성과 수치화'}
 """
@@ -215,6 +232,10 @@ def coaching():
     target_job      = (data.get('target_job') or '').strip()
     target_industry = (data.get('target_industry') or '').strip()
     career_level    = (data.get('career_level') or '').strip()
+    # [수정 2026-06-25] Phase 2: 자기소개 3필드 수신 (Cover 탭 extra_json 값)
+    work_narrative  = (data.get('work_narrative') or '').strip()
+    motivation      = (data.get('motivation')     or '').strip()
+    aspiration      = (data.get('aspiration')     or '').strip()
 
     if not resume_text:
         return jsonify(success=False, message='이력서 내용을 입력해주세요.'), 400
@@ -225,7 +246,8 @@ def coaching():
 
     system_prompt, user_msg = _build_prompt(
         sample_type, resume_text, focus,
-        target_job=target_job, target_industry=target_industry, career_level=career_level
+        target_job=target_job, target_industry=target_industry, career_level=career_level,
+        work_narrative=work_narrative, motivation=motivation, aspiration=aspiration
     )
 
     openai_key = os.environ.get('OPENAI_API_KEY', '')

@@ -30,6 +30,7 @@
 
 <!-- [수정 2026-06-25] 섹션 브레드크럼 + 진행률 바 -->
 <div id="section-stepper" class="mb-6 sticky top-0 bg-surface-gray z-10 pt-2 pb-4 -mx-6 px-6 border-b border-border-subtle/50">
+    <!-- [수정 2026-06-25] 자기소개 탭 추가 (4번째 스텝) — extra_json 활용, DB 변경 없음 -->
     <nav class="flex items-center mb-3" aria-label="이력서 작성 단계">
         <button data-step="Personal Info" onclick="switchTab('Personal Info')" class="section-step flex items-center gap-2 group cursor-pointer">
             <span class="step-num w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 bg-surface-container-high text-outline">1</span>
@@ -44,6 +45,11 @@
         <button data-step="Skills" onclick="switchTab('Skills')" class="section-step flex items-center gap-2 group cursor-pointer">
             <span class="step-num w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 bg-surface-container-high text-outline">3</span>
             <span class="step-label hidden sm:block font-label-md text-label-md text-on-surface-variant transition-all duration-200">기술</span>
+        </button>
+        <div class="step-line flex-1 min-w-[16px] max-w-[48px] h-0.5 bg-border-subtle mx-2 transition-all duration-300"></div>
+        <button data-step="Cover" onclick="switchTab('Cover')" class="section-step flex items-center gap-2 group cursor-pointer">
+            <span class="step-num w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 bg-surface-container-high text-outline">4</span>
+            <span class="step-label hidden sm:block font-label-md text-label-md text-on-surface-variant transition-all duration-200">자기소개</span>
         </button>
     </nav>
     <div class="flex items-center gap-3">
@@ -213,6 +219,39 @@
   </div>
 </div>
 </div>
+<!-- [수정 2026-06-25] 자기소개 섹션 추가 — 직무수행경험·지원동기·향후포부
+     extra_json 에 저장, DB 마이그레이션 없음 -->
+<div class="form-section" id="Cover">
+<h1 class="font-headline-lg text-headline-lg mb-2">자기소개</h1>
+<p class="text-body-sm font-body-sm text-on-surface-variant mb-8">AI 코칭의 정확도를 높이는 핵심 정보입니다. 솔직하고 구체적으로 작성할수록 좋습니다.</p>
+
+<div class="space-y-6">
+  <div class="bg-white rounded-xl p-6 shadow-sm border border-border-subtle">
+    <label class="block font-label-md text-label-md text-on-surface mb-1">직무 수행 경험</label>
+    <p class="text-body-sm font-body-sm text-on-surface-variant mb-3">지금까지 어떤 일을 해왔는지, 어떤 역할에서 가장 잘 할 수 있는지 자유롭게 서술해 주세요.</p>
+    <textarea id="coverWorkNarrative" rows="5"
+      class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+      placeholder="예) 5년간 B2B SaaS 제품의 백엔드 개발을 담당했으며, 대용량 데이터 처리와 API 설계에 강점이 있습니다. 팀 리딩 경험도 있어 기술 결정에 주도적으로 참여해 왔습니다."></textarea>
+  </div>
+
+  <div class="bg-white rounded-xl p-6 shadow-sm border border-border-subtle">
+    <label class="block font-label-md text-label-md text-on-surface mb-1">지원 동기</label>
+    <p class="text-body-sm font-body-sm text-on-surface-variant mb-3">왜 이 직무·회사·업종에 지원하고 싶은지 작성해 주세요.</p>
+    <textarea id="coverMotivation" rows="4"
+      class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+      placeholder="예) 핀테크 산업의 빠른 성장성과 기술 혁신에 매력을 느끼며, 실제 금융 서비스에 영향을 주는 개발 업무를 하고 싶습니다."></textarea>
+  </div>
+
+  <div class="bg-white rounded-xl p-6 shadow-sm border border-border-subtle">
+    <label class="block font-label-md text-label-md text-on-surface mb-1">향후 포부</label>
+    <p class="text-body-sm font-body-sm text-on-surface-variant mb-3">3~5년 후 어떤 모습으로 성장하고 싶은지 작성해 주세요.</p>
+    <textarea id="coverAspiration" rows="4"
+      class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+      placeholder="예) 아키텍처 설계와 팀 빌딩 역량을 키워 테크 리드로 성장하고, 궁극적으로는 제품 방향성에도 기여하는 개발자가 되고 싶습니다."></textarea>
+  </div>
+</div>
+</div>
+
 <!-- Navigation buttons -->
 <div class="mt-12 flex justify-between items-center">
 <!-- [수정 2026-06-25] onclick 누락 수정 + 미저장 이탈 경고 연결 -->
@@ -357,7 +396,8 @@
 <script src="common.js"></script>
 <script>
     // ── [수정 2026-06-25] 브레드크럼 + 진행률 스테퍼 ───────────────────
-    const STEP_ORDER = ['Personal Info', 'Experience', 'Skills'];
+    // [수정 2026-06-25] Cover(자기소개) 탭 추가
+    const STEP_ORDER = ['Personal Info', 'Experience', 'Skills', 'Cover'];
     let _activeStep = 'Personal Info';
 
     // [수정 2026-06-25] calcSectionProgress: 카드 단위 → 개별 필드 단위로 변경
@@ -380,6 +420,12 @@
             const count = tags.length;
             if (count >= 5) return 100;
             return Math.round((count / 5) * 100);
+        }
+        // [수정 2026-06-25] Cover 섹션 진행률
+        if (sectionId === 'Cover') {
+            const ids = ['coverWorkNarrative', 'coverMotivation', 'coverAspiration'];
+            const filled = ids.filter(id => { const el = document.getElementById(id); return el && el.value.trim(); }).length;
+            return Math.round((filled / ids.length) * 100);
         }
         return 0;
     }
@@ -606,15 +652,23 @@
             fields[el.id] = el.value;
         });
 
+        // [수정 2026-06-25] extra 딕셔너리에 자기소개 3필드 포함 (extra_json에 저장)
+        const extra = {
+            work_narrative: (fields['coverWorkNarrative'] || '').trim(),
+            motivation:     (fields['coverMotivation']    || '').trim(),
+            aspiration:     (fields['coverAspiration']    || '').trim()
+        };
+
         const payload = {
-            title: fields['resumeTitle'] || fields['jobTitle'] || '내 이력서',
-            full_name: (fields['firstName'] || '') + ' ' + (fields['lastName'] || ''),
-            email: fields['email'] || '',
-            phone: fields['phone'] || '',
-            location: fields['location'] || '',
-            job_title: fields['jobTitle'] || fields['currentTitle'] || '',
-            summary: fields['summary'] || fields['professionalSummary'] || '',
-            sample_type: 'custom'
+            title:       fields['resumeTitle'] || fields['personalFullName'] ? (fields['personalFullName'] + ' 이력서') : '내 이력서',
+            full_name:   fields['personalFullName'] || '',
+            email:       fields['personalEmail'] || '',
+            phone:       fields['personalPhone'] || '',
+            location:    fields['location'] || '',
+            job_title:   fields['jobTitle'] || fields['currentTitle'] || '',
+            summary:     fields['personalSummary'] || fields['summary'] || '',
+            sample_type: 'custom',
+            extra
         };
 
         try {
@@ -665,9 +719,17 @@
         });
 
         // 기술 태그 수집
-        const skillTags = [...document.querySelectorAll('#skills-list .skill-tag span:first-child')]
-            .map(el => el.textContent.trim()).filter(Boolean);
+        const skillTags = [...document.querySelectorAll('#skills-list [data-skill]')]
+            .map(el => el.getAttribute('data-skill') || el.textContent.trim()).filter(Boolean);
         if (skillTags.length) parts.push('\n[기술] ' + skillTags.join(', '));
+
+        // [수정 2026-06-25] 자기소개 3필드 수집 (Cover 탭)
+        const workNarrative = (document.getElementById('coverWorkNarrative')?.value || '').trim();
+        const motivation    = (document.getElementById('coverMotivation')?.value    || '').trim();
+        const aspiration    = (document.getElementById('coverAspiration')?.value    || '').trim();
+        if (workNarrative) parts.push('\n[직무 수행 경험]\n' + workNarrative);
+        if (motivation)    parts.push('\n[지원 동기]\n' + motivation);
+        if (aspiration)    parts.push('\n[향후 포부]\n' + aspiration);
 
         const resumeText = parts.join('\n').trim();
         if (!resumeText) {
@@ -689,12 +751,16 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
+                // [수정 2026-06-25] Phase 2: 자기소개 3필드 포함 (Cover 탭)
                 body: JSON.stringify({
                     resume_text:      resumeText,
                     sample_type:      'general',
                     target_job:       targetJob,
                     target_industry:  targetIndustry,
-                    career_level:     careerLevel
+                    career_level:     careerLevel,
+                    work_narrative:   workNarrative,
+                    motivation:       motivation,
+                    aspiration:       aspiration
                 })
             });
             const data = await r.json();

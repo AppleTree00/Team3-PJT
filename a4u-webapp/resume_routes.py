@@ -53,6 +53,7 @@ _HTML_EXPORT_TMPL = """<!DOCTYPE html>
 {summary_html}
 {experience_html}
 {skills_html}
+{cover_html}
 <div class="footer">생성일: {generated_at} · a4u Resume AI Coaching</div>
 </body></html>"""
 
@@ -100,6 +101,23 @@ def _export_resume_html(resume: 'Resume', user: 'User'):
         skill_tags = ''.join(f'<span class="skill-tag">{s}</span>' for s in skills)
         skills_html = (f'<section><h2>보유 기술</h2><div class="skills">{skill_tags}</div></section>') if skills else ''
 
+        # [수정 2026-06-25] 자기소개 3필드 — extra_json 에서 추출해 HTML 내보내기에 포함
+        try:
+            extra = json.loads(resume.extra_json or '{}')
+        except Exception:
+            extra = {}
+        cover_parts = []
+        if extra.get('work_narrative', '').strip():
+            cover_parts.append(f'<h3 style="font-size:13px;font-weight:700;margin:0 0 4px;color:#3b4bdb;">직무 수행 경험</h3>'
+                               f'<p style="font-size:13px;line-height:1.8;color:#333;white-space:pre-line;">{extra["work_narrative"]}</p>')
+        if extra.get('motivation', '').strip():
+            cover_parts.append(f'<h3 style="font-size:13px;font-weight:700;margin:8px 0 4px;color:#3b4bdb;">지원 동기</h3>'
+                               f'<p style="font-size:13px;line-height:1.8;color:#333;white-space:pre-line;">{extra["motivation"]}</p>')
+        if extra.get('aspiration', '').strip():
+            cover_parts.append(f'<h3 style="font-size:13px;font-weight:700;margin:8px 0 4px;color:#3b4bdb;">향후 포부</h3>'
+                               f'<p style="font-size:13px;line-height:1.8;color:#333;white-space:pre-line;">{extra["aspiration"]}</p>')
+        cover_html = (f'<section><h2>자기소개</h2>{"".join(cover_parts)}</section>') if cover_parts else ''
+
         html_content = _HTML_EXPORT_TMPL.format(
             full_name=resume.full_name or '',
             job_title=resume.job_title or '',
@@ -107,6 +125,7 @@ def _export_resume_html(resume: 'Resume', user: 'User'):
             summary_html=summary_html,
             experience_html=experience_html,
             skills_html=skills_html,
+            cover_html=cover_html,
             generated_at=datetime.now(timezone.utc).strftime('%Y년 %m월 %d일'),
         )
 
