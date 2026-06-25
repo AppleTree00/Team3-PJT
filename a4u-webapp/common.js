@@ -69,6 +69,8 @@ function injectDemoBanner() {
     if (document.getElementById('demo-mode-banner')) return;
     const banner = document.createElement('div');
     banner.id = 'demo-mode-banner';
+    // fixed: 네비바(64px) 바로 아래에 고정, 어떤 레이아웃(flex/grid/block)이든 영향 없음
+    banner.style.cssText = 'position:fixed;top:64px;left:0;right:0;z-index:49;box-sizing:border-box;';
     banner.className = 'bg-amber-50 border-b-2 border-amber-300 text-amber-800 px-4 py-3 text-center text-sm font-semibold w-full';
     banner.innerHTML = `
         <div class="max-w-screen-xl mx-auto flex items-center justify-center gap-2 flex-wrap">
@@ -77,12 +79,17 @@ function injectDemoBanner() {
             <a href="/login.html" class="ml-2 px-3 py-1 bg-primary text-white rounded-full text-xs hover:opacity-90 whitespace-nowrap font-semibold">지금 가입하면 모든 기능 무료!</a>
         </div>
     `;
-    const main = document.querySelector('main');
-    if (main) {
-        main.insertBefore(banner, main.firstChild);
-    } else {
-        document.body.insertBefore(banner, document.body.firstChild);
-    }
+    document.body.appendChild(banner);
+
+    // 배너 높이만큼 <main>에 추가 패딩을 주어 콘텐츠가 배너에 가려지지 않게 함
+    requestAnimationFrame(() => {
+        const h = banner.getBoundingClientRect().height;
+        const main = document.querySelector('main');
+        if (main && h > 0) {
+            const currentPt = parseFloat(getComputedStyle(main).paddingTop) || 0;
+            main.style.paddingTop = (currentPt + h) + 'px';
+        }
+    });
 }
 
 // ── 데모 차단 모달 ──────────────────────────────────────────────────
