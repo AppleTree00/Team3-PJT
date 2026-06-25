@@ -272,6 +272,23 @@
         <p class="font-label-md">AI가 분석 중입니다...</p>
       </div>
       <div id="coaching-modal-result" class="hidden">
+        <!-- [수정 2026-06-25] 예상 성공률 + 지원 추천 카드 -->
+        <div id="coaching-modal-score-wrap" class="hidden mb-4 rounded-xl p-4 border-2 flex items-center gap-4">
+          <div class="relative w-16 h-16 shrink-0">
+            <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+              <circle cx="32" cy="32" r="26" fill="none" stroke-width="7" stroke="#E8EAF0"/>
+              <circle id="coaching-score-ring" cx="32" cy="32" r="26" fill="none" stroke-width="7"
+                stroke-dasharray="163.4" stroke-dashoffset="163.4"
+                stroke-linecap="round" stroke="currentColor"
+                class="transition-all duration-700"/>
+            </svg>
+            <span id="coaching-score-pct" class="absolute inset-0 flex items-center justify-center font-bold text-sm"></span>
+          </div>
+          <div class="flex-1">
+            <p id="coaching-score-label" class="font-label-md text-sm font-bold mb-0.5"></p>
+            <p id="coaching-score-msg" class="text-body-sm font-body-sm text-on-surface-variant leading-snug"></p>
+          </div>
+        </div>
         <div class="flex items-center gap-2 mb-3">
           <span class="material-symbols-outlined text-secondary text-[18px]">check_circle</span>
           <span class="font-label-md text-on-surface">코칭 결과</span>
@@ -505,6 +522,47 @@
     }
     window.closeJobCoachingModal = closeJobCoachingModal;
 
+    // [수정 2026-06-25] 예상 성공률 렌더링 헬퍼
+    // score: 0~100 정수 또는 null (없으면 카드 숨김)
+    // <45%: 빨강(비추천) / 45~64%: 주황(보완후 재고) / 65%+: 초록(추천)
+    function _renderMatchScore(score) {
+        const wrap  = document.getElementById('coaching-modal-score-wrap');
+        if (score == null || score === undefined) { wrap.classList.add('hidden'); return; }
+        const pct   = Math.round(score);
+        const circ  = 163.4;  // 2π × r (r=26)
+        const offset = circ - (circ * pct / 100);
+        const ring  = document.getElementById('coaching-score-ring');
+        const pctEl = document.getElementById('coaching-score-pct');
+        const label = document.getElementById('coaching-score-label');
+        const msg   = document.getElementById('coaching-score-msg');
+
+        let color, borderColor, labelText, msgText;
+        if (pct >= 65) {
+            color = '#22c55e'; borderColor = '#bbf7d0';
+            labelText = '✅ 지원을 추천합니다!';
+            msgText   = '이력서가 해당 직무 선발 기준과 잘 맞습니다. 자신 있게 지원해 보세요.';
+        } else if (pct >= 45) {
+            color = '#f59e0b'; borderColor = '#fde68a';
+            labelText = '⚠️ 보완 후 지원을 고려해 보세요.';
+            msgText   = '일부 요건에 부합하나 부족한 부분이 있습니다. 코칭 내용을 반영해 이력서를 보강하세요.';
+        } else {
+            color = '#ef4444'; borderColor = '#fecaca';
+            labelText = '❌ 지원을 추천하지 않습니다.';
+            msgText   = '현재 이력서와 직무 요건 간 차이가 큽니다. 이력서를 충분히 보완한 후 지원하세요.';
+        }
+
+        ring.style.strokeDashoffset = offset;
+        ring.style.color = color;
+        pctEl.textContent = pct + '%';
+        pctEl.style.color = color;
+        label.textContent = labelText;
+        label.style.color = color;
+        msg.textContent   = msgText;
+        wrap.style.borderColor = borderColor;
+        wrap.style.backgroundColor = borderColor + '40';
+        wrap.classList.remove('hidden');
+    }
+
     async function runJobCoaching() {
         const job = JOB_CRITERIA[_currentJobKey];
         if (!job) return;
@@ -572,6 +630,8 @@
                     badge.textContent = data.provider.toUpperCase();
                     badge.classList.remove('hidden');
                 }
+                // [수정 2026-06-25] 예상 성공률 렌더링
+                _renderMatchScore(data.match_score);
                 document.getElementById('coaching-modal-result').classList.remove('hidden');
             } else {
                 showToast(data.message || 'AI 코칭 요청에 실패했습니다.', 'error');

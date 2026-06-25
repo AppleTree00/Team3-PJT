@@ -135,6 +135,10 @@ def _build_prompt(sample_type: str, resume_text: str, focus: str,
 - 수치가 없는 경우 추정 수치를 제안해주세요.
 - 목표 직무·업종이 명시된 경우 해당 분야 채용공고 키워드와 트렌드를 반영하세요.
 - 자기소개(지원동기·향후포부)가 제공된 경우, 이를 이력서 서사와 연결해 일관성 있는 스토리텔링을 코칭하세요.
+- [수정 2026-06-25] 응답 맨 마지막 줄에 반드시 아래 형식으로 매칭 점수를 추가하세요.
+  이력서가 해당 직무·선발 기준에 부합하는 정도를 0~100 정수로 평가합니다.
+  (경력·기술·도메인 경험·키워드 일치 등을 종합 판단, 다른 텍스트 없이 이 한 줄만):
+  [MATCH_SCORE: XX]
 """
     user_msg = f"""다음 이력서 내용을 코칭해주세요.
 
@@ -189,10 +193,25 @@ def _call_gemini(system_prompt: str, user_msg: str) -> str:
 
 
 def _mock_coaching(sample_type: str, resume_text: str) -> str:
-    """API 키 없을 때 샘플 기반 Mock 코칭 반환"""
+    """API 키 없을 때 샘플 기반 Mock 코칭 반환
+    [수정 2026-06-25] 이력서 내용량 기반 간이 매칭 점수 추가 (MATCH_SCORE)
+    """
     config = FEW_SHOT_EXAMPLES.get(sample_type, FEW_SHOT_EXAMPLES['general'])
     label = config['label']
     preview = resume_text[:100].replace('\n', ' ') if resume_text else '(내용 없음)'
+
+    # 이력서 내용량 기반 간이 점수 (Mock 용도, 데모 수준)
+    text_len = len(resume_text)
+    if text_len < 80:
+        mock_score = 28
+    elif text_len < 250:
+        mock_score = 44
+    elif text_len < 500:
+        mock_score = 58
+    elif text_len < 900:
+        mock_score = 67
+    else:
+        mock_score = 74
 
     return f"""[{label} 코칭 결과 — 데모 모드]
 
@@ -216,7 +235,7 @@ def _mock_coaching(sample_type: str, resume_text: str) -> str:
 ---
 ⚠️ 이 결과는 데모 목적의 Mock 응답입니다.
 실제 AI 코칭을 사용하려면 OPENAI_API_KEY 또는 GEMINI_API_KEY를 설정하세요.
-"""
+[MATCH_SCORE: {mock_score}]"""
 
 
 # ─────────────────────────────────────────────
@@ -274,9 +293,18 @@ def coaching():
         coaching_result = _mock_coaching(sample_type, resume_text)
         provider = 'mock'
 
+    # [수정 2026-06-25] MATCH_SCORE 파싱 — AI 응답 마지막 줄 [MATCH_SCORE: XX] 추출 후 본문에서 제거
+    import re as _re
+    match_score = None
+    score_match = _re.search(r'\[MATCH_SCORE:\s*(\d+)\]', coaching_result)
+    if score_match:
+        match_score = min(100, max(0, int(score_match.group(1))))
+        coaching_result = _re.sub(r'\s*\[MATCH_SCORE:\s*\d+\]\s*$', '', coaching_result).strip()
+
     return jsonify(
         success=True,
         coaching=coaching_result,
+        match_score=match_score,
         sample_type=sample_type,
         sample_label=FEW_SHOT_EXAMPLES[sample_type]['label'],
         provider=provider
