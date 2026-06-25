@@ -364,6 +364,13 @@
 <!-- Footer -->
 {% include '_footer.html' %}
 <script>
+    // [수정 2026-06-25] ?new=true 파라미터: 오버레이 건너뛰고 즉시 빈 폼으로 이동
+    // ?new=true 없으면 오버레이("어떻게 시작할까요?")가 표시됨
+    if (new URLSearchParams(window.location.search).get('new') === 'true') {
+        const _initOverlay = document.getElementById('start-selection-overlay');
+        if (_initOverlay) _initOverlay.remove();
+    }
+
     // ── [수정 2026-06-25] 브레드크럼 + 진행률 스테퍼 ───────────────────
     const STEP_ORDER = ['Personal Info', 'Experience', 'Skills'];
     let _activeStep = 'Personal Info';
