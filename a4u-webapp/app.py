@@ -252,13 +252,14 @@ def init_db():
             "ALTER TABLE resume_templates ADD COLUMN file_path VARCHAR(500)",
             "ALTER TABLE resume_templates ADD COLUMN file_type VARCHAR(10)",
             "ALTER TABLE resume_templates ADD COLUMN original_filename VARCHAR(255)",
+            "ALTER TABLE job_applications ADD COLUMN applied_date VARCHAR(20)",
         ]
         for sql in migrations:
             try:
                 db.session.execute(db.text(sql))
+                db.session.commit()
             except Exception:
-                pass
-        db.session.commit()
+                db.session.rollback()
 
         # 기본 관리자 계정
         if not User.query.filter_by(email='admin@a4u.com').first():
