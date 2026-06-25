@@ -26,7 +26,7 @@
 <!-- Builder Interface -->
 <div class="w-full flex">
 <!-- Form Side -->
-<div class="w-1/2 p-margin-desktop overflow-y-auto max-h-[calc(100vh-120px)]">
+<div class="w-full md:w-1/2 p-margin-desktop overflow-y-auto max-h-[calc(100vh-120px)] pb-24 md:pb-0">
 <div class="form-section active" id="Personal Info">
 <div class="flex justify-between items-start mb-8">
 <h1 class="font-headline-lg text-headline-lg">인적 사항</h1>
@@ -136,8 +136,8 @@
 </button>
 </div>
 </div>
-<!-- Preview Side -->
-<div class="w-1/2 bg-surface-container h-[calc(100vh-120px)] p-12 overflow-y-auto">
+<!-- Preview Side (desktop only) -->
+<div class="hidden md:flex w-1/2 bg-surface-container h-[calc(100vh-120px)] p-12 overflow-y-auto" id="preview-panel">
 <div class="max-w-[210mm] mx-auto bg-white shadow-xl min-h-[297mm] p-12 flex flex-col relative group">
 <!-- Overlay indicator -->
 <div class="absolute top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-on-background text-white px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest z-10">
@@ -198,6 +198,71 @@
 </div>
 </div>
 </main>
+
+<!-- Mobile FAB: Preview Button (mobile only) -->
+<button id="mobile-preview-fab" class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-label-md text-label-md shadow-lg hover:opacity-90 active:scale-95 transition-all" onclick="openPreviewModal()">
+    <span class="material-symbols-outlined text-[20px]">visibility</span>
+    미리보기
+</button>
+
+<!-- Mobile Fullscreen Preview Modal -->
+<div id="preview-modal" class="hidden fixed inset-0 z-50 bg-surface-container overflow-y-auto">
+    <!-- Modal Header -->
+    <div class="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-white border-b border-border-subtle shadow-sm">
+        <span class="font-label-md text-label-md text-on-surface">이력서 미리보기</span>
+        <button onclick="closePreviewModal()" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-gray transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant">close</span>
+        </button>
+    </div>
+    <!-- Modal Preview Content -->
+    <div class="p-4">
+        <div class="max-w-[210mm] mx-auto bg-white shadow-xl min-h-[297mm] p-8 flex flex-col relative">
+            <!-- Resume Header -->
+            <div class="border-b-4 border-primary pb-8 mb-8 flex justify-between items-start">
+                <div>
+                    <h1 class="preview-name font-display-lg text-display-lg uppercase tracking-tight text-on-background text-outline-variant">이름을 입력하세요</h1>
+                    <p class="preview-job-title font-headline-md text-headline-md text-primary mt-2"></p>
+                    <div class="flex flex-wrap gap-3 mt-4 text-label-sm text-outline font-label-sm">
+                        <span class="preview-email flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mail</span> <span class="preview-email-text text-outline-variant">이메일</span></span>
+                        <span class="preview-phone flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">phone</span> <span class="preview-phone-text text-outline-variant">전화번호</span></span>
+                    </div>
+                </div>
+                <div class="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-md bg-surface-gray flex items-center justify-center shrink-0 ml-4">
+                    <span id="modal-avatar-icon" class="material-symbols-outlined text-5xl text-outline-variant">person</span>
+                    <img id="modal-avatar-img" class="hidden w-full h-full object-cover" alt="프로필"/>
+                </div>
+            </div>
+            <!-- Resume Content Grid -->
+            <div class="grid grid-cols-3 gap-6 flex-grow">
+                <div class="col-span-2 space-y-8">
+                    <section>
+                        <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">소개</h3>
+                        <p class="preview-summary text-body-sm font-body-sm leading-relaxed text-on-surface-variant text-outline-variant">전문가 요약을 입력하면 여기에 표시됩니다.</p>
+                    </section>
+                    <section>
+                        <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">경력</h3>
+                        <div class="space-y-6"><div><div class="flex justify-between items-start mb-1"><h4 class="font-label-md text-label-md text-on-background">수석 개발자 / 프로젝트 매니저 (PM)</h4><span class="text-[11px] font-bold text-outline">2010 — 현재</span></div><p class="text-label-sm font-label-sm text-primary mb-2">(주)한국시스템통합 (SI 중소기업)</p><ul class="text-body-sm font-body-sm text-on-surface-variant space-y-1 list-disc list-inside"><li>차세대 금융 시스템 구축 프로젝트 총괄 PM 수행.</li><li>Java 기반 프레임워크 고도화 및 표준 가이드 수립.</li></ul></div></div>
+                    </section>
+                </div>
+                <div class="space-y-8 border-l border-border-subtle pl-6">
+                    <section>
+                        <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">기술</h3>
+                        <div class="flex flex-wrap gap-2"><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">JAVA / J2EE</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">SPRING FRAMEWORK</span><span class="px-2 py-1 bg-surface-gray rounded text-[10px] font-bold text-on-surface-variant">ORACLE / MYSQL</span></div>
+                    </section>
+                    <section>
+                        <h3 class="font-label-md text-label-md uppercase tracking-widest text-primary mb-3">학력</h3>
+                        <div><p class="font-label-md text-label-md text-on-background">인터랙션 디자인 학사 (BFA)</p><p class="text-label-sm font-label-sm text-outline">School of Visual Arts</p></div>
+                    </section>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-border-subtle flex justify-between items-center text-[10px] text-outline uppercase tracking-tighter">
+                <span>a4u 에서 생성됨</span>
+                <span>페이지 1 / 1</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Footer -->
 {% include '_footer.html' %}
 <script src="common.js"></script>
@@ -254,7 +319,7 @@
                 nameEl.textContent = data.user.name;
                 profileLink.parentNode.insertBefore(nameEl, profileLink);
                 if (data.user.avatar_url) {
-                    ['nav', 'form', 'preview'].forEach(prefix => {
+                    ['nav', 'form', 'preview', 'modal'].forEach(prefix => {
                         const img = document.getElementById(`${prefix}-avatar-img`);
                         const icon = document.getElementById(`${prefix}-avatar-icon`);
                         if (img) { img.src = data.user.avatar_url; img.classList.remove('hidden'); }
@@ -370,7 +435,25 @@
         }
     });
 
-    // ── 빌더 ↔ 미리보기 실시간 동기화 ──────────────────────────────
+    // ── 모바일 미리보기 모달 열기/닫기 ────────────────────────────
+    function openPreviewModal() {
+        const modal = document.getElementById('preview-modal');
+        modal.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+    }
+
+    function closePreviewModal() {
+        const modal = document.getElementById('preview-modal');
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
+    // ESC 키로 모달 닫기
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closePreviewModal();
+    });
+
+    // ── 빌더 ↔ 미리보기 실시간 동기화 (데스크톱 패널 + 모달 동시 업데이트) ──
     // [수정 2026-06-25] 새 input ID·preview selector에 맞게 매핑 업데이트
     function syncPreview() {
         const mappings = [
@@ -382,12 +465,14 @@
 
         for (const { inputId, selector, placeholder } of mappings) {
             const inputEl = document.getElementById(inputId);
-            const previewEl = document.querySelector(selector);
-            if (!inputEl || !previewEl) continue;
+            const previewEls = document.querySelectorAll(selector);
+            if (!inputEl || !previewEls.length) continue;
 
             const update = (val) => {
-                previewEl.textContent = val.trim() || placeholder;
-                previewEl.classList.toggle('text-outline-variant', !val.trim());
+                previewEls.forEach(el => {
+                    el.textContent = val.trim() || placeholder;
+                    el.classList.toggle('text-outline-variant', !val.trim());
+                });
             };
             update(inputEl.value);
             inputEl.addEventListener('input', (e) => update(e.target.value));
