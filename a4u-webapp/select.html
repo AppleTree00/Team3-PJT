@@ -902,15 +902,21 @@
     }
     updateStepper('Personal Info');
 
-    // [수정 2026-06-25] 미저장 이탈 경고: 대시보드 이동 시 확인 다이얼로그
+    // [수정 2026-06-25] 미저장 이탈 경고: 커스텀 모달 (확인/취소 버튼)
     function goToDashboard() {
         if (isDirty) {
-            const ok = window.confirm(
-                '아직 이력서가 저장되지 않았어요.\n저장되지 않은 이력서는 새로 작성해야 합니다.\n\n정말로 이동하시나요?'
-            );
-            if (!ok) return;
+            document.getElementById('unsaved-modal').classList.remove('hidden');
+        } else {
+            window.location.href = '/dashboard.html';
         }
+    }
+    function unsavedConfirm() {
+        document.getElementById('unsaved-modal').classList.add('hidden');
+        isDirty = false;
         window.location.href = '/dashboard.html';
+    }
+    function unsavedCancel() {
+        document.getElementById('unsaved-modal').classList.add('hidden');
     }
     // 브라우저 탭 닫기 / URL 직접 입력 등 외부 이탈도 경고
     window.addEventListener('beforeunload', function (e) {
@@ -984,4 +990,26 @@
         }
     })();
 </script><script src="common.js"></script>
+<!-- [수정 2026-06-25] 미저장 이탈 경고 커스텀 모달 -->
+<div id="unsaved-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-2xl shadow-xl w-[340px] p-6 flex flex-col gap-4">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-warning text-[28px]">warning</span>
+            <span class="font-title-md text-title-md text-on-surface">저장되지 않은 이력서</span>
+        </div>
+        <p class="text-body-md font-body-md text-on-surface-variant leading-relaxed">
+            아직 이력서가 저장되지 않았어요.<br>
+            저장되지 않은 이력서는 새로 작성해야 합니다.<br><br>
+            정말로 이동하시나요?
+        </p>
+        <div class="flex gap-3 justify-end">
+            <button onclick="unsavedCancel()" class="px-5 py-2.5 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-surface-gray transition-all">
+                취소
+            </button>
+            <button onclick="unsavedConfirm()" class="px-5 py-2.5 rounded-lg bg-error text-white font-label-md text-label-md hover:opacity-90 transition-all">
+                확인
+            </button>
+        </div>
+    </div>
+</div>
 </body></html>
