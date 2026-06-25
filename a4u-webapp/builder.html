@@ -159,7 +159,8 @@
 </div>
 <!-- Navigation buttons -->
 <div class="mt-12 flex justify-between items-center">
-<button class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
+<!-- [수정 2026-06-25] onclick 누락 수정 — DEMO 사용자는 서버가 demo_dashboard.html로 자동 리다이렉트 -->
+<button onclick="window.location.href='/dashboard.html'" class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
                     대시보드로 돌아가기
                 </button>
 <button class="px-8 py-3 rounded-lg bg-primary text-white font-label-md text-label-md shadow-sm hover:opacity-90 transition-all flex items-center gap-2">

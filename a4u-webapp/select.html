@@ -224,7 +224,8 @@
 <!-- [수정 2026-06-25] 이력서 저장 버튼 추가 — 기존에는 저장 버튼 없었음 (localStorage만 사용) -->
 <!-- Navigation buttons -->
 <div class="mt-12 flex justify-between items-center">
-<button onclick="window.location.href='/dashboard'" class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
+<!-- [수정 2026-06-25] /dashboard → /dashboard.html (경로 오류 수정, DEMO 사용자는 서버가 demo_dashboard.html로 자동 리다이렉트) -->
+<button onclick="window.location.href='/dashboard.html'" class="px-6 py-3 rounded-lg border border-border-subtle text-on-surface-variant font-label-md text-label-md hover:bg-white transition-all">
     대시보드로 돌아가기
 </button>
 <div class="flex gap-3">
@@ -659,7 +660,8 @@
             const data = await res.json();
             if (data.success) {
                 showToast('이력서가 저장되었습니다!', 'success');
-                setTimeout(() => { window.location.href = '/dashboard'; }, 1200);
+                // [수정 2026-06-25] /dashboard → /dashboard.html (경로 오류 수정)
+                setTimeout(() => { window.location.href = '/dashboard.html'; }, 1200);
             } else {
                 showToast(data.message || '저장 실패. 다시 시도해 주세요.', 'error');
             }
