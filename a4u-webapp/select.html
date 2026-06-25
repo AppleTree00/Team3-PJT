@@ -430,6 +430,7 @@
         const entries = (Array.isArray(experiences) && experiences.length > 0) ? experiences : [{}];
         list.innerHTML = entries.map(_makeExpCardHtml).join('');
         updateProgressBar();
+        syncExperiencePreview(); // [수정 2026-06-25] 카드 렌더 후 미리보기 동기화
     }
 
     function addExperienceCard() {
@@ -439,6 +440,7 @@
         tmp.innerHTML = _makeExpCardHtml({});
         list.appendChild(tmp.firstElementChild);
         updateProgressBar();
+        syncExperiencePreview(); // [수정 2026-06-25] 카드 추가 후 미리보기 동기화
     }
 
     function removeExperienceCard(btn) {
@@ -451,6 +453,7 @@
         }
         card.remove();
         updateProgressBar();
+        syncExperiencePreview(); // [수정 2026-06-25] 카드 삭제 후 미리보기 동기화
     }
     // ───────────────────────────────────────────────────────────────────
 
@@ -497,7 +500,38 @@
     // 실시간 진행률 갱신 — 입력 이벤트 전역 감지
     // [수정 2026-06-25] isDirty 마킹: 입력 시 미저장 상태로 전환
     let isDirty = false;
-    document.addEventListener('input', () => { isDirty = true; updateProgressBar(); });
+    // [수정 2026-06-25] 경력 카드 → 미리보기 실시간 동기화
+    function syncExperiencePreview() {
+        const preview = document.getElementById('previewExperience');
+        if (!preview) return;
+        const cards = document.querySelectorAll('#experience-list .exp-card');
+        const items = [];
+        cards.forEach(card => {
+            const inputs = card.querySelectorAll('input[type="text"], input[type="month"]');
+            const textarea = card.querySelector('textarea');
+            const title   = inputs[0] ? inputs[0].value.trim() : '';
+            const company = inputs[1] ? inputs[1].value.trim() : '';
+            const start   = inputs[2] ? inputs[2].value.trim() : '';
+            const end     = inputs[3] ? inputs[3].value.trim() : '';
+            const desc    = textarea  ? textarea.value.trim()  : '';
+            if (!title && !company) return;
+            const period = (start || end) ? `${start || ''}${end ? ' ~ ' + end : ''}` : '';
+            items.push(`<div class="mb-3">
+                <div class="font-semibold text-on-surface">${_escHtml(title)}</div>
+                <div class="text-xs text-outline">${_escHtml(company)}${period ? ' · ' + period : ''}</div>
+                ${desc ? `<div class="mt-1 text-xs whitespace-pre-line">${_escHtml(desc)}</div>` : ''}
+            </div>`);
+        });
+        if (items.length === 0) {
+            preview.innerHTML = '경력 사항을 입력하면 여기에 표시됩니다.';
+            preview.className = 'space-y-6 text-body-sm font-body-sm text-outline-variant';
+        } else {
+            preview.innerHTML = items.join('');
+            preview.className = 'space-y-1 text-body-sm font-body-sm text-on-surface';
+        }
+    }
+
+    document.addEventListener('input', () => { isDirty = true; updateProgressBar(); syncExperiencePreview(); });
     // ─────────────────────────────────────────────────────────────────
 
     // [수정 2026-06-25] 스킬 태그 추가 기능 — + 버튼 및 Enter 키 연결
