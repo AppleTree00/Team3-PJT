@@ -147,6 +147,11 @@ def login_page():
 def main_page():
     return render_template('main.html')
 
+@app.route('/dashboard')
+def dashboard_redirect():
+    # [수정 2026-06-25] .html 누락 URL 안전망 — 캐시된 페이지에서 /dashboard로 오는 경우 처리
+    return redirect('/dashboard.html')
+
 @app.route('/dashboard.html')
 def dashboard_page():
     return render_template('dashboard.html')
