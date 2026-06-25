@@ -27,8 +27,27 @@
 <button class="px-5 py-2 rounded-lg text-label-md font-label-md text-on-surface-variant hover:bg-white/50 transition-all">마일스톤</button>
 </div>
 </header>
-<!-- Timeline Container -->
-<div class="relative">
+<!-- [수정 2026-06-25] 일반사용자: 이력서 데이터 기반 동적 렌더링 / 데모: 샘플 하드코딩 유지 -->
+
+<!-- 빈 상태: 일반사용자 이력서 미등록 시 -->
+<div id="timeline-empty" class="hidden flex flex-col items-center justify-center py-24 text-center">
+    <span class="material-symbols-outlined text-6xl text-outline-variant mb-6">folder_open</span>
+    <h2 class="font-headline-md text-headline-md text-on-surface mb-3">등록된 이력서가 없습니다</h2>
+    <p class="font-body-md text-body-md text-on-surface-variant mb-8">커리어 타임라인을 보려면 이력서를 먼저 저장해 주세요.</p>
+    <a href="/select.html?new=true" class="px-8 py-3 bg-primary text-white rounded-xl font-label-md text-label-md shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined">add</span>
+        이력서 등록하러 가기
+    </a>
+</div>
+
+<!-- 일반사용자 동적 타임라인 -->
+<div id="timeline-general" class="hidden relative">
+    <div class="absolute left-4 sm:left-6 md:left-1/2 top-0 bottom-0 w-0.5 timeline-line transform md:-translate-x-1/2 opacity-20"></div>
+    <div id="timeline-general-items" class="space-y-12 relative"></div>
+</div>
+
+<!-- 데모 샘플 타임라인 (기본 표시, DEMO 모드에서만 유지) -->
+<div id="timeline-demo" class="relative">
 <!-- Continuous Timeline Line -->
 <div class="absolute left-4 sm:left-6 md:left-1/2 top-0 bottom-0 w-0.5 timeline-line transform md:-translate-x-1/2 opacity-20"></div>
 <div class="space-y-12 relative">
@@ -42,8 +61,10 @@
 <div class="relative flex flex-col md:flex-row-reverse items-center justify-between group"><div class="hidden md:block w-[45%] text-left pl-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300"><span class="inline-block px-3 py-1 rounded-full bg-error-container text-on-error-container text-label-sm font-label-sm">학업 성취</span></div><div class="absolute left-6 md:left-1/2 w-4 h-4 rounded-full bg-error border-4 border-white shadow-md transform md:-translate-x-1/2 z-10 transition-transform group-hover:scale-125"></div><div class="w-full md:w-[45%] pl-16 md:pl-0"><div class="glass-card border border-border-subtle rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"><div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 rounded-lg bg-error-container flex items-center justify-center p-2"><span class="material-symbols-outlined text-error text-3xl">school</span></div><div><h3 class="font-headline-md text-headline-md text-on-surface">전자계산학 학사</h3><p class="text-label-md font-label-md text-on-surface-variant">한국대학교</p></div></div><div class="flex items-center gap-2 text-on-surface-variant mb-4"><span class="material-symbols-outlined text-sm">calendar_month</span><span class="font-label-sm text-label-sm">1991년 — 1998년</span></div><p class="text-body-sm font-body-sm text-on-surface-variant leading-relaxed italic">컴퓨터 구조 및 알고리즘 전공. 군 복무 기간 포함.</p></div></div></div>
 </div>
 </div>
-<!-- Add Entry Button -->
-<div class="mt-16 flex justify-center">
+</div><!-- /timeline-demo -->
+
+<!-- Add Entry Button (DEMO only) -->
+<div id="add-entry-btn" class="mt-16 flex justify-center">
 <button class="flex items-center gap-2 px-8 py-3 bg-white border border-dashed border-primary text-primary rounded-xl font-label-md text-label-md hover:bg-primary/5 transition-colors active:scale-95 group btn-raise">
 <span class="material-symbols-outlined group-hover:rotate-90 transition-transform" data-icon="add">add</span>
             경력 항목 추가
@@ -112,6 +133,142 @@
     document.querySelectorAll('footer a[href="#"]').forEach(a => {
         a.addEventListener('click', e => { e.preventDefault(); handleUnavailableFeature(); });
     });
+
+    // ── [수정 2026-06-25] 모드별 타임라인 분기 ──────────────────────────
+    // DEMO → 샘플 하드코딩 그대로 유지
+    // GENERAL + 이력서 없음 → 빈 상태 안내
+    // GENERAL + 이력서 있음 → 저장 데이터 기반 동적 렌더링
+    (async function initTimeline() {
+        const demoEl   = document.getElementById('timeline-demo');
+        const emptyEl  = document.getElementById('timeline-empty');
+        const generalEl = document.getElementById('timeline-general');
+        const itemsEl  = document.getElementById('timeline-general-items');
+        const addBtn   = document.getElementById('add-entry-btn');
+
+        try {
+            const meRes  = await fetch('/api/auth/me', { credentials: 'same-origin' });
+            const meData = await meRes.json();
+            const mode   = meData.mode || 'GENERAL';
+
+            if (mode === 'DEMO') {
+                // 데모: 기존 하드코딩 샘플 그대로 표시
+                return;
+            }
+
+            // GENERAL / ADMIN: 샘플 타임라인 숨김
+            if (demoEl)  demoEl.classList.add('hidden');
+            if (addBtn)  addBtn.classList.add('hidden');
+
+            // 본인 이력서 조회
+            const resumeRes  = await fetch('/api/resumes', { credentials: 'same-origin' });
+            const resumeData = await resumeRes.json();
+            const resumes    = (resumeData.resumes || []).filter(r => !r.is_sample);
+
+            if (!resumes.length) {
+                // 이력서 없음 → 빈 상태
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                return;
+            }
+
+            // 이력서 있음 → 동적 렌더링
+            if (generalEl) generalEl.classList.remove('hidden');
+            const colors = ['primary', 'secondary', 'tertiary'];
+
+            resumes.forEach((resume, ri) => {
+                const exp = resume.experience || [];
+                const edu = resume.education  || [];
+
+                // 이력서 헤더
+                const header = document.createElement('div');
+                header.className = 'mb-6 pl-16 md:pl-0 md:text-center';
+                header.innerHTML = `<span class="inline-block px-4 py-1.5 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md">${resume.title || resume.full_name + '의 이력서'}</span>`;
+                itemsEl.appendChild(header);
+
+                // 경력 항목
+                exp.forEach((e, i) => {
+                    const color = colors[i % colors.length];
+                    const isEven = i % 2 === 0;
+                    const bulletHtml = (e.bullets || []).map(b =>
+                        `<li class="flex gap-3 text-body-sm font-body-sm text-on-surface-variant"><span class="text-${color}">•</span>${b}</li>`
+                    ).join('');
+                    const tag = e.end === '현재' || !e.end
+                        ? `<span class="inline-block px-3 py-1 rounded-full bg-success-mint text-secondary text-label-sm font-label-sm">현재 재직 중</span>`
+                        : `<span class="inline-block px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-label-sm font-label-sm">경력</span>`;
+                    const row = isEven ? 'md:flex-row' : 'md:flex-row-reverse';
+                    const side = isEven ? 'text-right pr-12' : 'text-left pl-12';
+                    const div = document.createElement('div');
+                    div.className = `relative flex flex-col ${row} items-center justify-between group`;
+                    div.innerHTML = `
+                        <div class="hidden md:block w-[45%] ${side} opacity-0 group-hover:opacity-100 transition-opacity duration-300">${tag}</div>
+                        <div class="absolute left-4 sm:left-6 md:left-1/2 w-4 h-4 rounded-full bg-${color} border-4 border-white shadow-md transform md:-translate-x-1/2 z-10 transition-transform group-hover:scale-125"></div>
+                        <div class="w-full md:w-[45%] pl-16 md:pl-0">
+                            <div class="glass-card border border-border-subtle rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center p-2">
+                                        <span class="material-symbols-outlined text-${color} text-3xl">work</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-headline-md text-headline-md text-on-surface">${e.position || '직책 미입력'}</h3>
+                                        <p class="text-label-md font-label-md text-${color}">${e.company || '회사명 미입력'}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 text-on-surface-variant mb-4">
+                                    <span class="material-symbols-outlined text-sm">calendar_month</span>
+                                    <span class="font-label-sm text-label-sm">${e.start || ''} — ${e.end || '현재'}</span>
+                                </div>
+                                ${bulletHtml ? `<ul class="space-y-2">${bulletHtml}</ul>` : ''}
+                            </div>
+                        </div>`;
+                    itemsEl.appendChild(div);
+                });
+
+                // 학력 항목
+                edu.forEach((e, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'relative flex flex-col md:flex-row items-center justify-between group';
+                    div.innerHTML = `
+                        <div class="hidden md:block w-[45%] text-right pr-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <span class="inline-block px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-label-sm font-label-sm">학력</span>
+                        </div>
+                        <div class="absolute left-4 sm:left-6 md:left-1/2 w-4 h-4 rounded-full bg-tertiary border-4 border-white shadow-md transform md:-translate-x-1/2 z-10 transition-transform group-hover:scale-125"></div>
+                        <div class="w-full md:w-[45%] pl-16 md:pl-0">
+                            <div class="glass-card border border-border-subtle rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <div class="w-12 h-12 rounded-lg bg-error-container flex items-center justify-center p-2">
+                                        <span class="material-symbols-outlined text-tertiary text-3xl">school</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-headline-md text-headline-md text-on-surface">${e.major || ''} ${e.degree || ''}</h3>
+                                        <p class="text-label-md font-label-md text-on-surface-variant">${e.school || ''}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 text-on-surface-variant">
+                                    <span class="material-symbols-outlined text-sm">calendar_month</span>
+                                    <span class="font-label-sm text-label-sm">${e.start || ''} — ${e.end || ''}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                    itemsEl.appendChild(div);
+                });
+
+                if (!exp.length && !edu.length) {
+                    const div = document.createElement('div');
+                    div.className = 'pl-16 py-6 text-on-surface-variant text-body-sm';
+                    div.textContent = '이력서에 경력/학력 정보를 추가하면 여기에 표시됩니다.';
+                    itemsEl.appendChild(div);
+                }
+            });
+
+            // 카드 hover 효과 재적용
+            itemsEl.querySelectorAll('.glass-card').forEach(card => {
+                card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-4px)');
+                card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+            });
+
+        } catch (e) {
+            console.warn('타임라인 초기화 실패:', e);
+        }
+    })();
 </script>
 
 
