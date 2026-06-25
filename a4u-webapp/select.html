@@ -96,6 +96,34 @@
 <div class="w-full flex flex-col md:flex-row">
 <!-- Form Side -->
 <div class="w-full md:w-1/2 p-margin-desktop overflow-y-auto md:max-h-[calc(100vh-120px)]">
+
+<!-- [수정 2026-06-25] 섹션 브레드크럼 + 진행률 바 -->
+<div id="section-stepper" class="mb-6 sticky top-0 bg-surface-gray z-10 pt-2 pb-4 -mx-6 px-6 border-b border-border-subtle/50">
+    <nav class="flex items-center mb-3" aria-label="이력서 작성 단계">
+        <button data-step="Personal Info" onclick="switchTab('Personal Info')" class="section-step flex items-center gap-2 group cursor-pointer">
+            <span class="step-num w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 bg-surface-container-high text-outline">1</span>
+            <span class="step-label hidden sm:block font-label-md text-label-md text-on-surface-variant transition-all duration-200">인적 사항</span>
+        </button>
+        <div class="step-line flex-1 min-w-[16px] max-w-[48px] h-0.5 bg-border-subtle mx-2 transition-all duration-300"></div>
+        <button data-step="Experience" onclick="switchTab('Experience')" class="section-step flex items-center gap-2 group cursor-pointer">
+            <span class="step-num w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 bg-surface-container-high text-outline">2</span>
+            <span class="step-label hidden sm:block font-label-md text-label-md text-on-surface-variant transition-all duration-200">경력 사항</span>
+        </button>
+        <div class="step-line flex-1 min-w-[16px] max-w-[48px] h-0.5 bg-border-subtle mx-2 transition-all duration-300"></div>
+        <button data-step="Skills" onclick="switchTab('Skills')" class="section-step flex items-center gap-2 group cursor-pointer">
+            <span class="step-num w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 bg-surface-container-high text-outline">3</span>
+            <span class="step-label hidden sm:block font-label-md text-label-md text-on-surface-variant transition-all duration-200">기술</span>
+        </button>
+    </nav>
+    <div class="flex items-center gap-3">
+        <div class="flex-1 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+            <div id="section-progress-bar" class="h-full rounded-full transition-all duration-500 bg-primary" style="width:0%"></div>
+        </div>
+        <span id="section-progress-text" class="text-label-sm font-label-sm text-on-surface-variant w-9 text-right tabular-nums">0%</span>
+    </div>
+</div>
+<!-- / 섹션 브레드크럼 + 진행률 바 -->
+
 <div class="form-section active" id="Personal Info">
 <div class="flex justify-between items-start mb-8">
 <h1 class="font-headline-lg text-headline-lg">인적 사항</h1>
@@ -329,36 +357,93 @@
 <!-- Footer -->
 {% include '_footer.html' %}
 <script>
-    function switchTab(tabId) {
-        // Update Navigation UI
-        const tabs = document.querySelectorAll('.nav-tab');
-        const tabMappings = {
-            'Personal Info': '인적 사항',
-            'Experience': '경력 사항',
-            'Education': '학력 사항',
-            'Skills': '보유 기술',
-            'Certifications': '자격증'
-        };
+    // ── [수정 2026-06-25] 브레드크럼 + 진행률 스테퍼 ───────────────────
+    const STEP_ORDER = ['Personal Info', 'Experience', 'Skills'];
+    let _activeStep = 'Personal Info';
 
-        tabs.forEach(tab => {
-            const label = tab.getAttribute('data-tab');
-            if (label === tabId) {
-                tab.classList.add('bg-primary-container', 'text-on-primary-container');
-                tab.classList.remove('text-on-surface-variant');
+    function calcSectionProgress(sectionId) {
+        if (sectionId === 'Personal Info') {
+            const ids = ['personalFullName', 'personalSummary', 'personalEmail', 'personalPhone'];
+            const filled = ids.filter(id => { const el = document.getElementById(id); return el && el.value.trim(); }).length;
+            return Math.round((filled / ids.length) * 100);
+        }
+        if (sectionId === 'Experience') {
+            const sec = document.getElementById('Experience');
+            if (!sec) return 0;
+            const cards = sec.querySelectorAll('.bg-white.rounded-xl');
+            if (!cards.length) return 0;
+            let filled = 0;
+            cards.forEach(card => {
+                const hasText = Array.from(card.querySelectorAll('input, textarea')).some(i => i.value.trim().length > 0);
+                if (hasText) filled++;
+            });
+            return Math.round((filled / cards.length) * 100);
+        }
+        if (sectionId === 'Skills') {
+            const tags = document.querySelectorAll('#skills-list [data-skill]');
+            const count = tags.length;
+            if (count >= 5) return 100;
+            return Math.round((count / 5) * 100);
+        }
+        return 0;
+    }
+
+    function updateStepper(activeSection) {
+        _activeStep = activeSection;
+        const activeIdx = STEP_ORDER.indexOf(activeSection);
+        document.querySelectorAll('.section-step').forEach(btn => {
+            const stepId = btn.getAttribute('data-step');
+            const idx = STEP_ORDER.indexOf(stepId);
+            const numEl = btn.querySelector('.step-num');
+            const labelEl = btn.querySelector('.step-label');
+            if (idx < activeIdx) {
+                numEl.className = 'step-num w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 bg-secondary text-white';
+                numEl.innerHTML = '<span class="material-symbols-outlined text-[15px]">check</span>';
+                if (labelEl) labelEl.className = 'step-label hidden sm:block font-label-md text-label-md text-secondary transition-all duration-200';
+            } else if (idx === activeIdx) {
+                numEl.className = 'step-num w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 bg-primary text-white shadow-sm';
+                numEl.textContent = String(idx + 1);
+                if (labelEl) labelEl.className = 'step-label hidden sm:block font-label-md text-label-md text-primary font-semibold transition-all duration-200';
             } else {
-                tab.classList.remove('bg-primary-container', 'text-on-primary-container');
-                tab.classList.add('text-on-surface-variant');
+                numEl.className = 'step-num w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold transition-all duration-200 bg-surface-container-high text-outline';
+                numEl.textContent = String(idx + 1);
+                if (labelEl) labelEl.className = 'step-label hidden sm:block font-label-md text-label-md text-on-surface-variant transition-all duration-200';
             }
         });
+        document.querySelectorAll('.step-line').forEach((line, i) => {
+            line.style.backgroundColor = i < activeIdx ? 'rgb(var(--md-sys-color-secondary, 0 106 97)/1)' : '';
+            line.classList.toggle('opacity-100', i < activeIdx);
+        });
+        updateProgressBar();
+    }
 
+    function updateProgressBar() {
+        const pct = calcSectionProgress(_activeStep);
+        const bar = document.getElementById('section-progress-bar');
+        const txt = document.getElementById('section-progress-text');
+        if (bar) {
+            bar.style.width = pct + '%';
+            bar.className = 'h-full rounded-full transition-all duration-500 ' + (pct >= 75 ? 'bg-secondary' : 'bg-primary');
+        }
+        if (txt) txt.textContent = pct + '%';
+    }
+
+    // 실시간 진행률 갱신 — 입력 이벤트 전역 감지
+    document.addEventListener('input', updateProgressBar);
+    // ─────────────────────────────────────────────────────────────────
+
+    function switchTab(tabId) {
         // Update Form Visibility
         const sections = document.querySelectorAll('.form-section');
         sections.forEach(section => {
             section.classList.remove('active');
-            if (section.id === tabId) {
-                section.classList.add('active');
-            }
+            if (section.id === tabId) section.classList.add('active');
         });
+        // [수정 2026-06-25] 스테퍼 동기화
+        updateStepper(tabId);
+        // 섹션 상단으로 스크롤 (모바일)
+        const stepperEl = document.getElementById('section-stepper');
+        if (stepperEl) stepperEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     // ── 모바일 미리보기 모달 열기/닫기 ─────────────────────────────────
@@ -728,6 +813,18 @@
 
     persistFormChanges();
     loadResumeState();
+
+    // [수정 2026-06-25] 다음 섹션 버튼 연결 + 스테퍼 초기화
+    const btnNextSection = document.getElementById('btnNextSection');
+    if (btnNextSection) {
+        btnNextSection.addEventListener('click', () => {
+            const idx = STEP_ORDER.indexOf(_activeStep);
+            if (idx < STEP_ORDER.length - 1) {
+                switchTab(STEP_ORDER[idx + 1]);
+            }
+        });
+    }
+    updateStepper('Personal Info');
 
     /* [수정 2026-06-25] DEMO 모드 샘플 데이터 주입 — GENERAL 사용자: 빈 폼, DEMO: 아래 데이터 채움 */
     (async function fillDemoDataIfNeeded() {
